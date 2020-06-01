@@ -18,7 +18,7 @@
   "dependencies": {
     "@augu/immutable": "0.2.2",
     "@augu/logging": "1.0.0",
-    "@augu/orchid": "1.0.3",
+    "@augu/orchid": "1.0.4",
     "fastify": "2.14.1",
     "form-data": "3.0.0",
     "mongodb": "3.5.7",
