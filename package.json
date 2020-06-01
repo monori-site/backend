@@ -16,7 +16,7 @@
     "lint": "eslint src --ext .ts --fix"
   },
   "dependencies": {
-    "@augu/immutable": "0.2.2",
+    "@augu/immutable": "0.2.3",
     "@augu/logging": "1.0.0",
     "@augu/orchid": "1.0.3",
     "fastify": "2.14.1",
