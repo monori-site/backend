@@ -20,6 +20,7 @@
     "@augu/logging": "1.0.0",
     "@augu/orchid": "1.0.4",
     "fastify": "2.14.1",
+    "fastify-plugin": "^1.6.1",
     "form-data": "3.0.0",
     "mongodb": "3.5.8",
     "react": "16.13.1",
