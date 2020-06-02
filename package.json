@@ -21,7 +21,7 @@
     "@augu/orchid": "1.0.4",
     "fastify": "2.14.1",
     "form-data": "3.0.0",
-    "mongodb": "3.5.7",
+    "mongodb": "3.5.8",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-redux": "7.2.0",
