@@ -1,4 +1,5 @@
 import { Logger, ConsoleTransport, FileTransport } from '@augu/logging';
+import ProjectRepo, { ProjectModel } from '../repository/ProjectRepository';
 import UserRepo, { UserModel } from '../repository/UserRepository';
 import { Repository, Website } from '..';
 import { MongoClient, Db } from 'mongodb';
@@ -47,6 +48,7 @@ export default class DatabaseManager extends EventEmitter {
 
     this.emit('online');
     this.repositories.set('users', new UserRepo(this.web));
+    this.repositories.set('projects', new ProjectRepo(this.web));
   }
 
   disconnect() {
@@ -62,6 +64,7 @@ export default class DatabaseManager extends EventEmitter {
   }
 
   getRepository(name: 'users'): Repository<UserModel>;
+  getRepository(name: 'projects'): Repository<ProjectModel>;
   getRepository(name: string) {
     return this.repositories.get(name);
   }

@@ -1,5 +1,5 @@
+import { Website, BaseRouter as Router, getRoutes } from '..';
 import { promises as fs, existsSync } from 'fs';
-import { Website, Router, getRoutes } from '..';
 import { Logger, ConsoleTransport } from '@augu/logging';
 import { Collection } from '@augu/immutable';
 import { join } from 'path';
@@ -49,14 +49,14 @@ export default class RoutingManager extends Collection<Router> {
 
       const all = getRoutes(instance);
       if (!all.length) {
-        this.logger.warn(`Router ${instance.path} doesn't include any routes.`);
+        this.logger.warn(`Router ${instance.route} doesn't include any routes.`);
         continue;
       }
 
-      instance.addRoutes(all);
-      this.set(instance.path, instance);
+      instance.register(all);
+      this.set(instance.route, instance);
 
-      this.logger.info(`Injected router ${instance.path} with ${all.length} routes!`);
+      this.logger.info(`Injected router ${instance.route} with ${all.length} routes!`);
     }
   }
 }
