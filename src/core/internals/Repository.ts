@@ -15,7 +15,7 @@ export default abstract class Repository<TModel = any> {
   }
 
   public abstract get(id: string): Promise<TModel>;
-  public abstract create(id: string): Promise<TModel>;
+  public abstract create(packet: any): Promise<TModel>;
   public abstract remove(id: string): Promise<void>;
-  public abstract update(type: 'set' | 'push', values: { [x: string]: any }): Promise<number>;
+  public abstract update(type: 'set' | 'push', userID: string, values: { [x: string]: any }): Promise<void>;
 }

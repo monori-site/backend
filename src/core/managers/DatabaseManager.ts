@@ -1,9 +1,9 @@
 import { Logger, ConsoleTransport, FileTransport } from '@augu/logging';
+import UserRepo, { UserModel } from '../repository/UserRepository';
+import { Repository, Website } from '..';
 import { MongoClient, Db } from 'mongodb';
-import UserRepo, { User } from '../repository/UserRepository';
 import { EventEmitter } from 'events';
 import { Collection } from '@augu/immutable';
-import Repository from '../internals/Repository';
 
 enum ConnectionStatus {
   Online = 'online',
@@ -17,20 +17,22 @@ export default class DatabaseManager extends EventEmitter {
   public client: MongoClient;
   public logger: Logger;
   public mongo!: Db;
+  public url: string;
 
-  constructor(public url: string) {
+  constructor(private web: Website) {
     super();
 
     this.repositories = new Collection();
     this.connection = ConnectionStatus.Offline;
     this.bootedAt = Date.now();
-    this.client = new MongoClient(url, {
+    this.client = new MongoClient(web.config.databaseUrl, {
       useUnifiedTopology: true,
       useNewUrlParser: true
     });
     this.logger = new Logger('Database', {
       transports: [new ConsoleTransport(), new FileTransport('./logs/database.log')]
     });
+    this.url = web.config.databaseUrl;
   }
 
   async connect() {
@@ -44,7 +46,7 @@ export default class DatabaseManager extends EventEmitter {
     this.connection = ConnectionStatus.Online;
 
     this.emit('online');
-    this.repositories.set('users', new UserRepo());
+    this.repositories.set('users', new UserRepo(this.web));
   }
 
   disconnect() {
@@ -59,7 +61,7 @@ export default class DatabaseManager extends EventEmitter {
     this.repositories.clear();
   }
 
-  getRepository(name: 'users'): Repository<User>;
+  getRepository(name: 'users'): Repository<UserModel>;
   getRepository(name: string) {
     return this.repositories.get(name);
   }
