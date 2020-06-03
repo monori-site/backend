@@ -1,6 +1,8 @@
-import { Website, BaseRouter as Router, getRoutes } from '..';
+import { Website, BaseRouter as Router, getRoutes, RouteDefinition } from '..';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { promises as fs, existsSync } from 'fs';
 import { Logger, ConsoleTransport } from '@augu/logging';
+import type { ServerResponse } from 'http';
 import { Collection } from '@augu/immutable';
 import { join } from 'path';
 
@@ -56,7 +58,33 @@ export default class RoutingManager extends Collection<Router> {
       instance.register(all);
       this.set(instance.route, instance);
 
+      for (const route of all) this.onRequest(route);
+
       this.logger.info(`Injected router ${instance.route} with ${all.length} routes!`);
+    }
+  }
+
+  private onRequest(route: RouteDefinition) {
+    this.logger.info(`Added route ${route.path} to Fastify`);
+    this.website.server[route.method.toLowerCase()](route.path, async (req: FastifyRequest, res: FastifyReply<ServerResponse>) => {
+      try {
+        this._onRequest(route, req, res);
+      } catch(ex) {
+        this.logger.fatal(`Unable to process request to "${req.raw.method?.toUpperCase()} ${req.raw.url}"`, ex);
+        res.render('pages/Error', {
+          message: ex.message,
+          code: 500
+        });
+      }
+    });
+  }
+
+  private async _onRequest(route: RouteDefinition, req: FastifyRequest, res: FastifyReply<ServerResponse>) {
+    if (this.website.analytics.enabled) this.website.analytics.requests++;
+    if (route.hasOwnProperty('requirements')) {
+      if (route.requirements!.hasOwnProperty('authenicate')) {
+        if (req.session)
+      }
     }
   }
 }

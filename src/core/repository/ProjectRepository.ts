@@ -1,10 +1,16 @@
 import { Repository, Website } from '..';
 
 export interface ProjectModel {
+  organisation: string;
   translators: string[];
+  repository?: string;
   languages: string[];
-  strings: number;
   name: string;
+}
+
+interface CreateProject {
+  name: string;
+  org: string;
 }
 
 export default class ProjectRepository extends Repository<ProjectModel> {
@@ -12,16 +18,16 @@ export default class ProjectRepository extends Repository<ProjectModel> {
     super(website, 'projects');
   }
 
-  async get(name: string) {
-    const model = await this.collection.findOne({ name });
-    return model === null ? await this.create(name) : model!;
+  async get(org: string, name: string) {
+    const model = await this.collection.findOne({ name, organisation: org });
+    return model === null ? await this.create({ name, org }) : model!;
   }
 
-  async create(packet: any) {
+  async create(packet: CreateProject) {
     const project: ProjectModel = {
+      organisation: packet.org,
       translators: [],
       languages: [],
-      strings: 0,
       name: packet.name
     };
 
@@ -52,15 +58,15 @@ export default class ProjectRepository extends Repository<ProjectModel> {
     });
   }
 
-  async setStrings(project: string, strings: number) {
-    await this.update('set', project, {
-      strings
-    });
-  }
-
   async rename(project: string, name: string) {
     await this.update('set', project, {
       name
+    });
+  }
+
+  async setRepository(project: string, repoUrl: string) {
+    await this.update('set', project, {
+      repository: repoUrl
     });
   }
 }

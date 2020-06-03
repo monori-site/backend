@@ -6,6 +6,7 @@ export interface UserModel {
     discriminator: string;
     avatarUrl: string;
   };
+  organisations: string[];
   contributor: boolean;
   translator: boolean;
   userID: string;
@@ -29,6 +30,7 @@ export default class UserRepository extends Repository<UserModel> {
         username: pkt.discord.username,
         avatarUrl: pkt.discord.avatarUrl
       },
+      organisations: [],
       contributor: false,
       translator: false,
       userID: pkt.userID,

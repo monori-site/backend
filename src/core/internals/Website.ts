@@ -1,15 +1,13 @@
 import { Logger, ConsoleTransport, FileTransport } from '@augu/logging';
+import fastify, { FastifyInstance as Fastify } from 'fastify';
 import { HttpClient, middleware } from '@augu/orchid';
 import AnalyticsManager from '../managers/AnalyticsManager';
 import RoutingManager from '../managers/RoutingManager';
 import Database from '../managers/DatabaseManager';
+import session from 'fastify-session';
+import cookie from 'fastify-cookie';
 import React from '../../middleware/renderReact';
-
-import fastify, {
-  FastifyReply as Response,
-  FastifyRequest as Request,
-  FastifyInstance as Fastify
-} from 'fastify';
+import Redis from 'ioredis';
 
 export interface Configuration {
   /** MongoDB URI */
@@ -18,8 +16,20 @@ export interface Configuration {
   /** If we should do analytics (requests and such) */
   analytics: boolean;
 
+  /** The secret to use */
+  secret: string;
+
+  /** Configuration for Redis */
+  redis: RedisServerConfig;
+
   /** The port to the server */
   port: number;
+}
+
+interface RedisServerConfig {
+  host: string;
+  port: number;
+  db?: number;
 }
 
 export default class Website {
@@ -30,6 +40,7 @@ export default class Website {
   private logger: Logger;
   public config: Configuration;
   public server: Fastify;
+  public redis: Redis.Redis;
   public http: HttpClient;
 
   constructor(config: Configuration) {
@@ -42,6 +53,7 @@ export default class Website {
     });
     this.config = config;
     this.server = fastify();
+    this.redis = new Redis(config.redis);
     this.http = new HttpClient();
 
     this
@@ -52,6 +64,34 @@ export default class Website {
 
   private addMiddleware() {
     this.server.register(React);
+    this.server.register(cookie);
+    this.server.register(session, {
+      secret: this.config.secret,
+      cookie: {
+        maxAge: 604800000
+      },
+      store: {
+        destroy: (id, callback) => {
+          this.redis.del(`session:${id}`);
+          callback();
+        },
+        set: (id, session, callback) => {
+          this.redis.set(`session:${id}`, JSON.stringify(session));
+          callback();
+        },
+        get: async (id, callback) => {
+          try {
+            const data = await this.redis.get(`session:${id}`);
+            if (data === null) callback(new Error(`Unable to find session ${id}`));
+
+            callback(undefined, JSON.parse(data!));
+          } catch {
+            callback();
+          }
+        }
+      }
+    });
+
     this.server.addContentTypeParser('application/json', { parseAs: 'buffer' }, (_, body, next) => {
       try {
         const data = JSON.parse(body.toString());
@@ -74,7 +114,7 @@ export default class Website {
     this.server.setNotFoundHandler((request, reply) => {
       this.logger.warn(`Route "${request.raw.method?.toUpperCase()} ${request.req.url}" was not found`);
       reply.render('pages/NotFound', {
-        route: request.req.url ?? 'https://i18n.augu.dev'
+        route: request.req.url || 'https://i18n.augu.dev'
       });
     });
 
@@ -103,5 +143,13 @@ export default class Website {
     this.server.listen(this.config.port, (error, address) =>
       error ? this.logger.fatal('Unable to connect to the server', error) : this.logger.info(`Now listening at ${address}.`)
     );
+  }
+
+  dispose() {
+    this.logger.warn('Disposing connection...');
+
+    this.server.close();
+    this.database.disconnect();
+    this.redis.disconnect();
   }
 }

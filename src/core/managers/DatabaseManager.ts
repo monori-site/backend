@@ -1,4 +1,5 @@
 import { Logger, ConsoleTransport, FileTransport } from '@augu/logging';
+import OrganisationRepo, { OrganisationModel } from '../repository/OrganisationRepository';
 import ProjectRepo, { ProjectModel } from '../repository/ProjectRepository';
 import UserRepo, { UserModel } from '../repository/UserRepository';
 import { Repository, Website } from '..';
@@ -49,6 +50,7 @@ export default class DatabaseManager extends EventEmitter {
     this.emit('online');
     this.repositories.set('users', new UserRepo(this.web));
     this.repositories.set('projects', new ProjectRepo(this.web));
+    this.repositories.set('orginsations', new OrganisationRepo(this.web));
   }
 
   disconnect() {
@@ -65,6 +67,7 @@ export default class DatabaseManager extends EventEmitter {
 
   getRepository(name: 'users'): Repository<UserModel>;
   getRepository(name: 'projects'): Repository<ProjectModel>;
+  getRepository(name: 'organisations'): Repository<OrganisationModel>;
   getRepository(name: string) {
     return this.repositories.get(name);
   }
@@ -73,5 +76,9 @@ export default class DatabaseManager extends EventEmitter {
   once(event: 'offline', listener: (elapsed: number) => void): this;
   once(event: string, listener: (...args: any[]) => void) {
     return super.once(event, listener);
+  }
+
+  getCollection<C>(name: string) {
+    return this.mongo.collection<C>(name);
   }
 }
