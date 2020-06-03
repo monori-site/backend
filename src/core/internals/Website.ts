@@ -80,7 +80,7 @@ export default class Website {
         },
         create: async (session) => {
           try {
-            await this.redis.set(`session:${session.sessionID}`, session.toJSON());
+            await this.redis.set(`session:${session.sessionID}`, JSON.stringify(session.toJSON()));
           } catch {
             return;
           }
