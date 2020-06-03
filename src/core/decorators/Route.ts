@@ -1,6 +1,6 @@
 // Decorator utilities for @Route, which defines a Route for it's base Router
 import { FastifyRequest as Request, FastifyReply as Response } from 'fastify';
-import type { Website, RouteMethod } from '..';
+import type { Website, Method as RouteMethod } from '..';
 import type { ServerResponse } from 'http';
 
 const SYMBOL = Symbol('$routes');

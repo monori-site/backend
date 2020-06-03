@@ -4,7 +4,7 @@ import { HttpClient, middleware } from '@augu/orchid';
 import AnalyticsManager from '../managers/AnalyticsManager';
 import RoutingManager from '../managers/RoutingManager';
 import Database from '../managers/DatabaseManager';
-import session from 'fastify-session';
+import session from '../../middleware/session/mod';
 import cookie from 'fastify-cookie';
 import React from '../../middleware/renderReact';
 import Redis from 'ioredis';
@@ -67,26 +67,32 @@ export default class Website {
     this.server.register(cookie);
     this.server.register(session, {
       secret: this.config.secret,
-      cookie: {
-        maxAge: 604800000
-      },
       store: {
-        destroy: (id, callback) => {
-          this.redis.del(`session:${id}`);
-          callback();
-        },
-        set: (id, session, callback) => {
-          this.redis.set(`session:${id}`, JSON.stringify(session));
-          callback();
-        },
-        get: async (id, callback) => {
+        delete: async (sessionID) => {
           try {
-            const data = await this.redis.get(`session:${id}`);
-            if (data === null) callback(new Error(`Unable to find session ${id}`));
+            const packet = await this.redis.get(`session:${sessionID}`);
+            if (packet === null) return;
 
-            callback(undefined, JSON.parse(data!));
+            await this.redis.del(`session:${sessionID}`);
           } catch {
-            callback();
+            return;
+          }
+        },
+        create: async (session) => {
+          try {
+            await this.redis.set(`session:${session.sessionID}`, session.toJSON());
+          } catch {
+            return;
+          }
+        },
+        get: async (sessionID, callback) => {
+          try {
+            const packet = await this.redis.get(`session:${sessionID}`);
+            if (packet === null) callback(new Error('Unable to find session'));
+
+            callback(null, JSON.parse(packet!));
+          } catch(ex) {
+            callback(ex);
           }
         }
       }

@@ -83,7 +83,7 @@ export default class RoutingManager extends Collection<Router> {
     if (this.website.analytics.enabled) this.website.analytics.requests++;
     if (route.hasOwnProperty('requirements')) {
       if (route.requirements!.hasOwnProperty('authenicate')) {
-        if (req.session)
+        if (!req.hasOwnProperty('session')) res.redirect('/login');
       }
     }
   }

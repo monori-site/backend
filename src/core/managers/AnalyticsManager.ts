@@ -9,11 +9,11 @@ export default class AnalyticsManager {
     this.website = website;
   }
 
-  get requestsPerMinute() {
+  getRequestsPerMinute() {
     return (this.requests / (this.website.bootedAt / (1000 * 60))).toFixed();
   }
 
-  get requestsPerHour() {
+  getRequestsPerHour() {
     return (this.requests / (this.website.bootedAt / (1000 * 60 * 60))).toFixed();
   }
 
