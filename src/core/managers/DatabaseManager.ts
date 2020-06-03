@@ -68,4 +68,10 @@ export default class DatabaseManager extends EventEmitter {
   getRepository(name: string) {
     return this.repositories.get(name);
   }
+
+  once(event: 'online', listener: () => void): this;
+  once(event: 'offline', listener: (elapsed: number) => void): this;
+  once(event: string, listener: (...args: any[]) => void) {
+    return super.once(event, listener);
+  }
 }

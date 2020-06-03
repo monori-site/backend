@@ -14,14 +14,19 @@ const logger = new Logger('React Engine', { transports: [new ConsoleTransport()]
 function factory(server: FastifyInstance, _: any, next: ((error?: FastifyError) => void)) {
   server.decorateReply('render', function (this: Response<ServerResponse>, path: string, props?: Record<string, unknown>) {
     logger.info(`Now rendering page ${path}...`);
-    
-    const filepath = join(process.cwd(), 'site', path);
+
+    const allPaths = path.split('/');
+    let endPath = allPaths[allPaths.length - 1];
+
+    if (!endPath.endsWith('.jsx')) endPath += '.jsx';
+
+    const filepath = join(process.cwd(), 'site', ...allPaths);
     let initial = '<!DOCTYPE html>';
     const component = require(filepath);
 
     initial += DOMServer.renderToStaticMarkup(React.createElement(component, props));
     this
-      .type('text/html; charset=utf8')
+      .type('text/html')
       .send(initial);
   });
 
