@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@augu/eslint-config": "1.6.0",
-    "@types/cookie-signature": "^1.0.3",
+    "@types/cookie-signature": "1.0.3",
     "@types/ioredis": "4.16.3",
     "@types/mongodb": "3.5.20",
     "@types/node": "14.0.9",
