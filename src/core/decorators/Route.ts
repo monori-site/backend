@@ -1,6 +1,6 @@
 // Decorator utilities for @Route, which defines a Route for it's base Router
 import { FastifyRequest as Request, FastifyReply as Response } from 'fastify';
-import type { Website, Method as RouteMethod } from '..';
+import type { BaseRouter, Method as RouteMethod } from '..';
 import type { ServerResponse } from 'http';
 
 const SYMBOL = Symbol('$routes');
@@ -13,7 +13,7 @@ export interface RouteDefinition {
    * @param res The response object from Fastify
    * @returns A promise of nothing
    */
-  run(this: Website, req: Request, res: Response<ServerResponse>): Promise<void>;
+  run(this: BaseRouter, req: Request, res: Response<ServerResponse>): Promise<void>;
 
   /** Any specific requirements to use */
   requirements?: RouteRequirements;

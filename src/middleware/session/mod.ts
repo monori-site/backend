@@ -24,6 +24,9 @@ function factory(server: FastifyInstance, options: {
   store: Store;
   path?: string;
 }, next: (error?: FastifyError) => void) {
+  server.decorateRequest('destroySession', function onDestroy(this: FastifyRequest, sessionID: string) {
+    return destroyConnection.apply(this, [options.store, sessionID]);
+  });
   server.decorateRequest('session', null);
   server.addHook('preValidation', onPreValidation(options));
   server.addHook('onSend', onSend(options));
@@ -84,13 +87,19 @@ function createSession(request: FastifyRequest, secret: string, store: Store, do
   done();
 }
 
-function getRequestProto(request: FastifyRequest) {
-  return request.headers['x-forwarded-proto'] || 'http';
+function destroyConnection(this: FastifyRequest, store: Store, sessionID: string) {
+  store.get(sessionID, (error, packet) => {
+    if (error) {
+      website.log('fatal', `Unable to find session by ${sessionID} (source: fastify-i18n-session)`);
+      return;
+    }
+
+    store.delete(packet!.encryptedSessionID);
+  });
 }
 
-function isSecure(request: FastifyRequest) {
-  if (isEncrypted(request)) return true;
-  return getRequestProto(request) === 'https';
+function getRequestProto(request: FastifyRequest) {
+  return request.headers['x-forwarded-proto'] || 'http';
 }
 
 function isEncrypted(request: FastifyRequest) {

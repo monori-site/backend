@@ -14,6 +14,7 @@ declare module 'fastify' {
     Headers = fastify.DefaultHeaders,
     Body = any
   > {
+    destroySession(sessionID: string): void;
     session: CurrentSession | null;
   }
 }

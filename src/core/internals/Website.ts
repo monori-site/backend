@@ -158,4 +158,8 @@ export default class Website {
     this.database.disconnect();
     this.redis.disconnect();
   }
+
+  log(type: 'fatal' | 'error' | 'debug' | 'warn' | 'info', ...messages: any[]) {
+    this.logger[type](...messages);
+  }
 }

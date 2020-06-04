@@ -58,17 +58,17 @@ export default class RoutingManager extends Collection<Router> {
       instance.register(all);
       this.set(instance.route, instance);
 
-      for (const route of all) this.onRequest(route);
+      for (const route of all) this.onRequest(instance, route);
 
       this.logger.info(`Injected router ${instance.route} with ${all.length} routes!`);
     }
   }
 
-  private onRequest(route: RouteDefinition) {
+  private onRequest(router: Router, route: RouteDefinition) {
     this.logger.info(`Added route ${route.path} to Fastify`);
     this.website.server[route.method.toLowerCase()](route.path, async (req: FastifyRequest, res: FastifyReply<ServerResponse>) => {
       try {
-        this._onRequest(route, req, res);
+        this._onRequest(route, req, res, router);
       } catch(ex) {
         this.logger.fatal(`Unable to process request to "${req.raw.method?.toUpperCase()} ${req.raw.url}"`, ex);
         res.render('pages/Error', {
@@ -79,12 +79,44 @@ export default class RoutingManager extends Collection<Router> {
     });
   }
 
-  private async _onRequest(route: RouteDefinition, req: FastifyRequest, res: FastifyReply<ServerResponse>) {
+  private async _onRequest(route: RouteDefinition, req: FastifyRequest, res: FastifyReply<ServerResponse>, router: Router) {
     if (this.website.analytics.enabled) this.website.analytics.requests++;
     if (route.hasOwnProperty('requirements')) {
       if (route.requirements!.hasOwnProperty('authenicate')) {
         if (!req.hasOwnProperty('session')) res.redirect('/login');
+        if (req.session!.isExpired()) {
+          req.destroySession(req.session!.encryptedSessionID);
+          return res.redirect('/login');
+        }
       }
+
+      if (route.requirements!.hasOwnProperty('admin')) {
+        if (!req.hasOwnProperty('session')) res.redirect('/login');
+        if (req.session!.isExpired()) {
+          req.destroySession(req.session!.encryptedSessionID);
+          return res.redirect('/login');
+        }
+
+        const users = this.website.database.getRepository('users');
+        const doc = await users.get(req.session!.username);
+        if (doc === null) {
+          this.website.log('fatal', `Unable to find user "${req.session!.username}" in the database?`);
+          req.destroySession(req.session!.encryptedSessionID);
+          return res.redirect('/');
+        } else {
+          if (!doc.admin) return res.redirect('/');
+        }
+      }
+    }
+
+    try {
+      await route.run.apply(router, [req, res]);
+    } catch (ex) {
+      this.website.log('fatal', `Unable to process request to "${req.raw.method?.toUpperCase()} ${req.raw.url}"`, ex);
+      return res.render('pages/Error', {
+        message: ex.message,
+        code: 500
+      });
     }
   }
 }
