@@ -3,20 +3,20 @@ import { sign } from 'cookie-signature';
 
 export default class Session {
   public encryptedSessionID!: string;
+  public avatarUrl!: string;
   public sessionID: string;
-  public username: string;
+  public username!: string;
   public expires: Date;
 
-  constructor(username: string | null, secret: string, prev?: Session) {
+  constructor(secret: string, prev?: Session) {
     this.sessionID = randomBytes(4).toString('hex');
-    this.username = username || '';
     this.expires = new Date(Date.now() + 604800000);
 
     if (prev) this.handlePreviousSession(prev);
     this.sign(secret);
   }
 
-  handlePreviousSession(session: Session) {
+  private handlePreviousSession(session: Session) {
     for (const key of Object.keys(session)) {
       if (!['expires'].includes(key)) this[key] = session[key];
     }
@@ -26,7 +26,7 @@ export default class Session {
     return this.expires.getTime() <= Date.now();
   }
 
-  sign(secret: string) {
+  private sign(secret: string) {
     return sign(this.sessionID, secret);
   }
 
@@ -36,5 +36,10 @@ export default class Session {
       username: this.username,
       expires: this.expires.toISOString()
     };
+  }
+
+  set(key: keyof this, value: any) {
+    this[key] = value;
+    return this;
   }
 }

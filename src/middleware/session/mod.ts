@@ -56,7 +56,7 @@ function onPreValidation({ path, store, secret }: { store: Store, secret: string
               return store.delete(session.sessionID);
             }
 
-            req.session = new Session(null, secret, session);
+            req.session = new Session(secret, session);
             next();
           }
         });
@@ -73,14 +73,14 @@ function onSend({ store, secret }: {
     const current = req.session;
     if (!current || !current.sessionID || !saveSession(req)) return next();
 
-    store.create(new Session(null, secret));
+    store.create(new Session(secret));
     reply.setCookie('current-session', current.encryptedSessionID);
     return next();
   };
 }
 
 function createSession(request: FastifyRequest, secret: string, store: Store, done: (error?: FastifyError) => void) {
-  const session = new Session(null, secret);
+  const session = new Session(secret);
   store.create(session);
 
   request.session = session;
