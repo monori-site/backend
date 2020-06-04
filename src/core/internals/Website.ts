@@ -13,8 +13,17 @@ export interface Configuration {
   /** MongoDB URI */
   databaseUrl: string;
 
+  /** The environment of the application */
+  environment: 'development' | 'production';
+
   /** If we should do analytics (requests and such) */
   analytics: boolean;
+
+  /** Configuration for GitHub OAuth2 */
+  discord: DiscordConfig;
+
+  /** Configuration for GitHub OAuth2 */
+  github: GitHubConfig;
 
   /** The secret to use */
   secret: string;
@@ -30,6 +39,20 @@ interface RedisServerConfig {
   host: string;
   port: number;
   db?: number;
+}
+
+interface DiscordConfig {
+  callbackUrls: { [x in 'development' | 'production']: string }
+  clientSecret: string;
+  clientID: string;
+  scopes: string[];
+}
+
+interface GitHubConfig {
+  callbackUrls: { [x in 'development' | 'production']: string }
+  clientSecret: string;
+  clientID: string;
+  appUrl: string;
 }
 
 export default class Website {
