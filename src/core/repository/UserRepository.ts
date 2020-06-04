@@ -1,11 +1,12 @@
-import { Repository, Website } from '..';
+import type Website from '../internals/Website';
+import Repository from '../internals/Repository';
 
 export interface UserModel {
   discord: {
     username: string;
     discriminator: string;
     avatarUrl: string;
-  };
+  } | null;
   organisations: string[];
   contributor: boolean;
   translator: boolean;
@@ -25,15 +26,11 @@ export default class UserRepository extends Repository<UserModel> {
 
   async create(pkt: any) {
     const user: UserModel = {
-      discord: {
-        discriminator: pkt.discord.discriminator,
-        username: pkt.discord.username,
-        avatarUrl: pkt.discord.avatarUrl
-      },
+      discord: null,
       organisations: [],
       contributor: false,
       translator: false,
-      userID: pkt.userID,
+      userID: pkt,
       admin: false
     };
 

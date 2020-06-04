@@ -69,7 +69,7 @@ export default class Website {
   constructor(config: Configuration) {
     this.analytics = new AnalyticsManager(this);
     this.bootedAt = Date.now();
-    this.database = new Database(this);
+    this.database = new Database(this, config.databaseUrl);
     this.routing = new RoutingManager(this);
     this.logger = new Logger('Website', {
       transports: [new ConsoleTransport(), new FileTransport('./logs/website.log')]
@@ -142,8 +142,9 @@ export default class Website {
 
     this.server.setNotFoundHandler((request, reply) => {
       this.logger.warn(`Route "${request.raw.method?.toUpperCase()} ${request.req.url}" was not found`);
-      reply.render('pages/NotFound', {
-        route: request.req.url || 'https://i18n.augu.dev'
+      reply.render('pages/Error', {
+        message: `Route ${request.raw.url} was not found.`,
+        code: 500
       });
     });
 

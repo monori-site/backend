@@ -11,7 +11,7 @@
     "compile": "tsc",
     "build": "yarn lint && yarn clean && yarn compile && yarn move",
     "clean": "rm -fr build",
-    "move": "cp src/config.json build/json",
+    "move": "cp src/config.json build/config.json",
     "sass": "sass public/scss:public/css --no-source-maps",
     "lint": "eslint src --ext .ts --fix"
   },

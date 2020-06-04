@@ -21,20 +21,21 @@ export default class DatabaseManager extends EventEmitter {
   public mongo!: Db;
   public url: string;
 
-  constructor(private web: Website) {
+  // This seems fucked but trust me, this works...
+  constructor(private web: Website, url: string) {
     super();
 
     this.repositories = new Collection();
     this.connection = ConnectionStatus.Offline;
     this.bootedAt = Date.now();
-    this.client = new MongoClient(web.config.databaseUrl, {
+    this.client = new MongoClient(url, {
       useUnifiedTopology: true,
       useNewUrlParser: true
     });
     this.logger = new Logger('Database', {
       transports: [new ConsoleTransport(), new FileTransport('./logs/database.log')]
     });
-    this.url = web.config.databaseUrl;
+    this.url = url;
   }
 
   async connect() {
@@ -43,7 +44,7 @@ export default class DatabaseManager extends EventEmitter {
       return;
     }
 
-    this.logger.info(`Connected to MongoDB with URI: ${this.url}`);
+    await this.client.connect();
     this.mongo = this.client.db('i18n');
     this.connection = ConnectionStatus.Online;
 
@@ -59,10 +60,9 @@ export default class DatabaseManager extends EventEmitter {
       return;
     }
 
-    this.logger.warn('Disconnected from MongoDB');
     this.emit('offline', Date.now() - this.bootedAt);
-
     this.repositories.clear();
+    this.client.close();
   }
 
   getRepository(name: 'users'): Repository<UserModel>;

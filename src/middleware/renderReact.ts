@@ -15,18 +15,15 @@ function factory(server: FastifyInstance, _: any, next: ((error?: FastifyError) 
   server.decorateReply('render', function (this: Response<ServerResponse>, path: string, props?: Record<string, unknown>) {
     logger.info(`Now rendering page ${path}...`);
 
-    const allPaths = path.split('/');
-    let endPath = allPaths[allPaths.length - 1];
-
-    if (!endPath.endsWith('.jsx')) endPath += '.jsx';
-
-    const filepath = join(process.cwd(), 'site', ...allPaths);
+    if (!path.endsWith('.jsx')) path += '.js';
+    
+    const filepath = join(process.cwd(), 'site', path);
     let initial = '<!DOCTYPE html>';
     const component = require(filepath);
 
-    initial += DOMServer.renderToStaticMarkup(React.createElement(component, props));
+    initial += DOMServer.renderToStaticMarkup(React.createElement(component.default, props));
     this
-      .type('text/html')
+      .type('text/html;charset=utf-8')
       .send(initial);
   });
 

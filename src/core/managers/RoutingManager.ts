@@ -51,16 +51,16 @@ export default class RoutingManager extends Collection<Router> {
 
       const all = getRoutes(instance);
       if (!all.length) {
-        this.logger.warn(`Router ${instance.route} doesn't include any routes.`);
+        this.logger.warn(`Router ${instance.prefix} doesn't include any routes.`);
         continue;
       }
 
       instance.register(all);
-      this.set(instance.route, instance);
+      this.set(instance.prefix, instance);
 
       for (const route of all) this.onRequest(instance, route);
 
-      this.logger.info(`Injected router ${instance.route} with ${all.length} routes!`);
+      this.logger.info(`Injected router ${instance.prefix} with ${all.length} routes!`);
     }
   }
 
@@ -81,7 +81,7 @@ export default class RoutingManager extends Collection<Router> {
 
   private async _onRequest(route: RouteDefinition, req: FastifyRequest, res: FastifyReply<ServerResponse>, router: Router) {
     if (this.website.analytics.enabled) this.website.analytics.requests++;
-    if (route.hasOwnProperty('requirements')) {
+    if (route.requirements) {
       if (route.requirements!.hasOwnProperty('authenicate')) {
         if (!req.hasOwnProperty('session')) res.redirect('/login');
         if (req.session!.isExpired()) {

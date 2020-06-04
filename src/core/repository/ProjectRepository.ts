@@ -1,4 +1,5 @@
-import { Repository, Website } from '..';
+import type Website from '../internals/Website';
+import Repository from '../internals/Repository';
 
 export interface ProjectModel {
   organisation: string;
