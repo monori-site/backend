@@ -81,32 +81,23 @@ export default class RoutingManager extends Collection<Router> {
 
   private async _onRequest(route: RouteDefinition, req: FastifyRequest, res: FastifyReply<ServerResponse>, router: Router) {
     if (this.website.analytics.enabled) this.website.analytics.requests++;
-    if (route.requirements) {
-      if (route.requirements!.hasOwnProperty('authenicate')) {
-        if (!req.hasOwnProperty('session')) res.redirect('/login');
-        if (req.session!.isExpired()) {
-          req.destroySession(req.session!.encryptedSessionID);
-          return res.redirect('/login');
-        }
+    if (route.requirements.hasOwnProperty('authenicate')) {
+      if (!req.hasOwnProperty('session')) res.redirect('/login');
+      if (req.session!.isExpired()) {
+        req.destroySession(req.session!.encryptedSessionID);
+        return res.redirect('/login');
+      }
+    }
+
+    if (route.requirements.hasOwnProperty('admin')) {
+      if (!req.hasOwnProperty('session')) res.redirect('/login');
+      if (req.session!.isExpired()) {
+        req.destroySession(req.session!.encryptedSessionID);
+        return res.redirect('/login');
       }
 
-      if (route.requirements!.hasOwnProperty('admin')) {
-        if (!req.hasOwnProperty('session')) res.redirect('/login');
-        if (req.session!.isExpired()) {
-          req.destroySession(req.session!.encryptedSessionID);
-          return res.redirect('/login');
-        }
-
-        const users = this.website.database.getRepository('users');
-        const doc = await users.get(req.session!.username);
-        if (doc === null) {
-          this.website.log('fatal', `Unable to find user "${req.session!.username}" in the database?`);
-          req.destroySession(req.session!.encryptedSessionID);
-          return res.redirect('/');
-        } else {
-          if (!doc.admin) return res.redirect('/');
-        }
-      }
+      const users = this.website.database.getRepository('users');
+      if (!req.session!.user.admin) return res.redirect('/');
     }
 
     try {

@@ -16,7 +16,7 @@ export interface RouteDefinition {
   run(this: BaseRouter, req: Request, res: Response<ServerResponse>): Promise<void>;
 
   /** Any specific requirements to use */
-  requirements?: RouteRequirements;
+  requirements: RouteRequirements;
 
   /** The method to use */
   method: RouteMethod;
