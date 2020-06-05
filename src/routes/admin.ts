@@ -8,7 +8,7 @@ export default class AdminRouter extends BaseRouter {
     super(website, '/admin');
   }
 
-  @Route('/', { method: Method.Get })
+  @Route('/', { method: Method.Get, admin: true })
   async main(_: FastifyRequest, res: Reply) {
     const organisations = this.website.database.getRepository('organisations');
     const projects = this.website.database.getRepository('projects');

@@ -10,11 +10,8 @@ export default class MainRouter extends BaseRouter {
 
   @Route('/', { method: Method.Get })
   async main(req: FastifyRequest, res: Reply) {
-    const users = this.website.database.getRepository('users');
-    const user = req.session ? req.session.user : null;
-
     res.render('pages/Homepage', {
-      user
+      user: req.session?.user
     });
   }
 }

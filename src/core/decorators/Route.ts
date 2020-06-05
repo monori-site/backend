@@ -49,8 +49,11 @@ export function getRoutes(target: any): RouteDefinition[] {
 }
 
 interface RouteDecoratorOptions {
-  /** Any specific requirements to use */
-  requirements?: RouteRequirements;
+  /** If the user should be logged in to access */
+  authenicate?: boolean;
+
+  /** If the user should be an admin to access */
+  admin?: boolean;
 
   /** The method to use */
   method: RouteMethod; 
@@ -70,7 +73,10 @@ export const Route = (route: string, options: RouteDecoratorOptions): MethodDeco
     if (!target.constructor[SYMBOL]) target.constructor[SYMBOL] = [];
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
-      requirements: options.hasOwnProperty('requirements') ? options.requirements! : undefined,
+      requirements: {
+        authenicate: options.hasOwnProperty('authenicate') ? options.authenicate! : false,
+        admin: options.hasOwnProperty('admin') ? options.admin! : false
+      },
       method: options.method,
       path: route,
       run: descriptor.value

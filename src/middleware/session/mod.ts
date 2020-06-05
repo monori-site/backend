@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply, FastifyError } from 'fastify';
-import { ServerResponse, request } from 'http';
+import { ServerResponse } from 'http';
 import type { UserModel } from '../../core/repository/UserRepository';
 import signature from 'cookie-signature';
 import Session from './Session';
