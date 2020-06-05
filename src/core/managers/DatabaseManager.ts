@@ -1,11 +1,11 @@
 import { Logger, ConsoleTransport, FileTransport } from '@augu/logging';
-import OrganisationRepo, { OrganisationModel } from '../repository/OrganisationRepository';
-import ProjectRepo, { ProjectModel } from '../repository/ProjectRepository';
-import UserRepo, { UserModel } from '../repository/UserRepository';
 import { Repository, Website } from '..';
 import { MongoClient, Db } from 'mongodb';
+import OrganisationRepo from '../repository/OrganisationRepository';
 import { EventEmitter } from 'events';
 import { Collection } from '@augu/immutable';
+import ProjectRepo from '../repository/ProjectRepository';
+import UserRepo from '../repository/UserRepository';
 
 enum ConnectionStatus {
   Online = 'online',
@@ -65,9 +65,9 @@ export default class DatabaseManager extends EventEmitter {
     this.client.close();
   }
 
-  getRepository(name: 'users'): Repository<UserModel>;
-  getRepository(name: 'projects'): Repository<ProjectModel>;
-  getRepository(name: 'organisations'): Repository<OrganisationModel>;
+  getRepository(name: 'users'): UserRepo;
+  getRepository(name: 'projects'): ProjectRepo;
+  getRepository(name: 'organisations'): OrganisationRepo;
   getRepository(name: string) {
     return this.repositories.get(name);
   }

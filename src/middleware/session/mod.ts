@@ -1,9 +1,9 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply, FastifyError } from 'fastify';
-import type { ServerResponse } from 'http';
+import { ServerResponse, request } from 'http';
+import type { UserModel } from '../../core/repository/UserRepository';
 import signature from 'cookie-signature';
 import Session from './Session';
 import plugin from 'fastify-plugin';
-import { sign } from 'crypto';
 
 type ValidateHook = (request: FastifyRequest, reply: FastifyReply<ServerResponse>, done: (error?: FastifyError) => void) => void;
 type SendHook = (
@@ -26,6 +26,9 @@ function factory(server: FastifyInstance, options: {
 }, next: (error?: FastifyError) => void) {
   server.decorateRequest('destroySession', function onDestroy(this: FastifyRequest, sessionID: string) {
     return destroyConnection.apply(this, [options.store, sessionID]);
+  });
+  server.decorateRequest('createSession', function onCreate(this: FastifyRequest, pkt: UserModel) {
+    return createNewSession.apply(this, [options.secret, options.store, pkt]);
   });
   server.decorateRequest('session', null);
   server.addHook('preValidation', onPreValidation(options));
@@ -85,6 +88,14 @@ function createSession(request: FastifyRequest, secret: string, store: Store, do
 
   request.session = session;
   done();
+}
+
+function createNewSession(this: FastifyRequest, secret: string, store: Store, pkt: UserModel) {
+  const session = new Session(secret);
+  session.set('user', pkt);
+  store.create(session);
+
+  this.session = session;
 }
 
 function destroyConnection(this: FastifyRequest, store: Store, sessionID: string) {

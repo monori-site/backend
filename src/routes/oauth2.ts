@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import type { ServerResponse, IncomingMessage } from 'http';
 import { Route, BaseRouter, Website, Method } from '../core';
 import type { FastifyRequest, FastifyReply } from 'fastify';
@@ -7,30 +8,84 @@ interface IncomingQuery {
   code?: string;
 }
 
+interface GitHubUser {
+  login: string;
+  id: number;
+  node_id: string;
+  avatar_url: string;
+  gravatar_url: string;
+  url: string;
+  html_url: string;
+  followers_url: string;
+  following_url: string;
+  gists_url: string;
+  starred_url: string;
+  organizations_url: string;
+  repos_url: string;
+  events_url: string;
+  received_events_url: string;
+  type: 'User'; // TODO: Find all types
+  site_admin: boolean;
+  name: string;
+  company: string;
+  blog: string;
+  location: string;
+  email: string;
+  hireable: boolean;
+  bio: string;
+  twitter_username: string;
+  public_repos: number;
+  public_gists: number;
+  followers: number;
+  following: number;
+  created_at: string; // ISO string
+  updated_at: string; // ISO string
+  total_private_repos: number;
+  owned_private_repos: number;
+  disk_usage: number;
+  collaborators: number;
+  two_factor_authenication: boolean;
+  plan: UserPlan;
+}
+
+interface UserPlan {
+  name: string;
+  space: number;
+  private_repos: number;
+  collaborators: number;
+}
+
+interface DiscordUser {
+  id: string;
+  username: string;
+  discriminator: string;
+  avatar?: string;
+  bot?: boolean;
+  system?: boolean;
+  mfa_enabled?: boolean;
+  locale?: string;
+  verified?: boolean;
+  email?: string;
+
+  // Why are these non-optional while email and other stuff are
+  // Because, we use the `identify` scope which returns these
+  flags: number;
+  premium_type: number;
+  public_flags: number;
+}
+
 type Reply = FastifyReply<ServerResponse>;
 export default class OAuth2Router extends BaseRouter {
   constructor(website: Website) {
     super(website, '/oauth2');
   }
 
-  // Credit: https://git.coolaj86.com/coolaj86/btoa.js
-  private btoa(str: string | Buffer) {
-    let buffer!: Buffer;
-
-    if (str instanceof Buffer) {
-      buffer = str;
-    } else {
-      buffer = Buffer.from(str.toString(), 'binary');
-    }
-
-    return buffer.toString('base64');
-  }
-
-  //#region GitHub
   @Route('/github', { method: Method.Get })
   async redirectToGithub(req: FastifyRequest, res: Reply) {
     if (req.session) return res.redirect('/');
-    res.redirect(this.website.config.github.appUrl);
+    
+    const redirectUri = this.website.config.github.callbackUrls[this.website.config.environment];
+    return res.redirect(`https://github.com/login/oauth/authorize?client_id=${this.website.config.github.clientID}&redirect_uri=${redirectUri}&scope=${this.website.config.github.scopes.join('%20')}`);
   }
 
   @Route('/github/callback', { method: Method.Post })
@@ -47,16 +102,44 @@ export default class OAuth2Router extends BaseRouter {
     body.append('redirect_uri', this.website.config.github.callbackUrls[this.website.config.environment]);
     body.append('code', req.query.code);
 
-    const access = await this.website.http.request({
+    const resp = await this.website.http.request({
       method: 'POST',
-      url: ''
+      url: 'https://github.com/login/oauth/access_token'
     })
       .body(body)
+      .header('Accept', 'application/json')
       .execute();
-  }
-  //#endregion GitHub
 
-  //#region Discord
+    try {
+      const data = resp.json();
+      const users = this.website.database.getRepository('users');
+
+      const resp2 = await this.website.http.request({
+        method: 'GET',
+        url: 'https://api.github.com/user'
+      })
+        .header('Authorization', `token ${data.access_token}`)
+        .execute();
+
+      const user = resp2.json<GitHubUser>();
+      const pkt = await users.getByGitHubId(user.id.toString()); // TODO: Make this a number also
+      if (pkt === null) return res.redirect(`/signup?github=${user.id}&token=${data.access_token}`);
+      else {
+        await users.update('set', pkt.username, {
+          github: user.id
+        });
+
+        req.createSession(pkt);
+        return res.redirect('/');
+      }
+    } catch(ex) {
+      res.render('pages/Error', {
+        message: `Unable to sign in from GitHub (${ex.message})`,
+        code: 500
+      });
+    }
+  }
+
   @Route('/discord', { method: Method.Get })
   async onDiscord(req: FastifyRequest, res: Reply) {
     if (req.session) return res.redirect('/');
@@ -104,13 +187,19 @@ export default class OAuth2Router extends BaseRouter {
           }
         }).execute();
 
-      const data2 = res2.json();
-      req
-        .session!
-        .set('username', `${data2.username}#${data2.discriminator}`)
-        .set('avatarUrl', data2.avatar ? `https://cdn.discordapp.com/avatars/${data2.id}/${data2.avatar}.png` : null);
-    
-      res.redirect('/');
+      const data2 = res2.json<DiscordUser>();
+      const users = this.website.database.getRepository('users');
+      const pkt = await users.getByDiscordId(data2.id);
+
+      if (pkt === null) return res.redirect(`/signup?discord=${data2.id}&token=${data.access_token}`);
+      else {
+        await users.update('set', pkt.username, {
+          discord: data2.id
+        });
+
+        req.createSession(pkt);
+        return res.redirect('/');
+      }
     } catch(ex) {
       res.render('pages/Error', {
         message: `Unable to login from Discord (${ex.message})`,
@@ -118,5 +207,4 @@ export default class OAuth2Router extends BaseRouter {
       });
     }
   }
-  //#endregion
 }

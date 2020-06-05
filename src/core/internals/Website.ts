@@ -57,7 +57,7 @@ interface GitHubConfig {
   callbackUrls: { [x in 'development' | 'production']: string }
   clientSecret: string;
   clientID: string;
-  appUrl: string;
+  scopes: string[];
 }
 
 export default class Website {

@@ -1,12 +1,12 @@
+import type { UserModel } from '../../core/repository/UserRepository';
 import { randomBytes } from 'crypto';
 import { sign } from 'cookie-signature';
 
 export default class Session {
   public encryptedSessionID!: string;
-  public avatarUrl!: string;
   public sessionID: string;
-  public username!: string;
   public expires: Date;
+  public user!: UserModel;
 
   constructor(secret: string, prev?: Session) {
     this.sessionID = randomBytes(4).toString('hex');
@@ -33,8 +33,8 @@ export default class Session {
   toJSON() {
     return {
       sessionID: this.sessionID,
-      username: this.username,
-      expires: this.expires.toISOString()
+      expires: this.expires.toISOString(),
+      user: this.user
     };
   }
 

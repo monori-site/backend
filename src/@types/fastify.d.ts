@@ -1,4 +1,5 @@
 import { IncomingMessage } from 'http';
+import { UserModel } from '../core/repository/UserRepository';
 import CurrentSession from '../middleware/session/Session';
 import fastify from 'fastify';
 
@@ -15,6 +16,7 @@ declare module 'fastify' {
     Body = any
   > {
     destroySession(sessionID: string): void;
+    createSession(pkt: UserModel): void;
     session: CurrentSession | null;
   }
 }
