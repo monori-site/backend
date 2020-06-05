@@ -21,7 +21,12 @@ function factory(server: FastifyInstance, _: any, next: ((error?: FastifyError) 
     let initial = '<!DOCTYPE html>';
     const component = require(filepath);
 
-    initial += DOMServer.renderToStaticMarkup(React.createElement(component.default, props));
+    initial += DOMServer.renderToStaticMarkup(React.createElement(component.default, {
+      req: this.request,
+      res: this,
+      ...props
+    }));
+    
     this
       .type('text/html;charset=utf-8')
       .send(initial);

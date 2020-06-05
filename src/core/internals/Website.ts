@@ -3,8 +3,10 @@ import fastify, { FastifyInstance as Fastify } from 'fastify';
 import { HttpClient, middleware } from '@augu/orchid';
 import AnalyticsManager from '../managers/AnalyticsManager';
 import RoutingManager from '../managers/RoutingManager';
+import { resolve } from 'path';
 import Database from '../managers/DatabaseManager';
 import session from '../../middleware/session/mod';
+import fstatic from 'fastify-static';
 import cookie from 'fastify-cookie';
 import React from '../../middleware/renderReact';
 import Redis from 'ioredis';
@@ -30,6 +32,9 @@ export interface Configuration {
 
   /** Configuration for Redis */
   redis: RedisServerConfig;
+
+  /** Custom color for the embed */
+  color: string;
 
   /** The port to the server */
   port: number;
@@ -88,6 +93,9 @@ export default class Website {
   private addMiddleware() {
     this.server.register(React);
     this.server.register(cookie);
+    this.server.register(fstatic, {
+      root: resolve(process.cwd(), 'static')
+    });
     this.server.register(session, {
       secret: this.config.secret,
       store: {
