@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@augu/immutable": "0.2.3",
-    "@augu/logging": "1.0.0",
+    "@augu/logging": "1.0.1",
     "@augu/orchid": "1.0.5",
     "cookie-signature": "1.1.0",
     "fastify": "2.14.1",
