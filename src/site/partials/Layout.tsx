@@ -6,7 +6,7 @@ import Head from './Head';
 
 interface LayoutProperties extends NormalProperties {
   description?: string;
-  children?: React.ReactNode;
+  children?: (React.ReactNode[] | JSX.Element);
   page: string;
 }
 export default function Layout({ children, page, description, req, res }: LayoutProperties) {

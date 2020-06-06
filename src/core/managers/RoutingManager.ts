@@ -81,22 +81,20 @@ export default class RoutingManager extends Collection<Router> {
 
   private async _onRequest(route: RouteDefinition, req: FastifyRequest, res: FastifyReply<ServerResponse>, router: Router) {
     if (this.website.analytics.enabled) this.website.analytics.requests++;
-    if (route.requirements.hasOwnProperty('authenicate')) {
-      if (!req.hasOwnProperty('session')) res.redirect('/login');
+    if (route.requirements.authenicate) {
+      if (!req.session) return res.redirect('/login');
       if (req.session!.isExpired()) {
         req.destroySession(req.session!.encryptedSessionID);
         return res.redirect('/login');
       }
     }
 
-    if (route.requirements.hasOwnProperty('admin')) {
-      if (!req.hasOwnProperty('session')) res.redirect('/login');
+    if (route.requirements.admin) {
+      if (!req.session) return res.redirect('/login');
       if (req.session!.isExpired()) {
         req.destroySession(req.session!.encryptedSessionID);
         return res.redirect('/login');
       }
-
-      const users = this.website.database.getRepository('users');
       if (!req.session!.user.admin) return res.redirect('/');
     }
 

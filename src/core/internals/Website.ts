@@ -3,7 +3,7 @@ import fastify, { FastifyInstance as Fastify } from 'fastify';
 import { HttpClient, middleware } from '@augu/orchid';
 import AnalyticsManager from '../managers/AnalyticsManager';
 import RoutingManager from '../managers/RoutingManager';
-import { resolve } from 'path';
+import { join } from 'path';
 import Database from '../managers/DatabaseManager';
 import session from '../../middleware/session/mod';
 import fstatic from 'fastify-static';
@@ -94,7 +94,8 @@ export default class Website {
     this.server.register(React);
     this.server.register(cookie);
     this.server.register(fstatic, {
-      root: resolve(process.cwd(), 'static')
+      prefix: '/static',
+      root: join(process.cwd(), 'static')
     });
     this.server.register(session, {
       secret: this.config.secret,
@@ -164,7 +165,29 @@ export default class Website {
     this.database.once('offline', (time) => this.logger.info(`Disconnected from MongoDB (elapsed: ${this.bootedAt - time})`));
   }
 
+  private _addRedisEvents() {
+    this.redis.once('ready', () => this.logger.info('Connected to Redis'));
+    this.redis.on('wait', () => this.logger.warn('Redis has disconnected, awaiting new connection...'));
+
+    if (this.config.environment === 'development') {
+      this.logger.info('Adding cache monitoring with Redis...');
+      this.redis.monitor((error, monitor) => {
+        if (error) this.logger.fatal('Unable to initialise monitor', error);
+
+        this.logger.info('Initialised cache monitoring!');
+        monitor.on('monitor', (time: number, args: string[]) => {
+          const command = args.shift()!;
+          const date = new Date(Math.floor(time) * 1000);
+
+          this.logger.warn(`Executed command "${command} ${args.join(':')}" at ${date.toLocaleTimeString()}`);
+        });
+      });
+    }
+  }
+
   async serve() {
+    this._addRedisEvents();
+
     this.logger.info('Adding middleware...');
     this.addMiddleware();
 

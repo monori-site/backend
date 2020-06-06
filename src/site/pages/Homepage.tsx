@@ -1,7 +1,9 @@
+import { NormalProperties } from '../types';
+import Layout from '../partials/Layout';
 import React from 'react';
 
-export default class ErrorComponent extends React.Component<any, any> {
-  render() {
-    return <div>Hi! You lucky son of a bitch, you did something correctly. People aren't still proud of you though...</div>;
-  }
+export default function Homepage(props: NormalProperties) {
+  return <Layout req={props.req} res={props.res} page='/'>
+    <div>You lucky son of a bitch, you did it!</div>
+  </Layout>;
 }
