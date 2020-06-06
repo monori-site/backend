@@ -104,10 +104,12 @@ export default class OAuth2Router extends BaseRouter {
 
     const resp = await this.website.http.request({
       method: 'POST',
-      url: 'https://github.com/login/oauth/access_token'
+      url: 'https://github.com/login/oauth/access_token',
+      headers: {
+        'Accept': 'application/json'
+      }
     })
       .body(body)
-      .header('Accept', 'application/json')
       .execute();
 
     try {
@@ -116,10 +118,12 @@ export default class OAuth2Router extends BaseRouter {
 
       const resp2 = await this.website.http.request({
         method: 'GET',
-        url: 'https://api.github.com/user'
-      })
-        .header('Authorization', `token ${data.access_token}`)
-        .execute();
+        url: 'https://api.github.com/user',
+        headers: {
+          'Authorization': `token ${data.access_token}`,
+          'Accept': 'application/json'
+        }
+      }).execute();
 
       const user = resp2.json<GitHubUser>();
       const pkt = await users.getByGitHubId(user.id.toString()); // TODO: Make this a number also

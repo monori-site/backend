@@ -1,4 +1,5 @@
 import { randomBytes, pbkdf2Sync } from 'crypto';
+import * as passwords from '../internals/passwords';
 import type Website from '../internals/Website';
 import Repository from '../internals/Repository';
 
@@ -6,6 +7,7 @@ export interface UserModel {
   discord: string | null;
   github: string | null;
   organisations: string[];
+  passwordHash: string;
   contributor: boolean;
   translator: boolean;
   username: string;
@@ -38,19 +40,20 @@ export default class UserRepository extends Repository<UserModel> {
 
   async create(username: string, email: string, password: string) {
     const salt = randomBytes(32).toString('hex');
-    const pass = pbkdf2Sync(password, salt, 100000, 32, 'sha256');
+    const pass = passwords.encrypt(password, { salt });
     const token = randomBytes(32).toString('hex');
 
     const user: UserModel = {
       discord: null,
       organisations: [],
+      passwordHash: pass,
       contributor: false,
       translator: false,
       admin: false,
       github: null,
       email,
       username,
-      password: pass.toString('hex'),
+      password,
       salt,
       token
     };

@@ -1,3 +1,5 @@
+import * as passwords from './internals/passwords';
+
 export enum Method {
   Get = 'get',
   Put = 'put',
@@ -8,3 +10,4 @@ export enum Method {
 
 export * from './decorators';
 export * from './internals';
+export { passwords };
