@@ -36,7 +36,7 @@
     "@augu/eslint-config": "1.6.0",
     "@types/cookie-signature": "1.0.3",
     "@types/ioredis": "4.16.4",
-    "@types/jest": "^25.2.3",
+    "@types/jest": "25.2.3",
     "@types/mongodb": "3.5.20",
     "@types/node": "14.0.11",
     "@types/pbkdf2": "3.0.0",
@@ -46,9 +46,9 @@
     "@typescript-eslint/parser": "3.1.0",
     "bulma": "0.8.2",
     "eslint": "7.2.0",
-    "jest": "^26.0.1",
+    "jest": "26.0.1",
     "sass": "1.26.8",
-    "ts-jest": "^26.1.0",
+    "ts-jest": "26.1.0",
     "typescript": "3.9.5"
   }
 }
