@@ -1,7 +1,6 @@
 import type { FastifyRequest, FastifyReply, DefaultHeaders, DefaultParams, DefaultQuery, DefaultBody } from 'fastify';
 import { Route, BaseRouter, Website, Method, passwords } from '../core';
 import type { ServerResponse, IncomingMessage } from 'http';
-import { pbkdf2Sync } from 'crypto';
 
 type RequestWithQuery<T> = FastifyRequest<IncomingMessage, T, DefaultParams, DefaultHeaders, DefaultBody>;
 type RequestWithBody<T> = FastifyRequest<IncomingMessage, DefaultQuery, DefaultParams, DefaultHeaders, T>;
@@ -50,7 +49,10 @@ export default class MainRouter extends BaseRouter {
 
     const accounts = this.website.database.getRepository('users');
     const user = await accounts.get(req.body.username);
-    if (!user || user === null) return res.render('/login?success=false&error=User was not found');
+    if (!user || user === null) return res.render('/login', {
+      success: false,
+      error: new Error(`User by ${req.body.username} was not found`)
+    });
 
     if (!passwords.decrypt(user.password, user.passwordHash, { })) return res.render('/login?success=false&error=Invalid password');
 

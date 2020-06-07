@@ -1,4 +1,4 @@
-// Credit: // Credit: https://repl.it/@PassTheWessel/PasswordHasher#Worker.js
+// Credit: https://repl.it/@PassTheWessel/PasswordHasher#Worker.js
 import Worker, { HashOptions } from './Hash';
 
 export function decrypt(password: string, hash: string, options?: HashOptions) {
