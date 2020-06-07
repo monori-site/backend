@@ -70,7 +70,7 @@ export default class RoutingManager extends Collection<Router> {
       try {
         this._onRequest(route, req, res, router);
       } catch(ex) {
-        this.logger.fatal(`Unable to process request to "${req.raw.method?.toUpperCase()} ${req.raw.url}"`, ex);
+        this.logger.fatal(`Unable to process request to "${req.raw.method!.toUpperCase()} ${req.raw.url}"`, ex);
         res.render('pages/Error', {
           message: ex.message,
           code: 500
