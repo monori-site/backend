@@ -5,7 +5,6 @@ on:
       - master
       - dev
       - 'feature/**'
-      - 'expiremental/**'
     paths-ignore:
       - '.github/**'
       - '.vscode/**'
