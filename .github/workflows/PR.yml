@@ -31,3 +31,5 @@ jobs:
         run: npm i
       - name: Lints the repository
         run: npm run lint
+      - name: Run unit tests
+        run: npm test
