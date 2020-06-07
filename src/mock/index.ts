@@ -1,7 +1,8 @@
 //* Data utilities for Jest, nothing special
 import { Website, BaseRouter, RouteDefinition, Method } from '../core';
-import { Configuration } from '../core/internals/Website';
+import type { Configuration } from '../core/internals/Website';
 import { createElement } from 'react';
+import { randomBytes } from 'crypto';
 import DOMServer from 'react-dom/server';
 import { join } from 'path';
 
@@ -23,7 +24,7 @@ export function mockWebsite(config?: Configuration) {
 export function mockConfig(): Configuration {
   return ({
     databaseUrl: 'mongodb://localhost:27017',
-    environment: 'development',
+    environment: 'production',
     analytics: true,
     discord: {
       clientID: '12345678910111213',
@@ -70,13 +71,41 @@ export function mockRouter(prefix: string, site: Website = mockWebsite()): Mocke
       super(site, prefix);
       this.mocked = true;
     }
+
+    mockRegister(route: RouteDefinition): RouteAdditionResult {
+      const path = route.path === '/' ? this.prefix : `${this.prefix === '/' ? '' : this.prefix}${route.path}`;
+      route.path = path;
+
+      const id = randomBytes(4).toString('hex');
+      this.routes.set(id, route);
+
+      return {
+        path,
+        id
+      };
+    }
   });
 
   return new _Router(site, prefix);
 }
 
+/** Represents the return value of `MockedRouter#mockRegister` */
+interface RouteAdditionResult {
+  /** The path */
+  path: string;
+
+  /** The ID of the route */
+  id: string;
+}
+
 /** Represents a "mocked" router from `mockRouter` */
 export interface MockedRouter extends BaseRouter {
+  /**
+   * Adds a route to the router
+   * @param route The mocked route
+   */
+  mockRegister(route: RouteDefinition): RouteAdditionResult;
+
   /**
    * If the router is mocked, this is not added in the normal routers
    */
@@ -118,41 +147,9 @@ export function mockRoute(path: string, router: MockedRouter, opts: MockedRouteO
     }
   };
 
-  (router.constructor[Symbol('$routes')] as RouteDefinition[]).push(route);
+  const $symbol = Symbol('$routes');
+  if (!router.constructor[$symbol]) router.constructor[$symbol] = [];
+
+  (router.constructor[$symbol] as RouteDefinition[]).push(route);
   return route;
-}
-
-/**
- * Acts the return value of `mockRenderEngine`
- */
-type RendererEngine = (path: string, props?: Record<string, unknown>) => RendererResult;
-
-/** Represents the result */
-interface RendererResult {
-  /** The component instance */
-  // TODO: Type this when you find a solution
-  component: any;
-
-  /** The HTML markup itself */
-  markup: string;
-}
-
-/**
- * Creates a new "mocked" render engine
- * @returns A function that returns a result of the engine
- */
-export function mockRenderEngine(): RendererEngine {
-  return (path, props) => {
-    if (!path.endsWith('.js')) path += '.js';
-
-    const filepath = join(process.cwd(), 'site', path);
-    let initial = '<!DOCTYPE html>';
-    const component = require(filepath);
-    
-    initial += DOMServer.renderToStaticMarkup(createElement(component.default, props));
-    return {
-      component: component.default,
-      markup: initial
-    };
-  };
 }

@@ -86,8 +86,9 @@ export default class Website {
 
     this
       .http
-      .use(middleware.logging({ binding: this.logger.orchid() }))
       .use(middleware.forms());
+
+    if (this.config.environment === 'development') this.http.use(middleware.logging({ binding: this.logger.orchid() }));
   }
 
   private addMiddleware() {
