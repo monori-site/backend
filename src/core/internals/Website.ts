@@ -151,7 +151,7 @@ export default class Website {
     });
 
     this.server.setNotFoundHandler((request, reply) => {
-      this.logger.warn(`Route "${request.raw.method?.toUpperCase()} ${request.req.url}" was not found`);
+      this.logger.warn(`Route "${request.raw.method!.toUpperCase()} ${request.req.url}" was not found`);
       reply.render('pages/Error', {
         message: `Route ${request.raw.url} was not found.`,
         code: 500
