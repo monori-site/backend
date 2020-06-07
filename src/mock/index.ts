@@ -76,7 +76,7 @@ export function mockRouter(prefix: string, site: Website = mockWebsite()): Mocke
 }
 
 /** Represents a "mocked" router from `mockRouter` */
-interface MockedRouter extends BaseRouter {
+export interface MockedRouter extends BaseRouter {
   /**
    * If the router is mocked, this is not added in the normal routers
    */
