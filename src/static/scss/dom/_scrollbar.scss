@@ -1,0 +1,8 @@
+// Removes the default scrollbar
+::-webkit-scrollbar {
+  width: 0px;
+}
+
+::-webkit-scrollbar-track-piece {
+  background-color: transparent;
+}

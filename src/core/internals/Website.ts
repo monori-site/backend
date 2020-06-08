@@ -102,9 +102,13 @@ export default class Website {
       secret: this.config.secret,
       store: {
         destroy: (id, callback) => {
+          this.logger.info(`Destroying session ${id} from Redis...`);
           this.redis.get(`session:${id}`)
             .then(packet => {
-              if (packet === null) return callback(new Error(`Session "${id}" was not found`));
+              if (packet === null) {
+                this.logger.fatal(`Session "${id}" was not found?`);
+                return callback(new Error(`Session "${id}" was not found`));
+              }
 
               this.redis.del(`session:${id}`)
                 .then(() => callback())
@@ -115,7 +119,10 @@ export default class Website {
           this
             .redis
             .set(`session:${id}`, JSON.stringify(session))
-            .then(() => callback())
+            .then(() => {
+              this.logger.info(`Added session "${id}" with data`, session);
+              callback();
+            })
             .catch(callback);
         },
         get: (id, callback) => {

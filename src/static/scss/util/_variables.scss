@@ -1,0 +1,45 @@
+@import '../../../../node_modules/bulma/sass/utilities/_all.sass';
+@import url('https://fonts.googleapis.com/css?family=Muli|Pacifico&display=swap');
+
+// Colours
+$primary: #431C5B;
+$primary-invert: findColorInvert($primary);
+$dark: #333333;
+$light: #F8F8F8;
+
+$colors: (
+  "white": ($white, $black),
+  "black": ($black, $white),
+  "light": ($light, $light-invert),
+  "dark": ($dark, $dark-invert),
+  "primary": ($primary, $primary-invert),
+  "info": ($info, $info-invert),
+  "success": ($success, $success-invert),
+  "warning": ($warning, $warning-invert),
+  "danger": ($danger, $danger-invert)
+);
+
+// Links
+$link-focus-border: $primary;
+$link-invert: $primary-invert;
+$link: $primary;
+
+// Navbar
+$navbar-item-active-background-color: $dark;
+$navbar-item-hover-background-color: $dark;
+$navbar-background-color: $dark;
+$navbar-item-color: $white;
+
+// Dropdown
+$navbar-dropdown-item-active-background-color: $primary;
+$navbar-dropdown-background-color: $dark;
+$navbar-dropdown-item-hover-color: $primary;
+$navbar-divider-background-color: $primary;
+$navbar-dropdown-item-color: $white;
+
+// Footer
+$footer-background-color: $dark;
+$footer-color: white;
+
+// Boxes (login/signup)
+$box-background-color: $dark;
