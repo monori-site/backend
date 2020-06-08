@@ -108,9 +108,7 @@ export default class OAuth2Router extends BaseRouter {
       headers: {
         'Accept': 'application/json'
       }
-    })
-      .body(body)
-      .execute();
+    }).body(body);
 
     try {
       const data = resp.json();
@@ -123,7 +121,7 @@ export default class OAuth2Router extends BaseRouter {
           'Authorization': `token ${data.access_token}`,
           'Accept': 'application/json'
         }
-      }).execute();
+      });
 
       const user = resp2.json<GitHubUser>();
       const pkt = await users.getByGitHubId(user.id.toString()); // TODO: Make this a number also
@@ -133,7 +131,7 @@ export default class OAuth2Router extends BaseRouter {
           github: user.id
         });
 
-        req.createSession(pkt);
+        //req.createSession(pkt);
         return res.redirect('/');
       }
     } catch(ex) {
@@ -175,8 +173,7 @@ export default class OAuth2Router extends BaseRouter {
         method: 'POST',
         url: 'https://discordapp.com/api/oauth2/token'
       })
-      .body(body)
-      .execute();
+      .body(body);
 
     try {
       const data = resp.json();
@@ -189,7 +186,7 @@ export default class OAuth2Router extends BaseRouter {
           headers: {
             Authorization: `${data.token_type} ${data.access_token}`
           }
-        }).execute();
+        });
 
       const data2 = res2.json<DiscordUser>();
       const users = this.website.database.getRepository('users');
@@ -201,7 +198,7 @@ export default class OAuth2Router extends BaseRouter {
           discord: data2.id
         });
 
-        req.createSession(pkt);
+        //req.createSession(pkt);
         return res.redirect('/');
       }
     } catch(ex) {

@@ -13,8 +13,6 @@ import React from 'react';
 const logger = new Logger('React Engine', { transports: [new ConsoleTransport()] });
 function factory(server: FastifyInstance, _: any, next: ((error?: FastifyError) => void)) {
   server.decorateReply('render', function (this: Response<ServerResponse>, path: string, props?: Record<string, unknown>) {
-    logger.info(`Now rendering page ${path}...`);
-
     if (!path.endsWith('.js')) path += '.js';
     
     const filepath = join(process.cwd(), 'site', path);
