@@ -54,8 +54,7 @@ export default class MainRouter extends BaseRouter {
       error: new Error(`User by ${req.body.username} was not found`)
     });
 
-    if (!passwords.decrypt(user.password, user.passwordHash, { })) return res.render('/login?success=false&error=Invalid password');
-
+    if (!passwords.decrypt(user.password, user.passwordHash, { salt: user.salt })) return res.render('/login?success=false&error=Invalid password');
     req.createSession(user);
     return res.redirect('/');
   }
