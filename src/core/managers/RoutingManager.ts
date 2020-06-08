@@ -6,6 +6,8 @@ import type { ServerResponse } from 'http';
 import { Collection } from '@augu/immutable';
 import { join } from 'path';
 
+// eslint-disable-next-line
+const noop = () => {};
 export default class RoutingManager extends Collection<Router> {
   private website: Website;
   public logger: Logger;
@@ -83,19 +85,9 @@ export default class RoutingManager extends Collection<Router> {
     if (this.website.analytics.enabled) this.website.analytics.requests++;
     if (route.requirements.authenicate) {
       if (!req.session) return res.redirect('/login');
-      if (req.session!.isExpired()) {
-        req.destroySession(req.session!.encryptedSessionID);
-        return res.redirect('/login');
-      }
     }
-
     if (route.requirements.admin) {
       if (!req.session) return res.redirect('/login');
-      if (req.session!.isExpired()) {
-        req.destroySession(req.session!.encryptedSessionID);
-        return res.redirect('/login');
-      }
-      if (!req.session!.user.admin) return res.redirect('/');
     }
 
     try {
