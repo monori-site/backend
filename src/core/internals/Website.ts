@@ -5,7 +5,7 @@ import AnalyticsManager from '../managers/AnalyticsManager';
 import RoutingManager from '../managers/RoutingManager';
 import { join } from 'path';
 import Database from '../managers/DatabaseManager';
-import session from '../../middleware/session/mod';
+import session from 'fastify-session';
 import fstatic from 'fastify-static';
 import cookie from 'fastify-cookie';
 import React from '../../middleware/renderReact';
@@ -86,8 +86,9 @@ export default class Website {
 
     this
       .http
-      .use(middleware.logging({ binding: this.logger.orchid() }))
       .use(middleware.forms());
+
+    if (this.config.environment === 'development') this.http.use(middleware.logging({ binding: this.logger.orchid() }));
   }
 
   private addMiddleware() {
@@ -100,32 +101,38 @@ export default class Website {
     this.server.register(session, {
       secret: this.config.secret,
       store: {
-        delete: async (sessionID) => {
-          try {
-            const packet = await this.redis.get(`session:${sessionID}`);
-            if (packet === null) return;
+        destroy: (id, callback) => {
+          this.redis.get(`session:${id}`)
+            .then(packet => {
+              if (packet === null) return callback(new Error(`Session "${id}" was not found`));
 
-            await this.redis.del(`session:${sessionID}`);
-          } catch {
-            return;
-          }
+              this.redis.del(`session:${id}`)
+                .then(() => callback())
+                .catch(error => callback(error));
+            }).catch(error => callback(error));
         },
-        create: async (session) => {
-          try {
-            await this.redis.set(`session:${session.sessionID}`, JSON.stringify(session.toJSON()));
-          } catch {
-            return;
-          }
+        set: (id, session, callback) => {
+          this
+            .redis
+            .set(`session:${id}`, JSON.stringify(session))
+            .then(() => callback())
+            .catch(callback);
         },
-        get: async (sessionID, callback) => {
-          try {
-            const packet = await this.redis.get(`session:${sessionID}`);
-            if (packet === null) callback(new Error('Unable to find session'));
+        get: (id, callback) => {
+          this
+            .redis
+            .get(`session:${id}`)
+            .then((packet) => {
+              if (packet === null) return callback(new Error(`Unable to find session ${id}`));
 
-            callback(null, JSON.parse(packet!));
-          } catch(ex) {
-            callback(ex);
-          }
+              try {
+                JSON.parse(packet);
+              } catch {
+                return callback(new Error('Data was not seralized properly'));
+              }
+
+              callback(undefined, JSON.parse(packet));
+            }).catch(callback);
         }
       }
     });
@@ -150,7 +157,7 @@ export default class Website {
     });
 
     this.server.setNotFoundHandler((request, reply) => {
-      this.logger.warn(`Route "${request.raw.method?.toUpperCase()} ${request.req.url}" was not found`);
+      this.logger.warn(`Route "${request.raw.method!.toUpperCase()} ${request.req.url}" was not found`);
       reply.render('pages/Error', {
         message: `Route ${request.raw.url} was not found.`,
         code: 500
