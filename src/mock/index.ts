@@ -1,10 +1,10 @@
 //* Data utilities for Jest, nothing special
 import { Website, BaseRouter, RouteDefinition, Method } from '../core';
 import type { Configuration } from '../core/internals/Website';
-import { createElement } from 'react';
 import { randomBytes } from 'crypto';
 import DOMServer from 'react-dom/server';
 import { join } from 'path';
+import React, { ComponentClass } from 'react';
 
 /**
  * Mocks what the site should be like
@@ -152,4 +152,31 @@ export function mockRoute(path: string, router: MockedRouter, opts: MockedRouteO
 
   (router.constructor[$symbol] as RouteDefinition[]).push(route);
   return route;
+}
+
+type ReactComponent<P = Record<string, unknown>> = string | React.FunctionComponent<P> | ComponentClass<P, any>;
+
+interface RenderResult<Props> {
+  component: ReactComponent<Props>;
+  markup: string;
+}
+
+/**
+ * Mocks a "render engine" instance
+ * @param root The root entry of the application
+ * @returns A function to render React components
+ */
+export function mockEngine(root: string) {
+  return <Props = Record<string, unknown>>(path: string, props?: Props): RenderResult<Props> => {
+    if (!path.endsWith('.tsx')) path += '.tsx';
+
+    const filepath = join(root, path);
+    const component = require(filepath);
+    const markup = DOMServer.renderToStaticMarkup(React.createElement(component.default, props));
+
+    return {
+      component: component.default ? component['default'] : component,
+      markup
+    };
+  };
 }
