@@ -1,4 +1,4 @@
-import { NormalProperties } from '../types';
+import type { NormalProperties, Request } from '../types';
 import React from 'react';
 
 function NavbarLink({ path, name }: { path: string, name: string }) {
@@ -9,6 +9,22 @@ function NavbarLink({ path, name }: { path: string, name: string }) {
   else uri = path;
 
   return <a className='navbar-item' href={uri}>{name}</a>;
+}
+
+function NavbarDropdown({ req }: { req: Request }) {
+  if (req.session.user) {
+    return <div className='navbar-item has-dropdown is-hoverable'>
+      <NavbarLink path={`/users/${req.session.user.username}`} name={req.session.user.username} />
+      <div className='navbar-dropdown'>
+        <NavbarLink path={`/organisations/${req.session.user.username}`} name='Your Organisations' />
+        <NavbarLink path={`/projects/${req.session.user.username}`} name='Your projects' />
+        <hr className='navbar-divider' />
+        <NavbarLink path={`/users/${req.session.user.username}/settings`} name='Settings' />
+      </div>
+    </div>;
+  } else {
+    return <NavbarLink path='/login' name='Login' />;
+  }
 }
 
 export default function Navbar({ req }: NormalProperties) {
@@ -35,8 +51,7 @@ export default function Navbar({ req }: NormalProperties) {
           <NavbarLink path='https://github.com/auguwu/i18n' name='GitHub' />
         </div>
         <div className='navbar-end'>
-          {/* TODO: Add a dropdown here when finished */}
-          {req.session.hasOwnProperty('user') ? <NavbarLink path='/login' name='Login' /> : <NavbarLink path='/users/@me' name={'auguwu'} />}
+          <NavbarDropdown req={req} />
         </div>
       </div>
     </nav>

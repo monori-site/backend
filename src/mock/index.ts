@@ -4,7 +4,7 @@ import type { Configuration } from '../core/internals/Website';
 import { randomBytes } from 'crypto';
 import DOMServer from 'react-dom/server';
 import { join } from 'path';
-import React, { ComponentClass } from 'react';
+import React from 'react';
 
 /**
  * Mocks what the site should be like
@@ -26,15 +26,6 @@ export function mockConfig(): Configuration {
     databaseUrl: 'mongodb://localhost:27017',
     environment: 'production',
     analytics: true,
-    discord: {
-      clientID: '12345678910111213',
-      clientSecret: 'bruhmomento69',
-      scopes: ['bro', 'your', 'gay'],
-      callbackUrls: {
-        development: 'http://bruh.moment',
-        production: 'https://bruh.moment'
-      }
-    },
     github: {
       clientID: '12345678910111213',
       clientSecret: 'bruhmomento69',
@@ -154,8 +145,7 @@ export function mockRoute(path: string, router: MockedRouter, opts: MockedRouteO
   return route;
 }
 
-type ReactComponent<P = Record<string, unknown>> = string | React.FunctionComponent<P> | ComponentClass<P, any>;
-
+type ReactComponent<P = Record<string, unknown>> = string | React.FunctionComponent<P> | React.ComponentClass<P, Record<string, unknown>>;
 interface RenderResult<Props> {
   component: ReactComponent<Props>;
   markup: string;

@@ -22,9 +22,6 @@ export interface Configuration {
   analytics: boolean;
 
   /** Configuration for GitHub OAuth2 */
-  discord: DiscordConfig;
-
-  /** Configuration for GitHub OAuth2 */
   github: GitHubConfig;
 
   /** The secret to use */
@@ -44,13 +41,6 @@ interface RedisServerConfig {
   host: string;
   port: number;
   db?: number;
-}
-
-interface DiscordConfig {
-  callbackUrls: { [x in 'development' | 'production']: string }
-  clientSecret: string;
-  clientID: string;
-  scopes: string[];
 }
 
 interface GitHubConfig {
@@ -83,10 +73,6 @@ export default class Website {
     this.server = fastify();
     this.redis = new Redis(config.redis);
     this.http = new HttpClient();
-
-    this
-      .http
-      .use(middleware.forms());
 
     if (this.config.environment === 'development') this.http.use(middleware.logging({ binding: this.logger.orchid }));
   }
@@ -176,7 +162,7 @@ export default class Website {
 
   private _addDatabaseEvents() {
     this.database.once('online', () => this.logger.info('Successfully connected to MongoDB'));
-    this.database.once('offline', (time) => this.logger.info(`Disconnected from MongoDB (elapsed: ${this.bootedAt - time})`));
+    this.database.once('offline', (time) => this.logger.info(`Disconnected from MongoDB (elapsed: ${this._humanize(time)})`));
   }
 
   private _addRedisEvents() {
@@ -193,7 +179,7 @@ export default class Website {
           const command = args.shift()!;
           const date = new Date(Math.floor(time) * 1000);
 
-          this.logger.warn(`Executed command "${command} ${args.join(':')}" at ${date.toLocaleTimeString()}`);
+          this.logger.warn(`Executed command "${command}${args.length ? ` ${args.join(':')}` : ''}" at ${date.toLocaleTimeString()}`);
         });
       });
     }
@@ -230,5 +216,30 @@ export default class Website {
 
   log(type: 'fatal' | 'error' | 'debug' | 'warn' | 'info', ...messages: any[]) {
     this.logger[type](...messages);
+  }
+
+  private _humanize(ms: number) {
+    const weeks = Math.floor(ms / 1000 / 60 / 60 / 24 / 7);
+    ms -= weeks * 1000 * 60 * 60 * 24 * 7;
+  
+    const days = Math.floor(ms / 1000 / 60 / 60 / 24);
+    ms -= days * 1000 * 60 * 60 * 24;
+  
+    const hours = Math.floor(ms / 1000 / 60 / 60);
+    ms -= hours * 1000 * 60 * 60;
+  
+    const mins = Math.floor(ms / 1000 / 60);
+    ms -= mins * 1000 * 60;
+  
+    const sec = Math.floor(ms / 1000);
+  
+    let humanized = '';
+    if (weeks > 0) humanized += `${weeks} weeks, `;
+    if (days > 0) humanized += `${days} days, `;
+    if (hours > 0) humanized += `${hours} hours, `;
+    if (mins > 0) humanized += `${mins} minutes, `;
+    if (sec > 0) humanized += `${sec} seconds`;
+  
+    return humanized;
   }
 }

@@ -1,9 +1,14 @@
 import { NormalProperties } from '../types';
 import React from 'react';
 
+import '../types/initialise';
+
 const prefixNames: { [x: string]: string } = {
   '/': 'Home',
-  '/error': 'Error'
+  '/error': 'Error',
+  '/login': 'Login',
+  '/admin': 'Administration Panel',
+  '/signup': 'Signup'
 };
 
 const defDesc = 'Simple and open-source translation site for everyone to use, for free.';
@@ -14,7 +19,7 @@ interface HeadProperties extends NormalProperties {
 export default function Head({ page, description }: HeadProperties) {
   return (
     <head>
-      <title>i18n | {prefixNames[page]}</title>
+      <title>i18n | {prefixNames[page] || '?'}</title>
       <meta httpEquiv='X-UA-Compatible' content='IE=edge' />
       <meta name='viewport' content='width=device-width, initial-scale=1' />
       <link rel='stylesheet' href='/static/css/style.css' />

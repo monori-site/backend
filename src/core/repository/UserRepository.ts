@@ -28,14 +28,17 @@ export default class UserRepository extends Repository<UserModel> {
     super(website, 'users');
   }
 
-  async get(id: string) {
-    const model = await this.collection.findOne({ 'username': id });
+  async get(username: string) {
+    const model = await this.collection.findOne({ 'username': username });
     return model!;
   }
 
   async getByGitHubId(id: string) {
-    const model = await this.collection.findOne({ 'github.username': id });
-    return model;
+    return await this.collection.findOne({ 'github.username': id });
+  }
+
+  async getByEmail(email: string) {
+    return await this.collection.findOne({ 'email': email });
   }
 
   async create(username: string, email: string, password: string) {

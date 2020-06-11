@@ -5,7 +5,8 @@ import type { ServerResponse, IncomingMessage } from 'http';
 // TODO: Find a way to conjoin generics
 
 type FastifyResponse = FastifyReply<ServerResponse>;
-export interface NormalProperties<Q = DefaultQuery, H = DefaultHeaders, B = DefaultBody, P = DefaultParams> {
-  req: FastifyRequest<IncomingMessage, Q, P, H, B>;
+export type Request = FastifyRequest<IncomingMessage, DefaultQuery, DefaultParams, DefaultHeaders, any>;
+export interface NormalProperties {
+  req: Request;
   res: FastifyResponse;
 }

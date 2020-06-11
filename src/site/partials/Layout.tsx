@@ -4,12 +4,34 @@ import Footer from './Footer';
 import React from 'react';
 import Head from './Head';
 
+type ReactiveChildren = (React.ReactNode[] | JSX.Element);
 interface LayoutProperties extends NormalProperties {
   description?: string;
-  children?: (React.ReactNode[] | JSX.Element);
+  children?: ReactiveChildren;
+  isLogin?: boolean;
   page: string;
 }
-export default function Layout({ children, page, description, req, res }: LayoutProperties) {
+
+interface LayoutTreeProperties extends NormalProperties {
+  children?: ReactiveChildren;
+  isLogin?: boolean;
+}
+
+function LayoutTree({ isLogin, children, req, res }: LayoutTreeProperties) {
+  if (isLogin) {
+    return <>
+      {children}
+    </>;
+  } else {
+    return <>
+      <Navbar {...{ req, res }} />
+      {children}
+      <Footer />
+    </>;
+  }
+}
+
+export default function Layout({ children, page, description, req, res, isLogin }: LayoutProperties) {
   return <html>
     <Head 
       page={page} 
@@ -18,9 +40,9 @@ export default function Layout({ children, page, description, req, res }: Layout
       res={res} 
     />
     <body>
-      <Navbar {...{ req, res } } />
-      {children}
-      <Footer />
+      <LayoutTree isLogin={isLogin} req={req} res={res}>
+        {children}
+      </LayoutTree>
     </body>
   </html>;
 }

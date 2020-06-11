@@ -64,6 +64,21 @@ export default class MainRouter extends BaseRouter {
   @Route('/signup/callback', { method: Method.Post })
   async _signup(req: RequestWithBody<SignupPayload>, res: Reply) {
     if (req.session.user) return res.redirect('/');
-    return res.redirect('/'); // signup is not avaliable at the moment
+    if (!req.body) return res.render('pages/Error', {
+      message: 'Missing body payload.',
+      code: 500
+    });
+
+    const repository = this.website.database.getRepository('users');
+    const user1 = await repository.get(req.body.username);
+    if (user1 !== null) return res.render('pages/Signup', { error: new Error(`User by ${req.body.username} is already taken`) });
+    
+    const email = await repository.getByEmail(req.body.email);
+    if (email !== null) return res.render('pages/Signup', { error: new Error(`Email "${req.body.email}" is already taken`) });
+
+    const user = await repository.create(req.body.username, req.body.email, req.body.password);
+    req.session.user = user;
+
+    return res.redirect('/');
   }
 }
