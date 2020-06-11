@@ -51,7 +51,7 @@ export default class DatabaseManager extends EventEmitter {
     this.emit('online');
     this.repositories.set('users', new UserRepo(this.web));
     this.repositories.set('projects', new ProjectRepo(this.web));
-    this.repositories.set('orginsations', new OrganisationRepo(this.web));
+    this.repositories.set('orgainsations', new OrganisationRepo(this.web));
   }
 
   disconnect() {

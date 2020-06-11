@@ -2,7 +2,13 @@ import { NormalProperties } from '../types';
 import React from 'react';
 
 function NavbarLink({ path, name }: { path: string, name: string }) {
-  return <a className='navbar-item' href={path}>{name}</a>;
+  let uri!: string;
+  
+  // TODO: Get the URL from the browser
+  if (path.startsWith('/')) uri = `http://localhost:${website.config.port}${path}`;
+  else uri = path;
+
+  return <a className='navbar-item' href={uri}>{name}</a>;
 }
 
 export default function Navbar({ req }: NormalProperties) {
@@ -30,7 +36,7 @@ export default function Navbar({ req }: NormalProperties) {
         </div>
         <div className='navbar-end'>
           {/* TODO: Add a dropdown here when finished */}
-          {req.session ? <NavbarLink path='/login' name='Login' /> : <NavbarLink path='/users/@me' name={req.session!.user.username} />}
+          {req.session.hasOwnProperty('user') ? <NavbarLink path='/login' name='Login' /> : <NavbarLink path='/users/@me' name={'auguwu'} />}
         </div>
       </div>
     </nav>

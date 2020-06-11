@@ -1,13 +1,10 @@
 import { Website, BaseRouter as Router, getRoutes, RouteDefinition } from '..';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { promises as fs, existsSync } from 'fs';
 import { Logger, ConsoleTransport } from '@augu/logging';
-import type { ServerResponse } from 'http';
+import type { UserModel } from '../repository/UserRepository';
 import { Collection } from '@augu/immutable';
 import { join } from 'path';
 
-// eslint-disable-next-line
-const noop = () => {};
 export default class RoutingManager extends Collection<Router> {
   private website: Website;
   public logger: Logger;
@@ -61,43 +58,45 @@ export default class RoutingManager extends Collection<Router> {
       this.set(instance.prefix, instance);
 
       for (const route of all) this.onRequest(instance, route);
-
       this.logger.info(`Injected router ${instance.prefix} with ${all.length} routes!`);
     }
   }
 
   private onRequest(router: Router, route: RouteDefinition) {
-    this.logger.info(`Added route ${route.path} to Fastify`);
-    this.website.server[route.method.toLowerCase()](route.path, async (req: FastifyRequest, res: FastifyReply<ServerResponse>) => {
+    this.logger.info(`Added route ${route.path}`);
+    this.website.server[route.method.toLowerCase()](route.path, async (req, res) => {
+      if (this.website.config.environment === 'development') this.logger.info(`${req.raw.method!.toUpperCase()} ${req.raw.url}`);
+
+      // If we have analytics enabled
+      if (this.website.analytics.enabled) this.website.analytics.requests++;
+
+      // If we need to authenicate and get the user session
+      if (route.requirements.authenicate) {
+        if (!req.session.user) return res.redirect('/login');
+      }
+
+      // If we need to allow administrative permissions
+      if (route.requirements.admin) {
+        if (!req.session.user) return res.redirect('/login');
+
+        // make a shallow copy so we can type it
+        // blame fastify-session for not letting
+        // me extend this myself ¯\_(ツ)_/¯
+        const user: UserModel = req.session.user;
+        if (!user.admin) return res.redirect('/');
+      }
+  
+      // Try to run the route
       try {
-        this._onRequest(route, req, res, router);
-      } catch(ex) {
-        this.logger.fatal(`Unable to process request to "${req.raw.method!.toUpperCase()} ${req.raw.url}"`, ex);
-        res.render('pages/Error', {
+        await route.run.apply(router, [req, res]);
+      } catch (ex) {
+        // Oops! We found an error, we better log it.
+        this.website.log('fatal', `Unable to process request to "${req.raw.method!.toUpperCase()} ${req.raw.url}"`, ex);
+        return res.render('pages/Error', {
           message: ex.message,
           code: 500
         });
       }
     });
-  }
-
-  private async _onRequest(route: RouteDefinition, req: FastifyRequest, res: FastifyReply<ServerResponse>, router: Router) {
-    if (this.website.analytics.enabled) this.website.analytics.requests++;
-    if (route.requirements.authenicate) {
-      if (!req.session) return res.redirect('/login');
-    }
-    if (route.requirements.admin) {
-      if (!req.session) return res.redirect('/login');
-    }
-
-    try {
-      await route.run.apply(router, [req, res]);
-    } catch (ex) {
-      this.website.log('fatal', `Unable to process request to "${req.raw.method!.toUpperCase()} ${req.raw.url}"`, ex);
-      return res.render('pages/Error', {
-        message: ex.message,
-        code: 500
-      });
-    }
   }
 }

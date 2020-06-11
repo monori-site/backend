@@ -2,10 +2,11 @@
 import type { ServerResponse, IncomingMessage } from 'http';
 import { Route, BaseRouter, Website, Method } from '../core';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import FormData from 'form-data';
 
 interface IncomingQuery {
-  code?: string;
+  code: string;
+  error?: string;
+  error_description?: string;
 }
 
 interface GitHubUser {
@@ -55,64 +56,59 @@ interface UserPlan {
   collaborators: number;
 }
 
-interface DiscordUser {
-  id: string;
-  username: string;
-  discriminator: string;
-  avatar?: string;
-  bot?: boolean;
-  system?: boolean;
-  mfa_enabled?: boolean;
-  locale?: string;
-  verified?: boolean;
-  email?: string;
-
-  // Why are these non-optional while email and other stuff are
-  // Because, we use the `identify` scope which returns these
-  flags: number;
-  premium_type: number;
-  public_flags: number;
-}
-
 type Reply = FastifyReply<ServerResponse>;
 export default class OAuth2Router extends BaseRouter {
   constructor(website: Website) {
     super(website, '/oauth2');
   }
 
-  @Route('/github', { method: Method.Get })
-  async redirectToGithub(req: FastifyRequest, res: Reply) {
-    if (req.session) return res.redirect('/');
-    
-    const redirectUri = this.website.config.github.callbackUrls[this.website.config.environment];
-    return res.redirect(`https://github.com/login/oauth/authorize?client_id=${this.website.config.github.clientID}&redirect_uri=${redirectUri}&scope=${this.website.config.github.scopes.join('%20')}`);
+  @Route('/', { method: Method.Get })
+  async main(_: FastifyRequest, res: Reply) {
+    // You're not allowed to be here, get out!
+    return res.redirect('/');
   }
 
-  @Route('/github/callback', { method: Method.Post })
-  async onCallbackGitHub(req: FastifyRequest<IncomingMessage, IncomingQuery>, res: Reply) {
-    if (req.session) return res.redirect('/');
-    if (!req.query.hasOwnProperty('code')) return res.status(500).send({
-      statusCode: 500,
-      message: 'No `?code` was provided.'
+  @Route('/github', { method: Method.Get })
+  async github(req: FastifyRequest, res: Reply) {
+    if (req.session.user) return res.redirect('/');
+    
+    const redirectUri = this
+      .website
+      .config
+      .github
+      .callbackUrls[this.website.config.environment]
+      .replace('{port}', String(this.website.config.port));
+
+    const uri = encodeURIComponent(redirectUri);
+    return res.redirect(`https://github.com/login/oauth/authorize?client_id=${this.website.config.github.clientID}&redirect_uri=${uri}&scope=${this.website.config.github.scopes.join('%20')}`);
+  }
+
+  @Route('/github/callback', { method: Method.Get })
+  async githubCallback(req: FastifyRequest<IncomingMessage, IncomingQuery>, res: Reply) {
+    if (req.session.user) return res.redirect('/');
+    if (req.query.error && req.query.error_description) return res.render('pages/Error', {
+      message: `[${req.query.error}] ${req.query.error_description}`,
+      code: 500
     });
 
-    const body = new FormData();
-    body.append('client_id', this.website.config.github.clientID);
-    body.append('client_secret', this.website.config.github.clientSecret);
-    body.append('redirect_uri', this.website.config.github.callbackUrls[this.website.config.environment]);
-    body.append('code', req.query.code);
+    if (!req.query.code) return res.render('pages/Error', {
+      message: 'Missing "?code" query parameter',
+      code: 500
+    });
 
     const resp = await this.website.http.request({
       method: 'POST',
-      url: 'https://github.com/login/oauth/access_token',
+      // TODO: Find out if we can use forms with this
+      url: `https://github.com/login/oauth/access_token?client_id=${this.website.config.github.clientID}&client_secret=${this.website.config.github.clientSecret}&code=${req.query.code}`,
       headers: {
+        // Accept JSON format
         'Accept': 'application/json'
       }
-    }).body(body);
+    });
 
     try {
       const data = resp.json();
-      const users = this.website.database.getRepository('users');
+      //const users = this.website.database.getRepository('users');
 
       const resp2 = await this.website.http.request({
         method: 'GET',
@@ -124,86 +120,21 @@ export default class OAuth2Router extends BaseRouter {
       });
 
       const user = resp2.json<GitHubUser>();
-      const pkt = await users.getByGitHubId(user.id.toString()); // TODO: Make this a number also
-      if (pkt === null) return res.redirect(`/signup?github=${user.id}&token=${data.access_token}`);
-      else {
-        await users.update('set', pkt.username, {
-          github: user.id
-        });
+      res.redirect('/');
 
-        //req.createSession(pkt);
-        return res.redirect('/');
-      }
+      //const pkt = await users.getByGitHubId(user.id.toString()); // TODO: Make this a number also
+      //if (pkt === null) return res.redirect(`/signup?github=${user.id}&token=${data.access_token}`);
+      //else {
+      //await users.update('set', pkt.username, {
+      //github: user.id
+      //});
+
+      //req.createSession(pkt);
+      //return res.redirect('/');
+      //}
     } catch(ex) {
       res.render('pages/Error', {
         message: `Unable to sign in from GitHub (${ex.message})`,
-        code: 500
-      });
-    }
-  }
-
-  @Route('/discord', { method: Method.Get })
-  async onDiscord(req: FastifyRequest, res: Reply) {
-    if (req.session) return res.redirect('/');
-
-    const redirectUri = this.website.config.discord.callbackUrls[this.website.config.environment];
-    res.redirect(`https://discordapp.com/oauth2/authorize?client_id=${this.website.config.discord.clientID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${this.website.config.discord.scopes.join('%20')}`);
-  }
-
-  @Route('/discord/callback', { method: Method.Post })
-  async onDiscordCallback(req: FastifyRequest<IncomingMessage, IncomingQuery>, res: Reply) {
-    if (req.session) return res.redirect('/');
-    if (!req.query.hasOwnProperty('code')) return res.status(500).send({
-      statusCode: 500,
-      message: 'Missing code query'
-    });
-
-    const body = new FormData();
-    body.append('client_id', this.website.config.discord.clientID);
-    body.append('client_secret', this.website.config.discord.clientSecret);
-    body.append('grant_type', 'authorization_code');
-    body.append('redirect_uri', this.website.config.discord.callbackUrls[this.website.config.environment]);
-    body.append('scope', this.website.config.discord.scopes.join(' '));
-    body.append('code', req.query.code);
-
-    const resp = await this
-      .website
-      .http
-      .request({
-        method: 'POST',
-        url: 'https://discordapp.com/api/oauth2/token'
-      })
-      .body(body);
-
-    try {
-      const data = resp.json();
-      const res2 = await this
-        .website
-        .http
-        .request({
-          method: 'GET',
-          url: 'https://discordapp.com/api/users/@me',
-          headers: {
-            Authorization: `${data.token_type} ${data.access_token}`
-          }
-        });
-
-      const data2 = res2.json<DiscordUser>();
-      const users = this.website.database.getRepository('users');
-      const pkt = await users.getByDiscordId(data2.id);
-
-      if (pkt === null) return res.redirect(`/signup?discord=${data2.id}&token=${data.access_token}`);
-      else {
-        await users.update('set', pkt.username, {
-          discord: data2.id
-        });
-
-        //req.createSession(pkt);
-        return res.redirect('/');
-      }
-    } catch(ex) {
-      res.render('pages/Error', {
-        message: `Unable to login from Discord (${ex.message})`,
         code: 500
       });
     }

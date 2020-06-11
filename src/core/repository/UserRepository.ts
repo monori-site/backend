@@ -1,21 +1,26 @@
-import { randomBytes, pbkdf2Sync } from 'crypto';
+import { randomBytes } from 'crypto';
 import * as passwords from '../internals/passwords';
 import type Website from '../internals/Website';
 import Repository from '../internals/Repository';
 
 export interface UserModel {
-  discord: string | null;
-  github: string | null;
   organisations: string[];
   passwordHash: string;
   contributor: boolean;
   translator: boolean;
   username: string;
   password: string;
+  github: string | null;
   email: string;
   token: string;
   admin: boolean;
   salt: string;
+}
+
+interface GitHubUser {
+  accessToken: string;
+  avatarUrl: string;
+  username: string;
 }
 
 export default class UserRepository extends Repository<UserModel> {
@@ -24,17 +29,12 @@ export default class UserRepository extends Repository<UserModel> {
   }
 
   async get(id: string) {
-    const model = await this.collection.findOne({ 'userID': id });
+    const model = await this.collection.findOne({ 'username': id });
     return model!;
   }
 
   async getByGitHubId(id: string) {
-    const model = await this.collection.findOne({ 'github': id });
-    return model;
-  }
-
-  async getByDiscordId(id: string) {
-    const model = await this.collection.findOne({ 'discord': id });
+    const model = await this.collection.findOne({ 'github.username': id });
     return model;
   }
 
@@ -44,18 +44,17 @@ export default class UserRepository extends Repository<UserModel> {
     const token = randomBytes(32).toString('hex');
 
     const user: UserModel = {
-      discord: null,
       organisations: [],
-      passwordHash: pass,
       contributor: false,
       translator: false,
-      admin: false,
       github: null,
+      admin: false,
       email,
       username,
       password,
       salt,
-      token
+      token,
+      passwordHash: pass
     };
 
     await this.collection.insertOne(user);
@@ -63,13 +62,19 @@ export default class UserRepository extends Repository<UserModel> {
   }
 
   async remove(id: string) {
-    await this.collection.deleteOne({ userID: id });
+    await this.collection.deleteOne({ username: id });
   }
 
-  async update(type: 'set' | 'push', userID: string, values: { [x: string]: any }) {
+  async update(type: 'set' | 'push', username: string, values: { [x: string]: any }) {
     const key = `$${type}`;
-    await this.collection.updateOne({ userID }, {
+    await this.collection.updateOne({ username }, {
       [key]: values
+    });
+  }
+
+  async addGitHubCredentials(username: string, user: GitHubUser) {
+    await this.update('set', username, {
+      github: user
     });
   }
 }

@@ -2,7 +2,6 @@ src/static/css/
 src/config.json
 node_modules/
 build/
-logs/
 
 package-lock.json
 yarn.lock

@@ -68,7 +68,6 @@ export default class OrgainsationRepository extends Repository<OrganisationModel
 
   async setPermission(name: string, memberID: string, permission: { [x in 'access' | 'edit']?: boolean }) {
     if (!Object.keys(permission).length) throw new Error('Must provide a permission to set.');
-
     for (const perm of Object.keys(permission)) {
       await this.update('set', name, {
         [`permissions.${memberID}.${perm}`]: permission[perm]

@@ -15,12 +15,8 @@ export default class AdminRouter extends BaseRouter {
     const users = this.website.database.getRepository('users');
 
     res.render('pages/admin/Home', {
-      requests: {
-        minute: this.website.analytics.enabled ? this.website.analytics.getRequestsPerMinute() : 0,
-        total: this.website.analytics.enabled ? this.website.analytics.requests : 0,
-        hour: this.website.analytics.enabled ? this.website.analytics.getRequestsPerHour() : 0
-      },
       organisations: (await organisations.collection.countDocuments()),
+      requests: this.website.analytics.enabled ? this.website.analytics.requests : 0,
       projects: (await projects.collection.countDocuments()),
       users: (await users.collection.countDocuments())
     });
