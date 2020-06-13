@@ -1,9 +1,12 @@
+import { Typography } from '@material-ui/core';
 import React from 'react';
 
 export default function Footer() {
-  return <footer className='footer'>
-    <div className='content has-text-centered'>
-      Copyright &copy; August 2020
-    </div>
-  </footer>;
+  const year = new Date().getFullYear();
+  const time = year === 2020 ? '2020' : `2020-${year}`;
+
+  // Don't do `2020-2020` since it'll look inconcise
+  return <Typography variant='body2' color='textSecondary' align='center'>
+    Copyright &copy; August {time}
+  </Typography>;
 }

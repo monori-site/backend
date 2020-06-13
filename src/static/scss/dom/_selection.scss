@@ -1,6 +1,0 @@
-@import '../util';
-
-::selection {
-  background: lighten($primary, 5%);
-  color: $primary-invert;
-}

@@ -1,4 +1,6 @@
-import { NormalProperties } from '../types';
+import { ThemeProvider, CssBaseline } from '@material-ui/core';
+import type { NormalProperties } from '../types';
+import getMuiTheme from '../types/theme';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import React from 'react';
@@ -32,17 +34,22 @@ function LayoutTree({ isLogin, children, req, res }: LayoutTreeProperties) {
 }
 
 export default function Layout({ children, page, description, req, res, isLogin }: LayoutProperties) {
-  return <html>
-    <Head 
-      page={page} 
-      description={description} 
-      req={req} 
-      res={res} 
-    />
-    <body>
-      <LayoutTree isLogin={isLogin} req={req} res={res}>
-        {children}
-      </LayoutTree>
-    </body>
-  </html>;
+  const theme = getMuiTheme(req);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Head
+        page={page} 
+        description={description} 
+        req={req} 
+        res={res} 
+      />
+      <body>
+        <LayoutTree isLogin={isLogin} req={req} res={res}>
+          {children}
+        </LayoutTree>
+      </body>
+    </ThemeProvider>
+  );
 }

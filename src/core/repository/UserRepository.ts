@@ -11,6 +11,7 @@ export interface UserModel {
   username: string;
   password: string;
   github: string | null;
+  theme: 'dark' | 'light';
   email: string;
   token: string;
   admin: boolean;
@@ -57,7 +58,8 @@ export default class UserRepository extends Repository<UserModel> {
       password,
       salt,
       token,
-      passwordHash: pass
+      passwordHash: pass,
+      theme: 'dark' // yea lets do dark for now
     };
 
     await this.collection.insertOne(user);

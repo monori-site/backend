@@ -1,59 +1,136 @@
-import type { NormalProperties, Request } from '../types';
+import { AppBar, Typography, Menu, MenuItem, Toolbar, Button, IconButton } from '@material-ui/core';
+import type { NormalProperties, Response } from '../types';
+import { makeStyles } from '@material-ui/core/styles';
+import { GitHub } from '@material-ui/icons';
 import React from 'react';
 
-function NavbarLink({ path, name }: { path: string, name: string }) {
-  let uri!: string;
-  
-  // TODO: Get the URL from the browser
-  if (path.startsWith('/')) uri = `http://localhost:${website.config.port}${path}`;
-  else uri = path;
-
-  return <a className='navbar-item' href={uri}>{name}</a>;
-}
-
-function NavbarDropdown({ req }: { req: Request }) {
-  if (req.session.user) {
-    return <div className='navbar-item has-dropdown is-hoverable'>
-      <NavbarLink path={`/users/${req.session.user.username}`} name={req.session.user.username} />
-      <div className='navbar-dropdown'>
-        <NavbarLink path={`/organisations/${req.session.user.username}`} name='Your Organisations' />
-        <NavbarLink path={`/projects/${req.session.user.username}`} name='Your projects' />
-        <hr className='navbar-divider' />
-        <NavbarLink path={`/users/${req.session.user.username}/settings`} name='Settings' />
-      </div>
-    </div>;
-  } else {
-    return <NavbarLink path='/login' name='Login' />;
+const useStyles = makeStyles(theme => ({
+  grow: { flexGrow: 1 },
+  menuButton: { marginRight: theme.spacing(2) },
+  title: {
+    display: 'none',
+    [theme.breakpoints.up('sm')]: { display: 'block' }
+  },
+  sectionDesktop: {
+    display: 'none',
+    [theme.breakpoints.up('md')]: { display: 'flex' }
+  },
+  sectionMobile: {
+    display: 'flex',
+    [theme.breakpoints.up('md')]: { display: 'none' }
   }
+}));
+
+/*function Profile({ res }: { res: Response }) {
+  const [anchor, setAnchor] = React.useState<any>(null);
+
+  const handleMenuOpen = (event: any) => setAnchor(event.currentTarget);
+  const handleMenuClose = () => setAnchor(null);
+
+  const redirect = (event: any, type: 'profile' | 'settings' | 'org' | 'project') => {
+    handleMenuOpen(event);
+
+    let url: string;
+    switch (type) {
+      case 'profile': {
+        url = '/users/@me';
+      } break;
+
+      case 'settings': {
+        url = '/users/settings';
+      } break;
+
+      case 'org': {
+        url = '/users/organisations';
+      } break;
+
+      case 'project': {
+        url = '/users/projects';
+      } break;
+
+      default: return;
+    }
+
+    res.redirect(url);
+  };
+
+  return <Menu
+    anchorEl={anchor}
+    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+    id={'menu-id'}
+    keepMounted
+    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+    open={Boolean(anchor)}
+    onClose={handleMenuClose}
+  >
+    <MenuItem onClick={(event) => redirect(event, 'profile')}>Profile</MenuItem>
+    <MenuItem onClick={(event) => redirect(event, 'settings')}>Settings</MenuItem>
+    <MenuItem onClick={(event) => redirect(event, 'org')}>Organisations</MenuItem>
+    <MenuItem onClick={(event) => redirect(event, 'project')}>Projects</MenuItem>
+  </Menu>;
 }
 
-export default function Navbar({ req }: NormalProperties) {
-  return (
-    <nav className='navbar' role='navigation' aria-label='main navigation'>
-      <div className='navbar-brand'>
-        <a className='navbar-item is-cursive' href='/'>i18n</a>
-        <a
-          role='button'
-          className='navbar-burger burger'
-          aria-label='menu'
-          aria-expanded='false'
-          data-target='abcd'
-        >
-          <span aria-hidden='true'></span>
-          <span aria-hidden='true'></span>
-          <span aria-hidden='true'></span>
-        </a>
-      </div>
-      <div id='abcd' className='navbar-menu'>
-        <div className='navbar-start'>
-          <NavbarLink path='/' name='Home' />
-          <NavbarLink path='/docs' name='Documentation' />
-          <NavbarLink path='https://github.com/auguwu/i18n' name='GitHub' />
-        </div>
-        <div className='navbar-end'>
-          <NavbarDropdown req={req} />
-        </div>
-      </div>
-    </nav>
-  );
+function ProfileMobile({ res }: { res: Response }) {
+  const [anchor, setAnchor] = React.useState<any>(null);
+
+  const handleMenuOpen = (event: any) => setAnchor(event.currentTarget);
+  const handleMenuClose = () => setAnchor(null);
+
+  const redirect = (event: any, type: 'profile' | 'settings' | 'org' | 'project') => {
+    handleMenuOpen(event);
+
+    let url: string;
+    switch (type) {
+      case 'profile': {
+        url = '/users/@me';
+      } break;
+
+      case 'settings': {
+        url = '/users/settings';
+      } break;
+
+      case 'org': {
+        url = '/users/organisations';
+      } break;
+
+      case 'project': {
+        url = '/users/projects';
+      } break;
+
+      default: return;
+    }
+
+    res.redirect(url);
+  };
+
+  return <Menu
+    anchorEl={anchor}
+    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+    id={'mobile-menu-id'}
+    keepMounted
+    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+    open={Boolean(anchor)}
+    onClose={handleMenuClose}
+  >
+    <MenuItem onClick={(event) => redirect(event, 'profile')}>Profile</MenuItem>
+    <MenuItem onClick={(event) => redirect(event, 'settings')}>Settings</MenuItem>
+    <MenuItem onClick={(event) => redirect(event, 'org')}>Organisations</MenuItem>
+    <MenuItem onClick={(event) => redirect(event, 'project')}>Projects</MenuItem>
+  </Menu>;
+}*/
+
+// Element is taken from the navbar example, might refine it soon
+export default function Navbar({ req, res }: NormalProperties) {
+  const classes = useStyles();
+
+  return <div className={classes.grow}>
+    <AppBar position='static'>
+      <Toolbar>
+        <Typography className={classes.title} variant='h6' noWrap>i18n</Typography>
+        <IconButton aria-label='GitHub URL' color='inherit' onClick={() => res.redirect('https://github.com/auguwu/i18n')}>
+          <GitHub />
+        </IconButton>
+      </Toolbar>
+    </AppBar>
+  </div>;
 }
