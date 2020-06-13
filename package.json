@@ -26,7 +26,7 @@
     "fastify-static": "2.7.0",
     "form-data": "3.0.0",
     "ioredis": "4.17.3",
-    "mongodb": "3.5.8",
+    "mongodb": "3.5.9",
     "pbkdf2": "3.1.1",
     "react": "16.13.1",
     "react-dom": "16.13.1"
@@ -38,7 +38,7 @@
     "@material-ui/styles": "4.10.0",
     "@testing-library/react": "10.2.1",
     "@types/cookie-signature": "1.0.3",
-    "@types/ioredis": "4.16.4",
+    "@types/ioredis": "4.16.5",
     "@types/jest": "26.0.0",
     "@types/mongodb": "3.5.20",
     "@types/node": "14.0.13",
