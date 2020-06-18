@@ -1,32 +1,27 @@
-import { ThemeProvider, CssBaseline } from '@material-ui/core';
 import type { NormalProperties } from '../types';
-import getMuiTheme from '../types/theme';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import React from 'react';
 import Head from './Head';
 
-type ReactiveChildren = (React.ReactNode[] | JSX.Element);
 interface LayoutProperties extends NormalProperties {
   description?: string;
-  children?: ReactiveChildren;
+  children: (React.ReactNode[] | JSX.Element);
   isLogin?: boolean;
   page: string;
 }
 
-interface LayoutTreeProperties extends NormalProperties {
-  children?: ReactiveChildren;
+interface LayoutTreeProperties {
+  children: any;
   isLogin?: boolean;
 }
 
-function LayoutTree({ isLogin, children, req, res }: LayoutTreeProperties) {
+function LayoutTree({ isLogin, children }: LayoutTreeProperties) {
   if (isLogin) {
-    return <>
-      {children}
-    </>;
+    return children;
   } else {
     return <>
-      <Navbar {...{ req, res }} />
+      <Navbar />
       {children}
       <Footer />
     </>;
@@ -34,22 +29,12 @@ function LayoutTree({ isLogin, children, req, res }: LayoutTreeProperties) {
 }
 
 export default function Layout({ children, page, description, req, res, isLogin }: LayoutProperties) {
-  const theme = getMuiTheme(req);
-
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Head
-        page={page} 
-        description={description} 
-        req={req} 
-        res={res} 
-      />
+    <html>
+      <Head {...{ req, res, page, description }} />
       <body>
-        <LayoutTree isLogin={isLogin} req={req} res={res}>
-          {children}
-        </LayoutTree>
+        <LayoutTree {...{ isLogin, children } } />
       </body>
-    </ThemeProvider>
+    </html>
   );
 }
