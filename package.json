@@ -16,7 +16,7 @@
     "test": "jest --config jest.config.js --forceExit && rm -fr logs"
   },
   "dependencies": {
-    "@augu/immutable": "0.2.3",
+    "@augu/immutable": "0.2.5",
     "@augu/logging": "1.0.2",
     "@augu/orchid": "1.1.1",
     "fastify": "2.14.1",
