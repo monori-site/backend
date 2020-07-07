@@ -20,7 +20,7 @@
     "@augu/logging": "1.0.3",
     "@augu/orchid": "1.2.0",
     "fastify": "2.15.1",
-    "fastify-cookie": "3.6.1",
+    "fastify-cookie": "4.0.2",
     "fastify-plugin": "2.0.0",
     "fastify-session": "4.0.0",
     "fastify-static": "2.7.0",
