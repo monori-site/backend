@@ -23,7 +23,7 @@
     "fastify-cookie": "3.6.1",
     "fastify-plugin": "2.0.0",
     "fastify-session": "4.0.0",
-    "fastify-static": "2.7.0",
+    "fastify-static": "3.1.0",
     "form-data": "3.0.0",
     "ioredis": "4.17.3",
     "mongodb": "3.5.9",
