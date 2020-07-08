@@ -20,9 +20,7 @@
  * SOFTWARE.
  */
 
-export * from './Repository';
-export * from './EventBus';
-export * from './Routing';
-export * from './bucket';
-export * from './hash';
-export * from './Job';
+/** */
+interface JSON {
+  parse<T>(content: string, reviver?: ((this: any, key: string, value: any) => any)): T;
+}

@@ -26,7 +26,7 @@ import { Collection } from '@augu/immutable';
 /**
  * Handles all ratelimits and halts the process if they exceed the cooldown
  */
-export default class RatelimitBucket {
+export class RatelimitBucket {
   /**
    * Avaliable items as a Collection
    * 
@@ -48,11 +48,25 @@ export default class RatelimitBucket {
    * @param req The request
    * @returns A number of milliseconds until the ratelimit stops
    */
-  handle(route: string, req: FastifyRequest) {
-    if (!this.items.has(route)) this.items.set(route, new Collection());
+  handle(route: string, req: FastifyRequest): Promise<number> {
+    return new Promise((resolve) => {
+      if (!this.items.has(route)) this.items.set(route, new Collection());
 
-    const cooldown = 5000;
-    const items = this.items.get(route)!;
-    
+      const cooldown = 5000;
+      const bucket = this.items.get(route)!;
+      const now = Date.now();
+  
+      if (!bucket.has(req.raw.connection.remoteAddress!)) {
+        bucket.set(req.raw.connection.remoteAddress!, now);
+        setTimeout(() => bucket.delete(req.raw.connection.remoteAddress!), cooldown);
+        return resolve(now - cooldown);
+      } else {
+        const time = bucket.get(req.raw.connection.remoteAddress!)!;
+        bucket.set(req.raw.connection.remoteAddress!, now);
+        setTimeout(() => bucket.delete(req.raw.connection.remoteAddress!), now);
+
+        if (now < time) return resolve((time - now) / 1000);
+      }
+    });
   }
 }
