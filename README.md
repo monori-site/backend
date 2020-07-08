@@ -13,7 +13,7 @@ Because none of the services suited to what I wanted for it plus some are paid, 
 
 ### Requirements
 - Node.js v10 or higher
-- MongoDB
+- PostgreSQL
 - Redis
 
 ### Process
