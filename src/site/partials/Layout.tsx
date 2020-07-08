@@ -1,4 +1,4 @@
-import type { NormalProperties } from '../types';
+import type { NormalProperties, Response } from '../types';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import React from 'react';
@@ -11,17 +11,17 @@ interface LayoutProperties extends NormalProperties {
   page: string;
 }
 
-interface LayoutTreeProperties {
+interface LayoutTreeProperties extends NormalProperties {
   children: any;
   isLogin?: boolean;
 }
 
-function LayoutTree({ isLogin, children }: LayoutTreeProperties) {
+function LayoutTree({ isLogin, children, res, req }: LayoutTreeProperties) {
   if (isLogin) {
     return children;
   } else {
     return <>
-      <Navbar />
+      <Navbar {...{ res, req }} />
       {children}
       <Footer />
     </>;
@@ -33,7 +33,7 @@ export default function Layout({ children, page, description, req, res, isLogin 
     <html>
       <Head {...{ req, res, page, description }} />
       <body>
-        <LayoutTree {...{ isLogin, children } } />
+        <LayoutTree {...{ isLogin, children, req, res } } />
       </body>
     </html>
   );

@@ -14,8 +14,7 @@ if (!existsSync(join(process.cwd(), 'config.json'))) {
   process.exit(1);
 }
 
-const build = (<string> pkg.version).split('-')[1].split('.')[0];
-logger.info(`Initialising website... (v${pkg.version}; build ${build})`);
+logger.info(`Initialising website... (v${pkg.version})`);
 
 const config = require('./config.json');
 const site = new Website(config);

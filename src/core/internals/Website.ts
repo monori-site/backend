@@ -1,16 +1,18 @@
 import { Logger, ConsoleTransport, FileTransport } from '@augu/logging';
 import fastify, { FastifyInstance as Fastify } from 'fastify';
+import { downloadSemantic, humanize } from '../../utils';
 import { HttpClient, middleware } from '@augu/orchid';
+import { join, basename } from 'path';
+import { promises as fs, existsSync } from 'fs';
 import AnalyticsManager from '../managers/AnalyticsManager';
 import RoutingManager from '../managers/RoutingManager';
-import { join } from 'path';
 import Database from '../managers/DatabaseManager';
 import session from 'fastify-session';
 import fstatic from 'fastify-static';
 import cookie from 'fastify-cookie';
 import React from '../../middleware/renderReact';
 import Redis from 'ioredis';
-import fs from 'fs';
+import { Statistic } from 'semantic-ui-react';
 
 export interface Configuration {
   /** MongoDB URI */
@@ -163,7 +165,7 @@ export default class Website {
 
   private _addDatabaseEvents() {
     this.database.once('online', () => this.logger.info('Successfully connected to MongoDB'));
-    this.database.once('offline', (time) => this.logger.warn(`Disconnected from MongoDB (elapsed: ${this._humanize(time)})`));
+    this.database.once('offline', (time) => this.logger.warn(`Disconnected from MongoDB (elapsed: ${humanize(time)})`));
   }
 
   private _addRedisEvents() {
@@ -186,32 +188,6 @@ export default class Website {
     }
   }
 
-  async downloadSemantic() {
-    if (!fs.existsSync(join(process.cwd(), 'static', 'css'))) await fs.promises.mkdir(join(process.cwd(), 'static', 'css'));
-
-    const url = 'https://raw.githubusercontent.com/Semantic-Org/Semantic-UI/master/dist/semantic.min.css';
-    const dir = join(process.cwd(), 'static', 'css');
-    this.logger.info(`Now downloading Semantic UI (${url})...`);
-
-    try {
-      const res = await this.http.request({ 
-        method: 'get', 
-        url,
-        headers: {
-          'Content-Type': 'text/css'
-        }
-      });
-
-      const data = res.text();
-      await fs.promises.writeFile(join(dir, 'style.css'), data);
-
-      this.logger.info(`Written a file in ${join(dir, 'style.css')}!`);
-    } catch (ex) {
-      this.logger.error('Unable to write file (GitHub is down?):', ex);
-      process.exit(1);
-    }
-  }
-
   async serve() {
     this._addRedisEvents();
 
@@ -226,7 +202,7 @@ export default class Website {
     await this.database.connect();
 
     this.logger.info('Connected to the database! Now downloading Semantic CSS...');
-    await this.downloadSemantic();
+    await (downloadSemantic.bind(this))(process.cwd());
 
     this.logger.info('Booting up server...');
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -248,28 +224,21 @@ export default class Website {
     this.logger[type](...messages);
   }
 
-  private _humanize(ms: number) {
-    const weeks = Math.floor(ms / 1000 / 60 / 60 / 24 / 7);
-    ms -= weeks * 1000 * 60 * 60 * 24 * 7;
-  
-    const days = Math.floor(ms / 1000 / 60 / 60 / 24);
-    ms -= days * 1000 * 60 * 60 * 24;
-  
-    const hours = Math.floor(ms / 1000 / 60 / 60);
-    ms -= hours * 1000 * 60 * 60;
-  
-    const mins = Math.floor(ms / 1000 / 60);
-    ms -= mins * 1000 * 60;
-  
-    const sec = Math.floor(ms / 1000);
-  
-    let humanized = '';
-    if (weeks > 0) humanized += `${weeks} weeks, `;
-    if (days > 0) humanized += `${days} days, `;
-    if (hours > 0) humanized += `${hours} hours, `;
-    if (mins > 0) humanized += `${mins} minutes, `;
-    if (sec > 0) humanized += `${sec} seconds`;
-  
-    return humanized;
+  private async _move(source: string, target: string) {
+    let files: string[] = [];
+    const folder = join(target, basename(source));
+
+    if (!existsSync(folder)) await fs.mkdir(folder);
+    
+    const stats = await fs.lstat(source);
+    if (stats.isDirectory()) {
+      files = await fs.readdir(source);
+      for (const file of files) {
+        const s = join(source, file);
+        const curStats = await fs.lstat(s);
+        if (curStats.isDirectory()) this._move(s, folder);
+        else await fs.copyFile(s, folder);
+      }
+    }
   }
 }

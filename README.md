@@ -1,4 +1,6 @@
 # i18n
+[![Stars](https://img.shields.io/github/stars/auguwu/i18n?style=flat-square)](https://github.com/auguwu/i18n) [![Workflow Status](https://github.com/auguwu/i18n/workflows/ESLint/badge.svg)](https://github.com/auguwu/i18n/tree/master/.github/workflows) [![Dependencies](https://img.shields.io/david/dev/auguwu/i18n?style=flat-square)](/package.json)
+
 > :ghost: **| Simple and open-source translation site for everyone to use, for free.**
 >
 > [Demo](https://i18n.augu.dev)
