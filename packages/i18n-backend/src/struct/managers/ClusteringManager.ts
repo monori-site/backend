@@ -21,5 +21,7 @@
  */
 
 export default class ClusteringManager {
-  
+  constructor() {
+    throw new Error('Clustering Manager is not avaliable at this time');
+  }
 }

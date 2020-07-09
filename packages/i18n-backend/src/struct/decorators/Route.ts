@@ -43,7 +43,7 @@ export interface RouteDefinition {
    * @param res The response object from Fastify
    * @returns A promise of nothing
    */
-  run(this: Website, req: Request, res: Response<ServerResponse>): Promise<void>;
+  run(this: Website, req: Request, res: Response): Promise<void>;
 
   /** If we should be authenicated to use this route */
   authenicate: boolean;

@@ -20,38 +20,14 @@
  * SOFTWARE.
  */
 
-import { Repository } from '../internals/Repository';
+import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { Website } from '../internals/Website';
 
-interface Project { // TODO: Find a way to support Arrays in SQL
-  gitRepo?: string;
-  owner: string;
-  name: string;
-}
-
-export default class ProjectRepository extends Repository<Project> {
-  constructor() {
-    super({
-      columns: [
-        {
-          nullable: true,
-          primary: false,
-          name: 'gitRepo',
-          type: 'string'
-        },
-        {
-          nullable: false,
-          primary: false,
-          name: 'owner',
-          type: 'string'
-        },
-        {
-          nullable: false,
-          primary: true,
-          name: 'name',
-          type: 'string'
-        }
-      ],
-      table: 'projects'
-    });
-  }
+/**
+ * uwu whats this?
+ * @param req owo
+ * @param res owo
+ */
+export default function onRequest(this: Website, req: FastifyRequest, res: FastifyReply) {
+  console.log('dankey kang <3');
 }

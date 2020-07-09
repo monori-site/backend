@@ -27,6 +27,9 @@ const UNSUPPORTED = ['object', 'function', 'class', 'array', 'symbol', 'undefine
 
 /** Represents a SQL column */
 interface Column {
+  /** If this column should be null */
+  nullable: boolean;
+
   /** If this column is the primary key */
   primary: boolean;
 
@@ -34,7 +37,7 @@ interface Column {
   name: string;
 
   /** The JavaScript type */
-  type: any;
+  type: 'string' | 'number' | 'bigint' | 'float' | 'boolean';
 }
 
 /** Represents the repository's information */
@@ -44,9 +47,6 @@ interface RepositoryInfo {
 
   /** The table name */
   table: string;
-
-  /** The repository's name */
-  name: string;
 }
 
 /**
@@ -54,12 +54,15 @@ interface RepositoryInfo {
  * @param column The column
  */
 export function convertColumnToSql(column: Column) {
-  switch (getKindOf(column.type)) {
-    case 'boolean': return `${column.name.toLowerCase()} BOOL ${column.primary ? 'PRIMARY KEY' : ''}`;
-    case 'string': return `${column.name.toLowerCase()} TEXT ${column.primary ? 'PRIMARY KEY' : ''}`;
-    case 'bigint': return `${column.name.toLowerCase()} BIGINT ${column.primary ? 'PRIMARY KEY' : ''}`;
-    case 'number': return `${column.name.toLowerCase()} INTEGER ${column.primary ? 'PRIMARY KEY' : ''}`;
-    case 'float': return `${column.name.toLowerCase()} DOUBLE ${column.primary ? 'PRIMARY KEY' : ''}`;
+  const primary = column.primary ? 'PRIMARY KEY' : '';
+  const nullable = column.nullable ? 'NULL' : '';
+
+  switch (column.type) {
+    case 'boolean': return `${column.name.toLowerCase()} BOOL${nullable}${primary}`;
+    case 'string': return `${column.name.toLowerCase()} TEXT${nullable}${primary}`;
+    case 'bigint': return `${column.name.toLowerCase()} BIGINT${nullable}${primary}`;
+    case 'number': return `${column.name.toLowerCase()} INTEGER${nullable}${primary}`;
+    case 'float': return `${column.name.toLowerCase()} DOUBLE${nullable}${primary}`;
 
     default: throw new Error(`JavaScript type "${column.type}" is not supported in SQL`);
   }
@@ -88,9 +91,6 @@ export class Repository<T = unknown> {
   /** The repository table's name */
   public table: string;
 
-  /** The repository's name */
-  public name: string;
-
   /**
    * Constructs a new Repository
    * @param info The information
@@ -98,7 +98,6 @@ export class Repository<T = unknown> {
   constructor(info: RepositoryInfo) {
     this.columns = info.columns;
     this.table = info.table;
-    this.name = info.name;
 
     this.validate();
   }
@@ -109,8 +108,7 @@ export class Repository<T = unknown> {
   private validate() {
     if (!this.columns.length) throw new Error('No columns were added');
     for (const column of this.columns) {
-      const kind = getKindOf(column.type);
-      if (UNSUPPORTED.includes(kind)) throw new Error(`JavaScript type "${column.type}" isn't supported in SQL`);
+      if (UNSUPPORTED.includes(column.type)) throw new Error(`JavaScript type "${column.type}" isn't supported in SQL`);
     }
 
     return this.createTable();

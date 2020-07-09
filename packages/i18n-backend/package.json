@@ -20,6 +20,7 @@
     "@augu/logging": "1.0.3",
     "@augu/orchid": "1.2.0",
     "fastify": "3.0.0",
+    "fastify-rate-limit": "^4.0.1",
     "ioredis": "4.17.3",
     "node-cron": "2.0.3",
     "pbkdf2": "3.1.1",

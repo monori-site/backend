@@ -30,7 +30,7 @@ import { Collection } from '@augu/immutable';
 /**
  * Represents a route class from the definition
  */
-class Route {
+export class Route {
   /** If we should be authenicated to use this route */
   public authenicate: boolean;
 
@@ -47,7 +47,7 @@ class Route {
   public admin: boolean;
 
   /** The run function */
-  public run: (this: Website, req: FastifyRequest, res: FastifyReply<ServerResponse>) => Promise<void>;
+  public run: (this: Website, req: FastifyRequest, res: FastifyReply) => Promise<void>;
 
   /**
    * Constructs a new instance of Route
@@ -96,6 +96,14 @@ export class BaseRouter {
     this.logger = createLogger(`Router [${prefix}]`);
     this.routes = new Collection();
     this.prefix = prefix;
+  }
+
+  /**
+   * Adds the `website` param to the constructor
+   * @param website The website
+   */
+  init(website: Website) {
+    this.website = website;
   }
 
   /**
