@@ -36,14 +36,21 @@ if (!existsSync(getPath('config.json'))) {
 }
 
 logger.info(`Initialising website... (v${pkg.version})`);
-const website = new Website();
+const website = new Website(require('./config.json'));
 const env = website.config.get<'development' | 'production'>('environment', 'development');
 
 if (env === 'development') logger.warn('Site is in development mode, expect crashes! Report them at https://github.com/auguwu/i18n/issues if you find any.');
 
+website.on('online', () => {
+  logger.info('Website has initialised successfully');
+});
+
+website.on('disposed', () => {
+  logger.warn('Website has been disposed successfully');
+});
+
 website
   .load()
-  .then(() => logger.info('Website has successfully initialised'))
   .catch(error => {
     logger.fatal('Unable to initialise the website', error);
     process.exitCode = 1;

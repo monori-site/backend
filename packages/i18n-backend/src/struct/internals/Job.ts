@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
+import { validate, schedule } from 'node-cron';
 import type { Website } from './Website';
-import { validate } from 'node-cron';
 
 /**
  * Represents information of a cron job
@@ -61,6 +61,7 @@ export abstract class Job {
    */
   init(website: Website) {
     this.website = website;
+    schedule(this.interval, this.run);
   }
 
   /**

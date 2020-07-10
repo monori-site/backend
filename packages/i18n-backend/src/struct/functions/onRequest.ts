@@ -21,13 +21,48 @@
  */
 
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import type { Website } from '../internals/Website';
+import type { Website, Route } from '../internals';
+
+type i18nEnv = 'development' | 'production';
 
 /**
  * uwu whats this?
  * @param req owo
  * @param res owo
  */
-export default function onRequest(this: Website, req: FastifyRequest, res: FastifyReply) {
-  console.log('dankey kang <3');
+export default async function onRequest(this: Website, req: FastifyRequest, res: FastifyReply, route: Route) {
+  this.analytics.inc('request');
+  if (route.authenicate) {
+    const bucket = this.redis.getBucket(`session:${req.raw.connection.remoteAddress}`);
+    const item = await bucket.get();
+
+    if (item.expired) {
+      return res.status(403).send({
+        statusCode: 403,
+        message: 'Session has expired, please relogin to return to this page.'
+      });
+    }
+  }
+
+  if (route.admin) {
+    const bucket = this.redis.getBucket(`sessions:${req.raw.connection.remoteAddress}`);
+    const item = await bucket.get();
+
+    if (item.expired) {
+      return res.status(403).send({
+        statusCode: 403,
+        message: 'Session has expired, please relogin to return to this page.'
+      });
+    } else {
+      const repo = this.database.getRepository('users');
+      const user = await repo.get('id', item.userID);
+
+      if (user && !user.admin) return res.status(401).send({
+        statusCode: 401,
+        message: 'User is not an admin'
+      });
+    }
+  }
+
+
 }

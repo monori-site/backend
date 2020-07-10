@@ -21,12 +21,12 @@
  */
 
 import fastify, { FastifyInstance as Server } from 'fastify';
+import ConfigManager, { Configuration } from '../managers/ConfigManager';
 import { Logger, createLogger } from '@augu/logging';
 import AnalyticsManager from '../managers/AnalyticsManager';
 import DatabaseManager from '../managers/DatabaseManager';
 import RoutingManager from '../managers/RoutingManager';
 import CronJobManager from '../managers/JobManager';
-import ConfigManager from '../managers/ConfigManager';
 import RedisManager from '../managers/RedisManager';
 import { EventBus } from '.';
 import ratelimit from 'fastify-rate-limit';
@@ -49,11 +49,11 @@ export class Website extends EventBus<Events> {
   public redis: RedisManager;
   public jobs: CronJobManager;
 
-  constructor() {
+  constructor(config: Configuration) {
     super();
 
     // javascript sometimes i hate u smh
-    this.config = new ConfigManager();
+    this.config = new ConfigManager(config);
     this.analytics = new AnalyticsManager(this);
     this.database = new DatabaseManager(this);
     this.bootedAt = Date.now();

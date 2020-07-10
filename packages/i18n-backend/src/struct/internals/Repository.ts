@@ -105,20 +105,11 @@ export class Repository<T = unknown> {
   /**
    * Validates the repository
    */
-  private validate() {
+  validate() {
     if (!this.columns.length) throw new Error('No columns were added');
     for (const column of this.columns) {
       if (UNSUPPORTED.includes(column.type)) throw new Error(`JavaScript type "${column.type}" isn't supported in SQL`);
     }
-
-    return this.createTable();
-  }
-
-  /**
-   * Creates the table if it doesn't exist
-   */
-  private async createTable() {
-    if (!(await this.website.database.exists(this.table))) await this.website.database.createTable(this);
   }
 
   /**
@@ -134,11 +125,11 @@ export class Repository<T = unknown> {
    * @param column The column
    * @param value The value
    */
-  delete(column: string, value: any) {
+  delete(column: string, value: any): Promise<void | null> {
     const hecc = this.columns.filter(x => x.name === column && x.primary);
     if (!hecc.length) throw new Error(`Column "${column}" was not found or it wasn't the primary column`);
 
-    return this.website.database.query(`DELETE FROM ${this.table.toLowerCase()} WHERE ${column.toLowerCase()} = ${escapeSQL(value)};`);
+    return this.website.database.query<void>(`DELETE FROM ${this.table.toLowerCase()} WHERE ${column.toLowerCase()} = ${escapeSQL(value)};`);
   }
 
   /**
@@ -153,7 +144,7 @@ export class Repository<T = unknown> {
       items.push(escapeSQL(item));
     }
 
-    return this.website.database.query(`INSERT INTO ${this.table.toLowerCase()} ${columns} VALUES (${items.join(', ')});`);
+    return this.website.database.query<T>(`INSERT INTO ${this.table.toLowerCase()} ${columns} VALUES (${items.join(', ')});`);
   }
 
   /**
@@ -165,7 +156,7 @@ export class Repository<T = unknown> {
     const hecc = this.columns.filter(x => x.name === column && x.primary);
     if (!hecc.length) throw new Error(`Column "${column}" was not found or it wasn't the primary column`);
 
-    return this.website.database.query(`SELECT * FROM ${this.table.toLowerCase()} WHERE ${column.toLowerCase()} = ${escapeSQL(value)};`);
+    return this.website.database.query<T>(`SELECT * FROM ${this.table.toLowerCase()} WHERE ${column.toLowerCase()} = ${escapeSQL(value)};`);
   }
 
   /**

@@ -45,7 +45,6 @@ export default class RedisManager extends EventBus<Events> {
   }
 
   async connect() {
-    await this.client.connect();
     this.client.once('ready', () => {
       this.connected = true;
       this.emit('online');

@@ -85,7 +85,9 @@ export default class DatabaseManager extends EventBus<Events> {
     const projects = new ProjectsRepository();
     const users = new UserRepository();
 
-    for (const repo of [orgs, projects, users]) repo.init(this.website);
+    for (const repo of [orgs, projects, users]) {
+      if (!(this.exists(repo.table))) await this.website.database.createTable(repo);
+    }
 
     this.repositories.set('organisations', orgs);
     this.repositories.set('projects', projects);
@@ -121,7 +123,7 @@ export default class DatabaseManager extends EventBus<Events> {
   }
 
   async exists(name: string) {
-    const data = await this.query(name);
+    const data = await this.query(`SELECT to_regclass('${name}')`);
     return data != null;
   }
 

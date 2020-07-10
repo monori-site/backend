@@ -77,20 +77,8 @@ export default class ConfigManager {
   /**
    * Creates a new instance of ConfigManager
    */
-  constructor() {
-    this.cache = this.load();
-  }
-
-  /**
-   * Loads the configuration
-   */
-  load() {
-    const path = util.getPath('config.json');
-    try {
-      return JSON.parse<Configuration>(require(path));
-    } catch {
-      throw new Error(`Unable to find config in path "${path}"`);
-    }
+  constructor(config: Configuration) {
+    this.cache = config;
   }
 
   /**
