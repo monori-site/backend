@@ -20,6 +20,5 @@
  * SOFTWARE.
  */
 
-export * from './clustering';
 export * from './decorators';
 export * from './internals';

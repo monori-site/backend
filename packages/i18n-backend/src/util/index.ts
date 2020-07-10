@@ -113,3 +113,11 @@ export function getKindOf(value: unknown) {
 
   return 'object';
 }
+
+/**
+ * Asynchronous halt the process for x amount of milliseconds
+ * @param ms The amount of time to "sleep"
+ */
+export function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

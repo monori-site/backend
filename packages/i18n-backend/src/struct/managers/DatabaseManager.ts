@@ -27,7 +27,7 @@ import ProjectsRepository from '../repository/ProjectRepository';
 import type { Website } from '../internals/Website';
 import UserRepository from '../repository/UserRepository';
 import { Collection } from '@augu/immutable';
-import { EventBus } from '../internals/EventBus';
+import { EventBus } from '../internals';
 import pg from 'pg';
 
 interface DatabaseExistsArgs {
@@ -130,5 +130,9 @@ export default class DatabaseManager extends EventBus<Events> {
   getRepository(name: 'users'): UserRepository;
   getRepository(name: string) {
     return this.repositories.get(name)!;
+  }
+
+  count(table: string) {
+    return this.query<number>(`SELECT count(*) FROM ${table}`);
   }
 }

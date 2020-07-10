@@ -34,9 +34,6 @@ export class Route {
   /** If we should be authenicated to use this route */
   public authenicate: boolean;
 
-  /** Amount of milliseconds to throttle when the user reaches a ratelimited state */
-  public throttle: number;
-
   /** The route's prefix */
   public prefix: string;
 
@@ -55,7 +52,6 @@ export class Route {
    */
   constructor(definition: RouteDefinition) {
     this.authenicate = definition.authenicate;
-    this.throttle = definition.throttle;
     this.prefix = definition.prefix;
     this.method = definition.method;
     this.admin = definition.admin;

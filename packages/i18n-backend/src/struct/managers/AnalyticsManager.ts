@@ -23,15 +23,6 @@
 import { Logger, createLogger } from '@augu/logging';
 import type { Website } from '../internals/Website';
 
-interface ClusterStats {
-  [x: number]: {
-    memory: NodeJS.MemoryUsage;
-    dead: boolean;
-    cpu: NodeJS.CpuUsage;
-    id: number;
-  }
-}
-
 interface DatabaseStats {
   organisations: number;
   projects: number;
@@ -52,12 +43,6 @@ export default class AnalyticsManager {
   /** Database statistics (gets redone every ~10 minutes) */
   public databaseStats?: DatabaseStats;
 
-  /** Cluster statistics (gets redone every ~10 minutes) */
-  public clusterStats?: ClusterStats;
-
-  /** The intervals */
-  private intervals: { [x in 'cluster' | 'database']: NodeJS.Timer | null };
-
   /** Amount of requests done */
   public requests: number;
 
@@ -76,11 +61,6 @@ export default class AnalyticsManager {
    */
   constructor(private website: Website) {
     this.databaseStats = undefined;
-    this.clusterStats = undefined;
-    this.intervals = {
-      database: null,
-      cluster: null
-    };
     this.requests = 0;
     this.enabled = website.config.get('analytics', false);
     this.logger = createLogger('Analytics');
@@ -91,29 +71,19 @@ export default class AnalyticsManager {
    * Collects cluster and database statistics
    */
   collect() {
-    this.logger.info('Now collecting database and cluster statistics...');
-    this.intervals.cluster = setInterval(() => {
-      this.website.ipc.send('collectStats', (data) => {
-        this.clusterStats = data;
-      });
-    }, 600000);
+    this.logger.info('Now collecting database statistics...');
+    setInterval(async () => {
+      const organisations = await this.website.database.count('organisations');
+      const projects = await this.website.database.count('projects');
+      const users = await this.website.database.count('users');
 
-    this.intervals.database = setInterval(async () => {
       this.databaseStats = {
-        organisations: await this.website.database.count('organisations'),
-        projects: await this.website.database.count('projects'),
+        organisations: organisations!,
+        projects: projects!,
         online: this.website.database.connected,
-        users: await this.website.database.count('users')
+        users: users!
       };
     }, 600000);
-  }
-
-  /**
-   * Disposes the statistics
-   */
-  dispose() {
-    this.logger.info('Disposing intervals...');
-    for (const [, interval] of Object.entries(this.intervals)) clearInterval(interval!);
   }
 
   /**

@@ -20,3 +20,40 @@
  * SOFTWARE.
  */
 
+import { existsSync, mkdirSync } from 'fs';
+import { createLogger } from '@augu/logging';
+import { Website } from './struct';
+import { getPath } from './util';
+
+if (!existsSync(getPath('logs'))) mkdirSync(getPath('logs'));
+
+const logger = createLogger('Master', { file: './logs/master.log' });
+const pkg = require('../package.json');
+
+if (!existsSync(getPath('config.json'))) {
+  logger.fatal(`Missing "config.json" file in ${getPath('config.json')}`);
+  process.exitCode = 1;
+}
+
+logger.info(`Initialising website... (v${pkg.version})`);
+const website = new Website();
+const env = website.config.get<'development' | 'production'>('environment', 'development');
+
+if (env === 'development') logger.warn('Site is in development mode, expect crashes! Report them at https://github.com/auguwu/i18n/issues if you find any.');
+
+website
+  .load()
+  .then(() => logger.info('Website has successfully initialised'))
+  .catch(error => {
+    logger.fatal('Unable to initialise the website', error);
+    process.exitCode = 1;
+  });
+
+process
+  .on('uncaughtException', (error) => logger.fatal('An uncaught exception has occured', error))
+  .on('unhandledRejection', (reason) => logger.fatal('An unhandled promise rejection has occured', reason))
+  .on('SIGINT', () => {
+    logger.fatal('Closing server...');
+    website.dispose();
+    process.exit(0);
+  });

@@ -21,10 +21,10 @@
  */
 
 import RedisClient, { Redis as IRedis, RedisOptions as RedisConfig } from 'ioredis';
+import type { Website } from '../internals/Website';
 import { RedisBucket } from '../internals/bucket';
 import { Collection } from '@augu/immutable';
 import { EventBus } from '../internals/EventBus';
-import { Website } from '../internals/Website';
 
 // eslint-disable-next-line
 type Events = {
@@ -41,14 +41,15 @@ export default class RedisManager extends EventBus<Events> {
     super();
 
     this.buckets = new Collection();
-    this.client = new RedisClient(website.config.get<RedisConfig>('redis'));
+    this.client = new RedisClient(website.config!.get<RedisConfig>('redis')!);
   }
 
   async connect() {
     await this.client.connect();
-
-    this.connected = true;
-    this.emit('online');
+    this.client.once('ready', () => {
+      this.connected = true;
+      this.emit('online');
+    });
   }
 
   disconnect() {

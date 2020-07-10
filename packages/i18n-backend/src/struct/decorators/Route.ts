@@ -48,9 +48,6 @@ export interface RouteDefinition {
   /** If we should be authenicated to use this route */
   authenicate: boolean;
 
-  /** Amount of milliseconds to throttle when the user reaches a ratelimited state */
-  throttle: number;
-
   /** The route's prefix */
   prefix: string;
 
@@ -102,7 +99,6 @@ export const Get = (route: string, options?: RouteDecoratorOptions): MethodDecor
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
-      throttle: options ? getOption(options, 'throttle', 5000) : 5000,
       prefix: route,
       method: Method.Get,
       admin: options ? getOption(options, 'admin', false) : false,
@@ -125,7 +121,6 @@ export const Put = (route: string, options?: RouteDecoratorOptions): MethodDecor
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
-      throttle: options ? getOption(options, 'throttle', 5000) : 5000,
       prefix: route,
       method: Method.Put,
       admin: options ? getOption(options, 'admin', false) : false,
@@ -148,7 +143,6 @@ export const Post = (route: string, options?: RouteDecoratorOptions): MethodDeco
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
-      throttle: options ? getOption(options, 'throttle', 5000) : 5000,
       prefix: route,
       method: Method.Post,
       admin: options ? getOption(options, 'admin', false) : false,
@@ -171,7 +165,6 @@ export const Patch = (route: string, options?: RouteDecoratorOptions): MethodDec
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
-      throttle: options ? getOption(options, 'throttle', 5000) : 5000,
       prefix: route,
       method: Method.Patch,
       admin: options ? getOption(options, 'admin', false) : false,
@@ -194,7 +187,6 @@ export const Delete = (route: string, options?: RouteDecoratorOptions): MethodDe
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
-      throttle: options ? getOption(options, 'throttle', 5000) : 5000,
       prefix: route,
       method: Method.Delete,
       admin: options ? getOption(options, 'admin', false) : false,

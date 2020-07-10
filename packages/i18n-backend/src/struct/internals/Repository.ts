@@ -26,7 +26,7 @@ import { getKindOf } from '../../util';
 const UNSUPPORTED = ['object', 'function', 'class', 'array', 'symbol', 'undefined', 'null'];
 
 /** Represents a SQL column */
-interface Column {
+export interface Column {
   /** If this column should be null */
   nullable: boolean;
 
@@ -54,8 +54,8 @@ interface RepositoryInfo {
  * @param column The column
  */
 export function convertColumnToSql(column: Column) {
-  const primary = column.primary ? 'PRIMARY KEY' : '';
-  const nullable = column.nullable ? 'NULL' : '';
+  const primary = column.primary ? ' PRIMARY KEY' : '';
+  const nullable = column.nullable ? ' NULL' : '';
 
   switch (column.type) {
     case 'boolean': return `${column.name.toLowerCase()} BOOL${nullable}${primary}`;

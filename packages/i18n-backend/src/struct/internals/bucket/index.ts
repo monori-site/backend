@@ -20,5 +20,4 @@
  * SOFTWARE.
  */
 
-export * from './RatelimitBucket';
 export * from './RedisBucket';
