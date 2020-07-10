@@ -23,7 +23,9 @@
 import { Repository } from '../internals/Repository';
 
 /** Represents an organisation */
-interface Organisation { // TODO: Find a way to do objects and arrays with SQL
+interface Organisation {
+  projects: string[];
+  members: string[];
   owner: string;
   name: string;
 }
@@ -35,12 +37,28 @@ export default class OrgansiationRepository extends Repository<Organisation> {
         {
           nullable: false,
           primary: false,
+          array: true,
+          name: 'projects',
+          type: 'string'
+        },
+        {
+          nullable: false,
+          primary: false,
+          array: true,
+          name: 'members',
+          type: 'string'
+        },
+        {
+          nullable: false,
+          primary: false,
+          array: false,
           name: 'owner',
           type: 'string'
         },
         {
           nullable: false,
           primary: true,
+          array: false,
           name: 'name',
           type: 'string'
         }

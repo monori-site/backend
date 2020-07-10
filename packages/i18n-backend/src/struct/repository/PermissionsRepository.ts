@@ -22,80 +22,47 @@
 
 import { Repository } from '../internals/Repository';
 
-interface User {
-  organisations: string[];
-  contributor: boolean;
-  translator: boolean;
-  password: string;
-  username: string;
-  github: string | null;
-  email: string;
-  admin: boolean;
-  id: string;
+interface Permissions {
+  projects: string[];
+  memberID: string;
+  publish: boolean;
+  edit: boolean;
 }
 
-export default class UserRepository extends Repository<User> {
+export default class PermissionsRepository extends Repository<Permissions> {
   constructor() {
     super({
       columns: [
         {
-          nullable: false,
           primary: false,
-          array: false,
-          name: 'contributor',
-          type: 'boolean'
-        },
-        {
           nullable: false,
-          primary: false,
-          array: false,
-          name: 'translator',
-          type: 'boolean'
-        },
-        {
-          nullable: false,
-          primary: false,
-          array: false,
-          name: 'password',
+          array: true,
+          name: 'projects',
           type: 'string'
         },
         {
-          nullable: false,
-          primary: false,
-          array: false,
-          name: 'username',
-          type: 'string'
-        },
-        {
-          nullable: true,
-          primary: false,
-          array: false,
-          name: 'github',
-          type: 'string'
-        },
-        {
-          nullable: false,
-          primary: false,
-          array: false,
-          name: 'email',
-          type: 'string'
-        },
-        {
-          nullable: false,
-          primary: false,
-          array: false,
-          name: 'admin',
-          type: 'boolean'
-        },
-        {
-          nullable: false,
           primary: true,
+          nullable: false,
           array: false,
-          name: 'id',
+          name: 'memberID',
           type: 'string'
+        },
+        {
+          primary: false,
+          nullable: false,
+          array: false,
+          name: 'publish',
+          type: 'boolean'
+        },
+        {
+          primary: false,
+          nullable: false,
+          array: false,
+          name: 'edit',
+          type: 'boolean'
         }
       ],
-      table: 'users'
+      table: 'permissions'
     });
   }
 }

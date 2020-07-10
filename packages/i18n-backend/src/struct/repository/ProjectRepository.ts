@@ -22,7 +22,8 @@
 
 import { Repository } from '../internals/Repository';
 
-interface Project { // TODO: Find a way to support Arrays in SQL
+interface Project {
+  translators: string[];
   gitRepo?: string;
   owner: string;
   name: string;
@@ -33,20 +34,30 @@ export default class ProjectRepository extends Repository<Project> {
     super({
       columns: [
         {
+          nullable: false,
+          primary: false,
+          array: true,
+          name: 'translators',
+          type: 'string'
+        },
+        {
           nullable: true,
           primary: false,
+          array: false,
           name: 'gitRepo',
           type: 'string'
         },
         {
           nullable: false,
           primary: false,
+          array: false,
           name: 'owner',
           type: 'string'
         },
         {
           nullable: false,
           primary: true,
+          array: false,
           name: 'name',
           type: 'string'
         }

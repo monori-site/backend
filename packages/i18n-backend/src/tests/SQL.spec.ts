@@ -22,7 +22,7 @@
 
 /// <reference path='../../node_modules/@types/jest/index.d.ts' />
 
-import { convertColumnToSql, Column } from '../struct';
+import { convertColumnToSql, Column, convertArraysToSql } from '../struct';
 
 describe('SQL', () => {
   let columns!: Column[];
@@ -31,21 +31,31 @@ describe('SQL', () => {
       {
         nullable: true,
         primary: false,
+        array: false,
         name: 'key',
         type: 'string'
       },
       {
         nullable: false,
         primary: true,
+        array: false,
         name: 'gay',
         type: 'number'
       },
       {
         nullable: false,
         primary: false,
+        array: false,
         name: 'uwu',
         type: 'boolean'
-      }
+      },
+      {
+        nullable: false,
+        primary: false,
+        array: true,
+        name: 'owo',
+        type: 'string'
+      },
     ];
   });
 
@@ -89,5 +99,37 @@ describe('SQL', () => {
 
     const sql = convertColumnToSql(column!);
     expect(sql).toBe('key TEXT NULL');
+  });
+
+  it('column "owo" should equal "owo TEXT[]"', () => {
+    const column = columns.find(c => c.name === 'owo');
+    expect(column).toBeDefined();
+
+    const sql = convertColumnToSql(column!);
+    expect(sql).toBe('owo TEXT[]');
+  });
+
+  it('should return "uwu TEXT[12]" as the SQL string', () => {
+    const column: Column = {
+      nullable: false,
+      primary: false,
+      array: true,
+      name: 'uwu',
+      type: 'string',
+      size: 12
+    };
+
+    const sql = convertColumnToSql(column);
+    expect(sql).toBe('uwu TEXT[12]');
+  });
+
+  it('should return "ARRAY[a, b, c]"', () => {
+    const sql = convertArraysToSql(['a', 'b', 'c']);
+    expect(sql).toBe('ARRAY[a, b, c]');
+  });
+
+  it('should return "ARRAY[]"', () => {
+    const sql = convertArraysToSql([]);
+    expect(sql).toBe('ARRAY[]');
   });
 });

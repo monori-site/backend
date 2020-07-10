@@ -26,6 +26,7 @@ import { Logger, createLogger } from '@augu/logging';
 import AnalyticsManager from '../managers/AnalyticsManager';
 import DatabaseManager from '../managers/DatabaseManager';
 import RoutingManager from '../managers/RoutingManager';
+import SessionManager from '../managers/SessionManager';
 import CronJobManager from '../managers/JobManager';
 import RedisManager from '../managers/RedisManager';
 import { EventBus } from '.';
@@ -41,6 +42,7 @@ type Events = {
 export class Website extends EventBus<Events> {
   public analytics: AnalyticsManager;
   public database: DatabaseManager;
+  public sessions: SessionManager;
   public bootedAt: number;
   private logger: Logger;
   public config: ConfigManager;
@@ -56,6 +58,7 @@ export class Website extends EventBus<Events> {
     this.config = new ConfigManager(config);
     this.analytics = new AnalyticsManager(this);
     this.database = new DatabaseManager(this);
+    this.sessions = new SessionManager(this);
     this.bootedAt = Date.now();
     this.logger = createLogger('Website', { file: './logs/website.log' });
     this.routes = new RoutingManager(this);

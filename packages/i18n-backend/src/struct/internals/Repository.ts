@@ -33,11 +33,17 @@ export interface Column {
   /** If this column is the primary key */
   primary: boolean;
 
+  /** If this column should be an array */
+  array: boolean;
+
   /** The name of the column */
   name: string;
 
   /** The JavaScript type */
   type: 'string' | 'number' | 'bigint' | 'float' | 'boolean';
+
+  /** If the TEXT/ARRAY size should be enabled */
+  size?: number;
 }
 
 /** Represents the repository's information */
@@ -56,16 +62,25 @@ interface RepositoryInfo {
 export function convertColumnToSql(column: Column) {
   const primary = column.primary ? ' PRIMARY KEY' : '';
   const nullable = column.nullable ? ' NULL' : '';
+  const array = column.array ? `[${column.size ? column.size : ''}]` : '';
+
+  if (['boolean'].includes(column.type) && column.array) {
+    throw new Error('Array support for `BOOL` will not be supported');
+  }
 
   switch (column.type) {
     case 'boolean': return `${column.name.toLowerCase()} BOOL${nullable}${primary}`;
-    case 'string': return `${column.name.toLowerCase()} TEXT${nullable}${primary}`;
-    case 'bigint': return `${column.name.toLowerCase()} BIGINT${nullable}${primary}`;
-    case 'number': return `${column.name.toLowerCase()} INTEGER${nullable}${primary}`;
-    case 'float': return `${column.name.toLowerCase()} DOUBLE${nullable}${primary}`;
+    case 'string': return `${column.name.toLowerCase()} TEXT${array}${nullable}${primary}`;
+    case 'bigint': return `${column.name.toLowerCase()} BIGINT${array}${nullable}${primary}`;
+    case 'number': return `${column.name.toLowerCase()} INTEGER${array}${nullable}${primary}`;
+    case 'float': return `${column.name.toLowerCase()} DOUBLE${array}${nullable}${primary}`;
 
     default: throw new Error(`JavaScript type "${column.type}" is not supported in SQL`);
   }
+}
+
+export function convertArraysToSql<T>(values: T[]) {
+  return `ARRAY[${values.join(', ') || ''}]`;
 }
 
 /**
@@ -141,7 +156,8 @@ export class Repository<T = unknown> {
     const items: string[] = [];
 
     for (const [, item] of Object.entries(data)) {
-      items.push(escapeSQL(item));
+      if (Array.isArray(item)) items.push(convertArraysToSql(item));
+      else items.push(escapeSQL(item));
     }
 
     return this.website.database.query<T>(`INSERT INTO ${this.table.toLowerCase()} ${columns} VALUES (${items.join(', ')});`);

@@ -41,8 +41,11 @@ const env = website.config.get<'development' | 'production'>('environment', 'dev
 
 if (env === 'development') logger.warn('Site is in development mode, expect crashes! Report them at https://github.com/auguwu/i18n/issues if you find any.');
 
-website.on('online', () => {
+website.on('online', async () => {
   logger.info('Website has initialised successfully');
+  await website.sessions.reapply();
+  
+  for (const job of website.jobs.values()) await job.run();
 });
 
 website.on('disposed', () => {

@@ -35,7 +35,7 @@ type Events = {
 export default class RedisManager extends EventBus<Events> {
   public connected!: boolean;
   private buckets: Collection<RedisBucket<any>>;
-  private client: IRedis;
+  public client: IRedis;
 
   constructor(website: Website) {
     super();
@@ -58,7 +58,7 @@ export default class RedisManager extends EventBus<Events> {
     this.emit('offline');
   }
 
-  getBucket<T extends Record<string, unknown>>(key: string): RedisBucket<T> {
+  getBucket<T>(key: string): RedisBucket<T> {
     if (!this.buckets.has(key)) {
       const bucket = new RedisBucket<T>(this.client, key);
       this.buckets.set(key, bucket);

@@ -23,6 +23,7 @@
 import { Repository, convertColumnToSql } from '../internals/Repository';
 import { createLogger, Logger } from '@augu/logging';
 import OrganisationRepository from '../repository/OrganisationRepository';
+import PermissionsRepository from '../repository/PermissionsRepository';
 import ProjectsRepository from '../repository/ProjectRepository';
 import type { Website } from '../internals/Website';
 import UserRepository from '../repository/UserRepository';
@@ -55,6 +56,7 @@ export default class DatabaseManager extends EventBus<Events> {
     this.website = website;
     this.logger = createLogger('Database');
     this.pool = new pg.Pool({
+      database: website.config.get<string>('database.name', 'i18n'),
       password: website.config.get<string>('database.password')!,
       user: website.config.get<string>('database.username')!,
       host: website.config.get<string>('database.host')!,
@@ -68,7 +70,7 @@ export default class DatabaseManager extends EventBus<Events> {
       return;
     }
 
-    const name = this.website.config.get<string>('database.name')!;
+    const name = this.website.config.get<string>('database.name', 'i18n');
     const user = this.website.config.get<string>('database.username')!;
 
     const result = await this.query<DatabaseExistsArgs>(`select exists(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('${name}'))`);
@@ -81,15 +83,18 @@ export default class DatabaseManager extends EventBus<Events> {
     this.checked = true;
     this.logger.info('Database has been checked.');
 
+    const permissions = new PermissionsRepository();
     const orgs = new OrganisationRepository();
     const projects = new ProjectsRepository();
     const users = new UserRepository();
 
-    for (const repo of [orgs, projects, users]) {
+    for (const repo of [orgs, projects, users, permissions]) {
+      repo.init(this.website);
       if (!(this.exists(repo.table))) await this.website.database.createTable(repo);
     }
 
     this.repositories.set('organisations', orgs);
+    this.repositories.set('permissions', permissions);
     this.repositories.set('projects', projects);
     this.repositories.set('users', users);
   }
@@ -128,6 +133,7 @@ export default class DatabaseManager extends EventBus<Events> {
   }
 
   getRepository(name: 'organisations'): OrganisationRepository;
+  getRepository(name: 'permissions'): PermissionsRepository;
   getRepository(name: 'projects'): ProjectsRepository;
   getRepository(name: 'users'): UserRepository;
   getRepository(name: string) {
