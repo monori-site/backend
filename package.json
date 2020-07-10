@@ -37,7 +37,7 @@
     "@augu/eslint-config": "1.6.1",
     "@testing-library/react": "10.4.5",
     "@types/cookie-signature": "1.0.3",
-    "@types/ioredis": "4.17.1",
+    "@types/ioredis": "4.17.2",
     "@types/jest": "26.0.4",
     "@types/mongodb": "3.5.25",
     "@types/node": "14.0.22",
