@@ -21,48 +21,76 @@
  */
 
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import type { Website, Route } from '../internals';
-
-type i18nEnv = 'development' | 'production';
+import type { Website, Route, BaseRouter } from '../internals';
 
 /**
- * uwu whats this?
- * @param req owo
- * @param res owo
+ * Does the routing portion
+ * @param req The request
+ * @param res The reply
+ * @param route The current route
+ * @param router The current router
  */
-export default async function onRequest(this: Website, req: FastifyRequest, res: FastifyReply, route: Route) {
+export default async function onRequest(
+  this: Website, 
+  req: FastifyRequest, 
+  res: FastifyReply, 
+  route: Route, 
+  router: BaseRouter
+): Promise<void> {
   this.analytics.inc('request');
-  if (route.authenicate) {
-    const bucket = this.redis.getBucket(`session:${req.raw.connection.remoteAddress}`);
-    const item = await bucket.get();
+  //  if (route.authenicate) {
+  //    const bucket = this.redis.getBucket(`session:${req.raw.connection.remoteAddress}`);
+  //    const item = await bucket.get();
+  //
+  //    if (!item) {
+  //      return res.status(403).send({
+  //        statusCode: 403,
+  //        message: 'Session has not been created, please login or signup.'
+  //      });
+  //    }
+  //
+  //    if (item && item.expired) {
+  //      return res.status(403).send({
+  //        statusCode: 403,
+  //        message: 'Session has expired, please relogin to return to this page.'
+  //      });
+  //    }
+  //  }
+  //
+  //  if (route.admin) {
+  //    const bucket = this.redis.getBucket(`sessions:${req.raw.connection.remoteAddress}`);
+  //    const item = await bucket.get();
+  //
+  //    if (!item) {
+  //      return res.status(403).send({
+  //        statusCode: 403,
+  //        message: 'Session has not been created, please login or signup.'
+  //      });
+  //    }
+  //
+  //    if (item.expired) {
+  //      return res.status(403).send({
+  //        statusCode: 403,
+  //        message: 'Session has expired, please relogin to return to this page.'
+  //      });
+  //    } else {
+  //      const repo = this.database.getRepository('users');
+  //      const user = await repo.get('id', item.userID);
+  //
+  //      if (user && !user.admin) return res.status(401).send({
+  //        statusCode: 401,
+  //        message: 'User is not an admin'
+  //      });
+  //   }
+  //  }
 
-    if (item.expired) {
-      return res.status(403).send({
-        statusCode: 403,
-        message: 'Session has expired, please relogin to return to this page.'
-      });
-    }
+  try {
+    await route.run.apply(router, [req, res]);
+  } catch (ex) {
+    return res.status(500).send({
+      statusCode: 500,
+      message: 'Unable to process request',
+      error: `[${ex.name}]: ${ex.message}`
+    });
   }
-
-  if (route.admin) {
-    const bucket = this.redis.getBucket(`sessions:${req.raw.connection.remoteAddress}`);
-    const item = await bucket.get();
-
-    if (item.expired) {
-      return res.status(403).send({
-        statusCode: 403,
-        message: 'Session has expired, please relogin to return to this page.'
-      });
-    } else {
-      const repo = this.database.getRepository('users');
-      const user = await repo.get('id', item.userID);
-
-      if (user && !user.admin) return res.status(401).send({
-        statusCode: 401,
-        message: 'User is not an admin'
-      });
-    }
-  }
-
-
 }

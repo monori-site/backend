@@ -7,10 +7,10 @@
   "author": "August <august@augu.dev>",
   "repository": "https://github.com/auguwu/i18n/tree/expiremental/postgres/packages/i18n-backend",
   "scripts": {
-    "build:watch": "yarn lint && yarn test && yarn clean && yarn tsc -w",
-    "prepare": "rm -fr node_modules/@augu/logging/node_modules",
+    "build:watch": "yarn lint && yarn clean && yarn tsc -w",
+    "prepare": "rm -fr node_modules/@augu/logging/node_modules && yarn test",
     "compile": "yarn tsc",
-    "build": "yarn lint && yarn test && yarn clean && yarn compile && yarn move",
+    "build": "yarn lint && yarn clean && yarn compile && yarn move",
     "clean": "rm -fr build",
     "move": "cp src/config.json build/config.json",
     "lint": "eslint src --ext .ts --fix",
@@ -26,8 +26,7 @@
     "is-number": "7.0.0",
     "node-cron": "2.0.3",
     "pbkdf2": "3.1.1",
-    "pg": "8.2.2",
-    "veza": "1.1.0"
+    "pg": "8.2.2"
   },
   "devDependencies": {
     "@augu/eslint-config": "1.6.1",

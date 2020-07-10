@@ -21,8 +21,7 @@
  */
 
 import type { FastifyRequest as Request, FastifyReply as Response } from 'fastify';
-import type { ServerResponse } from 'http';
-import type { Website } from '../internals/Website';
+import type { BaseRouter } from '../internals';
 import { getOption } from '../../util';
 
 export enum Method {
@@ -43,7 +42,7 @@ export interface RouteDefinition {
    * @param res The response object from Fastify
    * @returns A promise of nothing
    */
-  run(this: Website, req: Request, res: Response): Promise<void>;
+  run(this: BaseRouter, req: Request, res: Response): Promise<void>;
 
   /** If we should be authenicated to use this route */
   authenicate: boolean;

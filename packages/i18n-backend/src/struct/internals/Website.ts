@@ -92,22 +92,22 @@ export class Website extends EventBus<Events> {
     });
 
     this.server.setNotFoundHandler((req, res) => {
-      this.logger.warn(`Router "${req.raw.method!.toUpperCase()} ${req.raw.url}" was not found`);
+      this.logger.warn(`Route "${req.raw.method!.toUpperCase()} ${req.raw.url}" was not found`);
       res.status(500).send({
         statusCode: 500,
-        message: `Router "${req.raw.method!.toUpperCase()} ${req.raw.url}" was not found`
+        message: `Route "${req.raw.method!.toUpperCase()} ${req.raw.url}" was not found`
       });
     });
   }
 
   private addDbEvents() {
     this.database.once('online', () => this.logger.info('Connected to PostgreSQL'));
-    this.database.once('offline', () => this.logger.info('Disconnected from PostgreSQL successfully'));
+    this.database.once('offline', () => this.logger.warn('Disconnected from PostgreSQL successfully'));
   }
 
   private addRedisEvents() {
     this.redis.once('online', () => this.logger.info('Connected to Redis successfully'));
-    this.redis.once('offline', () => this.logger.info('Disconnected from Redis successfully'));
+    this.redis.once('offline', () => this.logger.warn('Disconnected from Redis successfully'));
   }
 
   async load() {
@@ -115,7 +115,7 @@ export class Website extends EventBus<Events> {
     this.addRedisEvents();
     this.addMiddleware();
 
-    this.logger.info('Built events and middleware, now building routes...');
+    this.logger.info('Built database events and middleware, now building routes...');
     await this.routes.load();
 
     this.logger.info('Loaded all routes! Now connecting to PostgreSQL...');
@@ -124,7 +124,10 @@ export class Website extends EventBus<Events> {
     this.logger.info('Connected to PostgreSQL! Now connecting to Redis...');
     await this.redis.connect();
 
-    this.logger.info('Connected to Redis! Now loading server...');
+    this.logger.info('Connected to Redis! Now building cron jobs...');
+    await this.jobs.load();
+
+    this.logger.info('Loaded all cron jobs! Now loading server...');
     await sleep(2000);
 
     this.server.listen(this.config.get<number>('port', 6969), (error) => {

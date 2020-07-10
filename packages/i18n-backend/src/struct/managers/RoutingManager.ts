@@ -85,7 +85,7 @@ export default class RoutingManager extends Collection<Router> {
 
       for (const r of all) {
         this.logger.info(`Injected route "${r.prefix}" to Fastify!`);
-        this.website.server[r.method.toLowerCase()](r.prefix, async (req, res) => onRequest.apply(this.website, [req, res, r]));
+        this.website.server[r.method.toLowerCase()](r.prefix, async (req, res) => onRequest.apply(this.website, [req, res, r, router]));
       }
     }
   }

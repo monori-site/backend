@@ -23,7 +23,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { RouteDefinition, Method } from '../decorators';
 import { Logger, createLogger } from '@augu/logging';
-import type { ServerResponse } from 'http';
 import type { Website } from './Website';
 import { Collection } from '@augu/immutable';
 
@@ -44,7 +43,7 @@ export class Route {
   public admin: boolean;
 
   /** The run function */
-  public run: (this: Website, req: FastifyRequest, res: FastifyReply) => Promise<void>;
+  public run: (this: BaseRouter, req: FastifyRequest, res: FastifyReply) => Promise<void>;
 
   /**
    * Constructs a new instance of Route
