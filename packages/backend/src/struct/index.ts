@@ -20,16 +20,8 @@
  * SOFTWARE.
  */
 
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import { BaseRouter, Get } from '../struct';
+import { GitHubConfig } from './managers/ConfigManager';
 
-export default class MainRouter extends BaseRouter {
-  constructor() {
-    super('/');
-  }
-
-  @Get('/')
-  async main(req: FastifyRequest, res: FastifyReply) {
-    res.status(200).send({ brr: true });
-  }
-}
+export * from './decorators';
+export * from './internals';
+export { GitHubConfig };

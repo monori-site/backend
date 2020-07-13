@@ -51,7 +51,7 @@ export interface Configuration {
 }
 
 /** Represents config details for GitHub OAuth2 (disabled if not defined) */
-interface GitHubConfig {
+export interface GitHubConfig {
   callbackUrls: { [x in 'development' | 'production']: string }
   clientSecret: string;
   clientID: string;

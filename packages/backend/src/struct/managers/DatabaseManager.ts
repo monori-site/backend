@@ -64,25 +64,7 @@ export default class DatabaseManager extends EventBus<Events> {
     });
   }
 
-  private async _check() {
-    if (this.checked) {
-      this.logger.warn('Database has been already checked.');
-      return;
-    }
-
-    const name = this.website.config.get<string>('database.name', 'i18n');
-    const user = this.website.config.get<string>('database.username')!;
-
-    const result = await this.query<DatabaseExistsArgs>(`select exists(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('${name}'))`);
-    if (!result!.exists) {
-      this.logger.info(`Database "${name}" doesn\'t exist! Creating it...`);
-      await Promise.all([this.query(`CREATE DATABASE ${name}`), await this.query(`grant all privileges on database ${name} to ${user}`)]);
-      this.logger.info(`Created database "${name}"!`);
-    }
-
-    this.checked = true;
-    this.logger.info('Database has been checked.');
-
+  private async _addRepos() {
     const permissions = new PermissionsRepository();
     const orgs = new OrganisationRepository();
     const projects = new ProjectsRepository();
@@ -101,7 +83,7 @@ export default class DatabaseManager extends EventBus<Events> {
 
   async connect() {
     this.client = await this.pool.connect();
-    await this._check();
+    await this._addRepos();
     
     this.emit('online');
     this.connected = true;

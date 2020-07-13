@@ -20,5 +20,35 @@
  * SOFTWARE.
  */
 
-export * from './decorators';
-export * from './internals';
+import { Collection } from '@augu/immutable';
+import * as commands from '../commands';
+import type Command from './Command';
+import clover from '@terminalfreaks/clover';
+
+/**
+ * Represents a CLI program
+ */
+export default class Program {
+  /** The commands list */
+  public commands: Collection<Command> = new Collection(); 
+
+  /**
+   * Registers all of the commands
+   */
+  private _register() {
+    for (const cmd of Object.values(commands)) {
+      const c: Command = new cmd();
+      this.commands.set(c.name, c);
+      c.init(this);
+    }
+  }
+
+  /**
+   * Runs the program
+   */
+  async run() {
+    this._register();
+
+    const args = clover();
+  }
+}

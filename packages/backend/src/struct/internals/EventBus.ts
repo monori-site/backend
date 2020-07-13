@@ -50,7 +50,7 @@ export class EventBus<T extends EventBusMap = EventBusMap> {
    * Emits an event
    * @param event The event to emit
    * @param args Any additional arguments
-   * @returns Boolean if it was found or not
+   * @returns bool if it was found or not
    */
   emit(event: keyof T, ...args: any[]) {
     if (!(event in this.events)) return false;

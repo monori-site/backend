@@ -41,6 +41,13 @@ export default class UserRepository extends Repository<User> {
         {
           nullable: false,
           primary: false,
+          array: true,
+          name: 'organisations',
+          type: 'string'
+        },
+        {
+          nullable: false,
+          primary: false,
           array: false,
           name: 'contributor',
           type: 'boolean'
@@ -97,5 +104,9 @@ export default class UserRepository extends Repository<User> {
       ],
       table: 'users'
     });
+  }
+
+  getByGitHub(userID: string) {
+    return this.website.database.query<User>(`SELECT * FROM ${this.table} WHERE github = '${userID}';`);
   }
 }

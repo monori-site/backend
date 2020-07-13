@@ -49,7 +49,7 @@ export class Website extends EventBus<Events> {
   public routes: RoutingManager;
   public server: Server;
   public redis: RedisManager;
-  public jobs: CronJobManager;
+  public jobs?: CronJobManager;
 
   constructor(config: Configuration) {
     super();
@@ -64,7 +64,7 @@ export class Website extends EventBus<Events> {
     this.routes = new RoutingManager(this);
     this.server = fastify();
     this.redis = new RedisManager(this);
-    this.jobs = new CronJobManager(this);
+    //this.jobs = new CronJobManager(this);
   }
 
   private addMiddleware() {
@@ -127,10 +127,10 @@ export class Website extends EventBus<Events> {
     this.logger.info('Connected to PostgreSQL! Now connecting to Redis...');
     await this.redis.connect();
 
-    this.logger.info('Connected to Redis! Now building cron jobs...');
-    await this.jobs.load();
+    //this.logger.info('Connected to Redis! Now building cron jobs...');
+    //await this.jobs.load();
 
-    this.logger.info('Loaded all cron jobs! Now loading server...');
+    this.logger.info('Connected to Redis! Now loading server...');
     await sleep(2000);
 
     this.server.listen(this.config.get<number>('port', 6969), (error) => {

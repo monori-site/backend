@@ -78,6 +78,10 @@ export default class SessionManager {
     }, 604800000);
   }
 
+  exists(ip: string) {
+    return this.website.redis.client.exists(`sessions:${ip}`);
+  }
+
   async reapply() {
     this.logger.info('Now reapplying sessions...');
     const data = await this.website.redis.client.keys('sessions:*');

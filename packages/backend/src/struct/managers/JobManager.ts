@@ -57,7 +57,7 @@ export default class CronJobManager extends Collection<Job> {
 
     const jobs = await fs.readdir(this.path);
     if (!jobs.length) {
-      this.logger.error(`Path "${this.path}" didn't include any routers`);
+      this.logger.error(`Path "${this.path}" didn't include any cron jobs`);
       process.exitCode = 1;
     }
 

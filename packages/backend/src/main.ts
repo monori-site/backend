@@ -45,7 +45,7 @@ website.on('online', async () => {
   logger.info('Website has initialised successfully');
   await website.sessions.reapply();
   
-  for (const job of website.jobs.values()) await job.run();
+  //for (const job of website.jobs.values()) await job.run();
 });
 
 website.on('disposed', () => {

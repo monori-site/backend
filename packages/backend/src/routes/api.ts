@@ -20,17 +20,11 @@
  * SOFTWARE.
  */
 
-import { Job as CronJob } from '../struct';
+import type { FastifyRequest, FastifyReply } from 'fastify';
+import { BaseRouter, Get } from '../struct';
 
-export default class ExpireSessionsJob extends CronJob {
+export default class APIRouter extends BaseRouter {
   constructor() {
-    super({
-      interval: '*/10 * * * *',
-      name: 'expire:sessions'
-    });
-  }
-
-  async run() {
-    console.log('test');
+    super('/api');
   }
 }
