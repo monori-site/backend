@@ -1,8 +1,5 @@
-# @august/i18n-backend
-> :ghost::gear: **| CLI scripts to help you run i18n faster**
-
-## Installation
-Soon:tm:
+# @august/monori-cli
+> :ghost::gear: **| CLI scripts to help you run and boot Monori faster**
 
 ## License
-**@august/i18n-cli** is released under the MIT License, read [here](../../LICENSE) for more information
+**@august/monori-cli** is released under the MIT License, read [here](../../LICENSE) for more information

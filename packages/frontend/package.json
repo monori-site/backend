@@ -31,6 +31,7 @@
     "eslint": "7.4.0",
     "eslint-plugin-vue": "6.2.2",
     "typescript": "3.9.6",
+    "vue-eslint-parser": "7.1.0",
     "vue-template-compiler": "2.6.11"
   }
 }

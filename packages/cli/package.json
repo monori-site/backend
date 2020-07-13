@@ -1,6 +1,6 @@
 {
-  "name": "@august/i18n-cli",
-  "description": "👻⚙️ Backend portion of i18n",
+  "name": "@august/monori-cli",
+  "description": "👻⚙️ CLI scripts for Monori to run and boot faster",
   "version": "1.0.0-alpha.0",
   "license": "MIT",
   "author": "August <august@augu.dev>",
