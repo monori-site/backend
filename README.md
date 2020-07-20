@@ -2,14 +2,11 @@
 [![Stars](https://img.shields.io/github/stars/auguwu/Monori?style=flat-square)](https://github.com/auguwu/monori) [![Workflow Status](https://github.com/auguwu/Monori/workflows/ESLint/badge.svg)](https://github.com/auguwu/monori/tree/master/.github/workflows) [![Dependencies](https://img.shields.io/david/dev/auguwu/Monori?style=flat-square)](/package.json)
 
 > :ghost: **| Simple and open-source translation site for everyone to use, for free.**
->
-> [Demo](https://i18n.augu.dev)
 
 ## Why?
 Because none of the services suited to what I wanted for it plus some are paid, so I thought of doing it myself.
 
 ## Ecosystem
-- [CLI Scripts](/packages/cli)
 - [Backend API](/packages/backend)
 - [Frontend](/packages/frontend)
 
