@@ -27,7 +27,7 @@ import { getPath } from './util';
 
 if (!existsSync(getPath('logs'))) mkdirSync(getPath('logs'));
 
-const logger = new Signale({ scope: 'Master' });
+const logger = new Signale({ scope: 'Master  ' });
 const pkg = require('../package.json');
 
 if (!existsSync(getPath('config.json'))) {
@@ -39,29 +39,24 @@ logger.info(`Initialising website... (v${pkg.version})`);
 const website = new Website(require('./config.json'));
 const env = website.config.get<'development' | 'production'>('environment', 'development');
 
-if (env === 'development') logger.warn('Site is in development mode, expect crashes! Report them at https://github.com/auguwu/i18n/issues if you find any.');
+if (env === 'development') logger.warn('Site is in development mode, expect crashes and/or bugs! Report them at https://github.com/auguwu/monori/issues if you find any crashes and bugs.');
 
 website.on('online', async () => {
   logger.info('Website has initialised successfully');
   await website.sessions.reapply();
 });
 
-website.on('disposed', () => {
-  logger.warn('Website has been disposed successfully');
-});
-
 website
   .load()
   .catch(error => {
     logger.fatal('Unable to initialise the website', error);
-    process.exitCode = 1;
+    process.exit(1);
   });
 
 process
   .on('uncaughtException', (error) => logger.fatal('An uncaught exception has occured', error))
   .on('unhandledRejection', (reason) => logger.fatal('An unhandled promise rejection has occured', reason))
   .on('SIGINT', () => {
-    logger.fatal('Closing server...');
     website.dispose();
     process.exit(0);
   });

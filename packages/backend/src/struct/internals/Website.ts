@@ -58,7 +58,7 @@ export class Website extends EventBus<Events> {
     this.analytics = new AnalyticsManager(this);
     this.sessions = new SessionManager(this);
     this.bootedAt = Date.now();
-    this.logger = new Signale({ scope: 'Website' });
+    this.logger = new Signale({ scope: 'Website ' });
     this.routes = new RoutingManager(this);
     this.server = fastify();
     this.redis = new RedisManager(this);
@@ -70,7 +70,6 @@ export class Website extends EventBus<Events> {
   }
 
   private addMiddleware() {
-    this.logger.info('Adding middleware to Fastify...');
     this.server.register(ratelimit, {
       timeWindow: 3600000,
       max: 1000
@@ -114,26 +113,18 @@ export class Website extends EventBus<Events> {
     this.addRedisEvents();
     this.addMiddleware();
 
-    this.logger.info('Built database events and middleware, now building routes...');
     await this.routes.load();
-
-    this.logger.info('Loaded all routes! Now connecting to PostgreSQL...');
     this.connection = this.maru.createConnection();
     await this.connection.connect();
-
-    this.logger.info('Connected to PostgreSQL! Now connecting to Redis...');
     await this.redis.connect();
 
-    //this.logger.info('Connected to Redis! Now building cron jobs...');
-    //await this.jobs.load();
-
-    this.logger.info('Connected to Redis! Now loading server...');
+    this.logger.info('Now booting server...');
     await sleep(2000);
 
     this.server.listen(this.config.get<number>('port', 6969), (error) => {
       if (error) {
         this.logger.error('Unable to load server', error);
-        process.exitCode = 1;
+        process.exit(1);
       }
 
       this.emit('online');

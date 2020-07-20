@@ -24,7 +24,6 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import { RouteDefinition, Method } from '../decorators';
 import type { Website } from './Website';
 import { Collection } from '@augu/immutable';
-import { Signale } from 'signale';
 
 /**
  * Represents a route class from the definition
@@ -74,9 +73,6 @@ export class BaseRouter {
   /** The website */
   public website!: Website;
 
-  /** The logger */
-  private logger: Signale;
-
   /** The routes in a collection */
   public routes: Collection<Route>;
 
@@ -88,7 +84,6 @@ export class BaseRouter {
    * @param prefix The prefix
    */
   constructor(prefix: string) {
-    this.logger = new Signale({ scope: `Router "${prefix}"` });
     this.routes = new Collection();
     this.prefix = prefix;
   }
@@ -112,7 +107,6 @@ export class BaseRouter {
       route.prefix = prefix;
 
       this.routes.set(prefix, route);
-      this.logger.info(`Registered route ${route.prefix} to this router`);
     }
   }
 }

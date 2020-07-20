@@ -39,13 +39,11 @@ export default class RoutingManager extends Collection<Router> {
     super();
 
     this.website = website;
-    this.logger = new Signale({ scope: 'RoutingManager' });
+    this.logger = new Signale({ scope: 'Routing ' });
     this.path = getPath('routes');
   }
 
   async load() {
-    this.logger.info('Loading routes...');
-
     const stats = await fs.lstat(this.path);
     if (!existsSync(this.path)) {
       this.logger.error(`Path "${this.path}" doesn't exist, did you remove it by accident?`);
@@ -63,28 +61,20 @@ export default class RoutingManager extends Collection<Router> {
       process.exit(1);
     }
 
-    this.logger.info(`Found ${routes.length} routers!`);
     for (const route of routes) {
       const { default: file } = await import(join(this.path, route));
       const router: Router = new file();
 
-      if (!(router instanceof Router)) {
-        this.logger.warn(`File "${route.split('.').pop()}" is not a valid router (must extend "BaseRouter")`);
-        continue;
-      }
+      if (!(router instanceof Router)) continue;
 
       router.init(this.website);
       const all = getRoutes(router);
-      if (!all.length) {
-        this.logger.warn(`Route ${router.prefix} doesn't include any routes (Doesn't have @Get/Post/etc decorators)`);
-        continue;
-      }
+      if (!all.length) continue;
 
       router.register(all);
       this.set(router.prefix, router);
 
       for (const r of all) {
-        this.logger.info(`Injected route "${r.prefix}" to Fastify!`);
         this.website.server[r.method.toLowerCase()](r.prefix, async (req, res) => onRequest.apply(this.website, [req, res, r, router]));
       }
     }
