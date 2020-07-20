@@ -44,8 +44,14 @@ export interface RouteDefinition {
    */
   run(this: BaseRouter, req: Request, res: Response): Promise<void>;
 
+  /** Any required parameters */
+  parameters: RequiredParameters[];
+
   /** If we should be authenicated to use this route */
   authenicate: boolean;
+
+  /** Any required queries */
+  queries: RequiredQueries[];
 
   /** The route's prefix */
   prefix: string;
@@ -55,6 +61,12 @@ export interface RouteDefinition {
 
   /** The route's method */
   method: Method;
+
+  /** Any required body loads */
+  body: RequiredBody[];
+
+  /** The type of authenication to use */
+  type: 'jwt' | 'none';
 }
 
 /**
@@ -73,15 +85,38 @@ export function getRoutes(target: any): RouteDefinition[] {
 
 /** Options when using the decorators */
 interface RouteDecoratorOptions {
+  /** Any required parameters */
+  parameters?: RequiredParameters[];
+
   /** If the user should be logged in to access */
   authenicate?: boolean;
 
-  /** Amount of milliseconds to throttle when the user reaches a ratelimited state */
-  throttle?: number;
+  /** Any required queries */
+  queries?: RequiredQueries[];
 
   /** If the user should be an admin to access */
-  admin?: boolean;  
+  admin?: boolean;
+
+  /** Any required body loads */
+  body?: RequiredBody[];
+
+  /** The type of authenication to use */
+  type?: 'jwt' | 'none';
 }
+
+interface Required {
+  /** If it's required */
+  required: string;
+
+  /** The name */
+  name: string;
+}
+
+/* eslint-disable @typescript-eslint/no-empty-interface */
+export interface RequiredBody extends Required {}
+export interface RequiredQueries extends Required {}
+export interface RequiredParameters extends Required {}
+/* eslint-enable @typescript-eslint/no-empty-interface */
 
 /**
  * Adds this route as a GET method
@@ -98,9 +133,13 @@ export const Get = (route: string, options?: RouteDecoratorOptions): MethodDecor
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
+      parameters: options ? getOption(options, 'parameters', []) : [],
+      queries: options ? getOption(options, 'queries', []) : [],
       prefix: route,
       method: Method.Get,
       admin: options ? getOption(options, 'admin', false) : false,
+      body: options ? getOption(options, 'body', []) : [],
+      type: options ? getOption(options, 'type', 'none') : 'none',
       run: descriptor.value
     });
   };
@@ -120,9 +159,13 @@ export const Put = (route: string, options?: RouteDecoratorOptions): MethodDecor
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
+      parameters: options ? getOption(options, 'parameters', []) : [],
+      queries: options ? getOption(options, 'queries', []) : [],
       prefix: route,
       method: Method.Put,
       admin: options ? getOption(options, 'admin', false) : false,
+      body: options ? getOption(options, 'body', []) : [],
+      type: options ? getOption(options, 'type', 'none') : 'none',
       run: descriptor.value
     });
   };
@@ -142,9 +185,13 @@ export const Post = (route: string, options?: RouteDecoratorOptions): MethodDeco
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
+      parameters: options ? getOption(options, 'parameters', []) : [],
+      queries: options ? getOption(options, 'queries', []) : [],
       prefix: route,
       method: Method.Post,
       admin: options ? getOption(options, 'admin', false) : false,
+      body: options ? getOption(options, 'body', []) : [],
+      type: options ? getOption(options, 'type', 'none') : 'none',
       run: descriptor.value
     });
   };
@@ -164,9 +211,13 @@ export const Patch = (route: string, options?: RouteDecoratorOptions): MethodDec
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
+      parameters: options ? getOption(options, 'parameters', []) : [],
+      queries: options ? getOption(options, 'queries', []) : [],
       prefix: route,
       method: Method.Patch,
       admin: options ? getOption(options, 'admin', false) : false,
+      body: options ? getOption(options, 'body', []) : [],
+      type: options ? getOption(options, 'type', 'none') : 'none',
       run: descriptor.value
     });
   };
@@ -186,9 +237,13 @@ export const Delete = (route: string, options?: RouteDecoratorOptions): MethodDe
 
     (target.constructor[SYMBOL] as RouteDefinition[]).push({
       authenicate: options ? getOption(options, 'authenicate', false) : false,
+      parameters: options ? getOption(options, 'parameters', []) : [],
+      queries: options ? getOption(options, 'queries', []) : [],
       prefix: route,
       method: Method.Delete,
       admin: options ? getOption(options, 'admin', false) : false,
+      body: options ? getOption(options, 'body', []) : [],
+      type: options ? getOption(options, 'type', 'none') : 'none',
       run: descriptor.value
     });
   };

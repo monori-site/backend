@@ -20,20 +20,10 @@
  * SOFTWARE.
  */
 
-import { BaseRouter, Get, Post, Patch, Delete, Put } from '../struct';
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import JWT, { TokenStatus } from '../util/JWT';
+import type { Website } from '..';
+import { Signale } from 'signale';
+import JWT from '../../util/JWT';
 
-export default class APIRouter extends BaseRouter {
-  constructor() {
-    super('/api');
-  }
+export default class JWTManager {
 
-  //#namespace Users
-  @Get('/users/:id', {
-
-  })
-  async getUser() {
-    
-  }
 }

@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
+import { RouteDefinition, Method, RequiredBody, RequiredParameters, RequiredQueries } from '../decorators';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { RouteDefinition, Method } from '../decorators';
 import type { Website } from './Website';
 import { Collection } from '@augu/immutable';
 
@@ -29,8 +29,17 @@ import { Collection } from '@augu/immutable';
  * Represents a route class from the definition
  */
 export class Route {
+  /** Any required parameters */
+  public parameters: RequiredParameters[];
+
   /** If we should be authenicated to use this route */
   public authenicate: boolean;
+
+  /** Any required queries */
+  public queries: RequiredQueries[];
+
+  /** Any required body loads */
+  public body: RequiredBody[];
 
   /** The route's prefix */
   public prefix: string;
@@ -41,6 +50,9 @@ export class Route {
   /** If the current users requires to be an admin */
   public admin: boolean;
 
+  /** The type of authenication to use */
+  public type: 'jwt' | 'none';
+
   /** The run function */
   public run: (this: BaseRouter, req: FastifyRequest, res: FastifyReply) => Promise<void>;
 
@@ -49,10 +61,14 @@ export class Route {
    * @param definition The definition
    */
   constructor(definition: RouteDefinition) {
+    this.parameters = definition.parameters;
     this.authenicate = definition.authenicate;
+    this.queries = definition.queries;
     this.prefix = definition.prefix;
     this.method = definition.method;
     this.admin = definition.admin;
+    this.body = definition.body;
+    this.type = definition.type;
     this.run = definition.run;
   }
 

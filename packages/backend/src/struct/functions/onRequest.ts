@@ -22,6 +22,7 @@
 
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import type { Website, Route, BaseRouter } from '../internals';
+import JWT from '../../util/JWT';
 
 /**
  * Does the routing portion
@@ -84,6 +85,15 @@ export default async function onRequest(
   //   }
   //  }
 
+  if (route.authenicate) {
+    switch (route.type) {
+      case 'jwt': {
+        const bucket = this.jwt.getBucket();
+        
+      } break;
+    }
+  }
+
   try {
     await route.run.apply(router, [req, res]);
   } catch (ex) {
@@ -94,3 +104,91 @@ export default async function onRequest(
     });
   }
 }
+
+// Old code I had, ignore this (will be used in this soon)
+/*
+    // Check if we have the "auth" requirement
+    if (route.requirements.auth) {
+      // If the request is missing the "Authorization" header
+      if (!req.headers.authorization) return res.status(401).send({
+        statusCode: 401,
+        message: 'Missing "Authorization" header in the request.'
+      });
+
+      // Check the authenication type for authenication
+      switch (route.requirements.authType) {
+        // Authenicate with JWT
+        case 'jwt': {
+          if (!req.headers.authorization.startsWith('Bearer ')) return res.status(403).send({
+            statusCode: 403,
+            message: 'JWT token doesn\'t start with "Bearer"'
+          });
+
+          const token = req.headers.authorization.split(' ')[1];
+          const decoded = JWT.decode(token);
+
+          if (decoded.error) return res.status(403).send({
+            statusCode: 403,
+            message: decoded.error
+          });
+        } break;
+
+        // Account token authenication
+        case 'account': {
+          if (!req.headers.authorization.startsWith('Account ')) return res.status(403).send({
+            statusCode: 403,
+            message: 'Account token doesn\'t start with "Account"'
+          });
+
+          const token = req.headers.authorization.split(' ')[1];
+          const account = await server.database.getAccountByToken(token);
+          
+          if (!account || account === null) return res.status(401).send({
+            statusCode: 401,
+            message: 'Authenication token was invalid'
+          });
+        } break;
+      }
+    }
+  }
+
+  // Check for any query parameters and see if they are missing
+  if (route.requirements.queries && route.requirements.queries.length) {
+    const denied = route.requirements.queries.some(x => x.required && !req.query[x.name]);
+    
+    if (denied) {
+      const all = route.requirements.queries.filter(x => x.required && !req.query[x.name]);
+      return res.status(400).send({
+        statusCode: 400,
+        message: `Missing required queries: ${all.map(s => s.name).join(', ')}`
+      });
+    }
+  }
+
+  // Check for any parameters and see if they are missing
+  if (route.requirements.parameters && route.requirements.parameters.length) {
+    const denied = route.requirements.parameters.some(x => x.required && !req.params[x.name]);
+
+    if (denied) {
+      const all = route.requirements.parameters.filter(x => x.required && !req.params[x.name]);
+      return res.status(400).send({
+        statusCode: 400,
+        message: `Missing required parameters: ${all.map(s => s.name).join(', ')}`
+      });
+    }
+  }
+
+  // Check for any specific payload in the body
+  if (route.requirements.body && route.requirements.body.length) {
+    const denied = route.requirements.body.some(x => x.required && !req.body[x.name]);
+    
+    if (denied) {
+      const all = route.requirements.body.filter(x => x.required && !req.body[x.name]);
+      return res.status(400).send({
+        statusCode: 400,
+        message: `Missing required body payload: ${all.map(x => x.name).join(', ')}`
+      });
+    }
+  }
+
+*/
