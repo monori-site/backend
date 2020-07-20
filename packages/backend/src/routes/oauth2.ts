@@ -26,6 +26,7 @@ import { BaseRouter, Get, Post, GitHubConfig } from '../struct';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { randomBytes } from 'crypto';
 import { HttpClient } from '@augu/orchid';
+import { pipelines } from '@augu/maru';
 import { Queue } from '@augu/immutable';
 
 interface IncomingQuery {
@@ -84,7 +85,9 @@ interface UserPlan {
 
 export default class OAuth2Router extends BaseRouter {
   private states: Queue<string> = new Queue();
-  private http: HttpClient = new HttpClient('auguwu/i18n-backend (https://github.com/auguwu/tree/expiremental/postgres/packages/i18n-backend)');
+  private http: HttpClient = new HttpClient({
+    agent: 'auguwu/i18n-backend (https://github.com/auguwu/tree/expiremental/postgres/packages/i18n-backend)'
+  });
 
   constructor() {
     super('/oauth2');
@@ -163,10 +166,14 @@ export default class OAuth2Router extends BaseRouter {
       });
 
       const user = resp2.json<GitHubUser>();
-      const repo = this.website.database.getRepository('users');
+      console.log(user);
 
-      const d = await repo.getByGitHub(user.node_id);
-      console.log(user, d);
+      const transaction = this.website.connection.createBatch();
+      transaction
+        .pipe(pipelines.Select('users', ['github', user.id]));
+
+      const result = await transaction.next<any>();
+      console.log(result);
 
       return res.status(200).send({
         statusCode: 200,

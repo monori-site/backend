@@ -28,7 +28,7 @@ import type { Redis as RedisClient } from 'ioredis';
  * @credit [Nino](https://github.com/NinoDiscord/Nino/blob/master/src/util/RedisQueue.ts)
  * @typeparam T: The type when parsing
  */
-export class RedisBucket<T = unknown> {
+export class RedisBucket<T extends object> { // eslint-disable-line
   /**
    * The redis client itself
    */

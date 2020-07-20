@@ -22,24 +22,24 @@
 
 import { promises as fs, existsSync } from 'fs';
 import { BaseRouter as Router } from '../internals';
-import { Logger, createLogger } from '@augu/logging';
 import type { Website } from '../internals/Website';
 import { Collection } from '@augu/immutable';
 import { getRoutes } from '../decorators';
+import { Signale } from 'signale';
 import { getPath } from '../../util';
 import onRequest from '../functions/onRequest';
 import { join } from 'path';
 
 export default class RoutingManager extends Collection<Router> {
   private website: Website;
-  private logger: Logger;
+  private logger: Signale;
   public path: string;
 
   constructor(website: Website) {
     super();
 
     this.website = website;
-    this.logger = createLogger('RoutingManager');
+    this.logger = new Signale({ scope: 'RoutingManager' });
     this.path = getPath('routes');
   }
 
@@ -49,18 +49,18 @@ export default class RoutingManager extends Collection<Router> {
     const stats = await fs.lstat(this.path);
     if (!existsSync(this.path)) {
       this.logger.error(`Path "${this.path}" doesn't exist, did you remove it by accident?`);
-      process.exitCode = 1;
+      process.exit(1);
     }
 
     if (!stats.isDirectory()) {
       this.logger.error(`Path "${this.path}" was not a directory, did you modify the backend on accident?`);
-      process.exitCode = 1;
+      process.exit(1);
     }
 
     const routes = await fs.readdir(this.path);
     if (!routes.length) {
       this.logger.error(`Path "${this.path}" didn't include any routers`);
-      process.exitCode = 1;
+      process.exit(1);
     }
 
     this.logger.info(`Found ${routes.length} routers!`);
@@ -69,7 +69,7 @@ export default class RoutingManager extends Collection<Router> {
       const router: Router = new file();
 
       if (!(router instanceof Router)) {
-        this.logger.warn(`File "${route.split('.').shift()}" is not a valid router (must extend "BaseRouter")`);
+        this.logger.warn(`File "${route.split('.').pop()}" is not a valid router (must extend "BaseRouter")`);
         continue;
       }
 

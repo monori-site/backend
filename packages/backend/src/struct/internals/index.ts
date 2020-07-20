@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-export * from './Repository';
 export * from './EventBus';
 export * from './Routing';
 export * from './Website';

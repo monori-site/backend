@@ -58,7 +58,7 @@ export default class RedisManager extends EventBus<Events> {
     this.emit('offline');
   }
 
-  getBucket<T>(key: string): RedisBucket<T> {
+  getBucket<T extends object>(key: string): RedisBucket<T> { // eslint-disable-line
     if (!this.buckets.has(key)) {
       const bucket = new RedisBucket<T>(this.client, key);
       this.buckets.set(key, bucket);

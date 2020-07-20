@@ -22,14 +22,13 @@
 
 import fastify, { FastifyInstance as Server } from 'fastify';
 import ConfigManager, { Configuration } from '../managers/ConfigManager';
-import { Logger, createLogger } from '@augu/logging';
+import { Dialect, Connection } from '@augu/maru';
 import AnalyticsManager from '../managers/AnalyticsManager';
-import DatabaseManager from '../managers/DatabaseManager';
 import RoutingManager from '../managers/RoutingManager';
 import SessionManager from '../managers/SessionManager';
-import CronJobManager from '../managers/JobManager';
 import RedisManager from '../managers/RedisManager';
 import { EventBus } from '.';
+import { Signale } from 'signale';
 import ratelimit from 'fastify-rate-limit';
 import { sleep } from '../../util';
 
@@ -40,16 +39,16 @@ type Events = {
 };
 
 export class Website extends EventBus<Events> {
+  public connection!: Connection;
   public analytics: AnalyticsManager;
-  public database: DatabaseManager;
   public sessions: SessionManager;
   public bootedAt: number;
-  private logger: Logger;
+  private logger: Signale;
   public config: ConfigManager;
   public routes: RoutingManager;
   public server: Server;
   public redis: RedisManager;
-  public jobs?: CronJobManager;
+  private maru: Dialect;
 
   constructor(config: Configuration) {
     super();
@@ -57,14 +56,17 @@ export class Website extends EventBus<Events> {
     // javascript sometimes i hate u smh
     this.config = new ConfigManager(config);
     this.analytics = new AnalyticsManager(this);
-    this.database = new DatabaseManager(this);
     this.sessions = new SessionManager(this);
     this.bootedAt = Date.now();
-    this.logger = createLogger('Website', { file: './logs/website.log' });
+    this.logger = new Signale({ scope: 'Website' });
     this.routes = new RoutingManager(this);
     this.server = fastify();
     this.redis = new RedisManager(this);
-    //this.jobs = new CronJobManager(this);
+    this.maru = new Dialect({
+      activeConnections: 1,
+      ...config.database,
+      database: 'i18n'
+    });
   }
 
   private addMiddleware() {
@@ -103,18 +105,12 @@ export class Website extends EventBus<Events> {
     });
   }
 
-  private addDbEvents() {
-    this.database.once('online', () => this.logger.info('Connected to PostgreSQL'));
-    this.database.once('offline', () => this.logger.warn('Disconnected from PostgreSQL successfully'));
-  }
-
   private addRedisEvents() {
     this.redis.once('online', () => this.logger.info('Connected to Redis successfully'));
     this.redis.once('offline', () => this.logger.warn('Disconnected from Redis successfully'));
   }
 
   async load() {
-    this.addDbEvents();
     this.addRedisEvents();
     this.addMiddleware();
 
@@ -122,7 +118,8 @@ export class Website extends EventBus<Events> {
     await this.routes.load();
 
     this.logger.info('Loaded all routes! Now connecting to PostgreSQL...');
-    await this.database.connect();
+    this.connection = this.maru.createConnection();
+    await this.connection.connect();
 
     this.logger.info('Connected to PostgreSQL! Now connecting to Redis...');
     await this.redis.connect();
@@ -145,7 +142,6 @@ export class Website extends EventBus<Events> {
 
   dispose() {
     this.server.close();
-    this.database.dispose();
     this.redis.disconnect();
 
     this.emit('disposed');

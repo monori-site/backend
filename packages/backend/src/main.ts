@@ -21,13 +21,13 @@
  */
 
 import { existsSync, mkdirSync } from 'fs';
-import { createLogger } from '@augu/logging';
+import { Signale } from 'signale';
 import { Website } from './struct';
 import { getPath } from './util';
 
 if (!existsSync(getPath('logs'))) mkdirSync(getPath('logs'));
 
-const logger = createLogger('Master', { file: './logs/master.log' });
+const logger = new Signale({ scope: 'Master' });
 const pkg = require('../package.json');
 
 if (!existsSync(getPath('config.json'))) {
@@ -44,8 +44,6 @@ if (env === 'development') logger.warn('Site is in development mode, expect cras
 website.on('online', async () => {
   logger.info('Website has initialised successfully');
   await website.sessions.reapply();
-  
-  //for (const job of website.jobs.values()) await job.run();
 });
 
 website.on('disposed', () => {

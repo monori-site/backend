@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
+import { BaseRouter, Get, Post, Patch, Delete, Put } from '../struct';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { BaseRouter, Get } from '../struct';
 
 export default class APIRouter extends BaseRouter {
   constructor() {

@@ -22,9 +22,9 @@
 
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { RouteDefinition, Method } from '../decorators';
-import { Logger, createLogger } from '@augu/logging';
 import type { Website } from './Website';
 import { Collection } from '@augu/immutable';
+import { Signale } from 'signale';
 
 /**
  * Represents a route class from the definition
@@ -75,7 +75,7 @@ export class BaseRouter {
   public website!: Website;
 
   /** The logger */
-  private logger: Logger;
+  private logger: Signale;
 
   /** The routes in a collection */
   public routes: Collection<Route>;
@@ -88,7 +88,7 @@ export class BaseRouter {
    * @param prefix The prefix
    */
   constructor(prefix: string) {
-    this.logger = createLogger(`Router [${prefix}]`);
+    this.logger = new Signale({ scope: `Router "${prefix}"` });
     this.routes = new Collection();
     this.prefix = prefix;
   }

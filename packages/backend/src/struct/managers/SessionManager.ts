@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-import { Logger, createLogger } from '@augu/logging';
 import type { Website } from '../internals';
 import { randomBytes } from 'crypto';
+import { Signale } from 'signale';
 
 interface Session {
   startedAt: number;
@@ -30,9 +30,9 @@ interface Session {
   ip: string;
 }
 export default class SessionManager {
-  private logger: Logger;
+  private logger: Signale;
   constructor(private website: Website) {
-    this.logger = createLogger('SessionManager');
+    this.logger = new Signale({ scope: 'Sessions' });
   }
 
   async getSession(ip: string) {

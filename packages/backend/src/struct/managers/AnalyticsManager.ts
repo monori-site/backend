@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-import { Logger, createLogger } from '@augu/logging';
 import type { Website } from '../internals/Website';
+import { pipelines } from '@augu/maru';
+import { Signale } from 'signale';
 
 interface DatabaseStats {
   organisations: number;
   projects: number;
-  online: boolean;
   users: number;
 }
 
@@ -34,7 +34,6 @@ interface DatabaseStats {
  * Represents the analytics manager, if it's enabled then it'll calculate:
  * 
  * - Requests per minute, hour, or all-together
- * - Cluster statistics
  * - Database connectivity & statistics
  * 
  * ...and more!
@@ -47,7 +46,7 @@ export default class AnalyticsManager {
   public requests: number;
 
   /** The logger */
-  private logger: Logger;
+  private logger: Signale;
 
   /** If the analytics manager is enabled */
   public enabled: boolean;
@@ -63,24 +62,27 @@ export default class AnalyticsManager {
     this.databaseStats = undefined;
     this.requests = 0;
     this.enabled = website.config.get('analytics', false);
-    this.logger = createLogger('Analytics');
+    this.logger = new Signale({ scope: 'Analytics' });
     this.dbCalls = 0;
   }
 
   /**
-   * Collects cluster and database statistics
+   * Collects database statistics
    */
   collect() {
     this.logger.info('Now collecting database statistics...');
     setInterval(async () => {
-      const organisations = await this.website.database.count('organisations');
-      const projects = await this.website.database.count('projects');
-      const users = await this.website.database.count('users');
+      const batch = this.website.connection.createBatch();
+      batch
+        .pipe(pipelines.Count('organisations'))
+        .pipe(pipelines.Count('projects'))
+        .pipe(pipelines.Count('users'));
+
+      const [orgs, projects, users] = await Promise.all([batch.next<number>(), batch.next<number>(), batch.next<number>()]);
 
       this.databaseStats = {
-        organisations: organisations!,
+        organisations: orgs!,
         projects: projects!,
-        online: this.website.database.connected,
         users: users!
       };
     }, 600000);
