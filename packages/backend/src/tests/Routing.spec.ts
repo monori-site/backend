@@ -24,6 +24,7 @@
 
 import * as mocked from '../util/mock';
 import { Method } from '../struct';
+import { exit } from 'process';
 
 describe('Routing', () => {
   let router!: mocked.MockedRouter;
@@ -50,5 +51,31 @@ describe('Routing', () => {
     expect(uRouter.routes.empty).toBeFalsy();
     expect(uRouter.routes.size).toBe(1);
     expect(route.prefix).toBe(path);
+  });
+
+  it('should have params of "id" and "required"', () => {
+    const uRouter = mocked.mockRouter('/u');
+    const route = mocked.mockRoute('/abcd', uRouter, { method: Method.Get, parameters: [{ name: 'id', required: true }, { name: 'required', required: false }] });
+
+    expect(route.parameters.length).toBe(2);
+    expect(route.parameters.map(s => s.name)).toBe(['id', 'required']);
+  });
+
+  it('should have queries of "id" and "required"', () => {
+    const uRouter = mocked.mockRouter('/u');
+    const route = mocked.mockRoute('/abcd', uRouter, { method: Method.Get, queries: [{ name: 'id', required: true }, { name: 'required', required: false }] });
+
+    expect(route.parameters.length).toBe(0);
+    expect(route.queries.length).toBe(2);
+    expect(route.queries.map(s => s.name)).toBe(['id', 'required']);
+  });
+
+  it('should have body of "id" and "required"', () => {
+    const uRouter = mocked.mockRouter('/u');
+    const route = mocked.mockRoute('/abcd', uRouter, { method: Method.Get, body: [{ name: 'id', required: true }, { name: 'required', required: false }] });
+
+    expect(route.parameters.length).toBe(0);
+    expect(route.body.length).toBe(2);
+    expect(route.body.map(s => s.name)).toBe(['id', 'required']);
   });
 });

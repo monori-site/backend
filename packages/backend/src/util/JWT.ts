@@ -68,7 +68,7 @@ export default class JWTUtil {
       };
     } catch(ex) {
       if (ex instanceof jwt.JsonWebTokenError) return { status: TokenStatus.Invalid, reason: 'Token is invalid.' };
-      if (ex instanceof jwt.TokenExpiredError) return { status: TokenStatus.Expired, reason: 'Token has expired, revaluate a new one.' };
+      if (ex instanceof jwt.TokenExpiredError) return { status: TokenStatus.Expired, reason: 'Token has expired, re-evaluate a new one.' };
       return {
         status: TokenStatus.Unknown,
         reason: ex.message

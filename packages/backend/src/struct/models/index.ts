@@ -20,8 +20,6 @@
  * SOFTWARE.
  */
 
-/** */
-interface JSON {
-  stringify<T>(value: T, replacer?: ((this: any, key: string, value: string) => any), space?: string | number): string;
-  parse<T>(content: string, reviver?: ((this: any, key: string, value: any) => any)): T;
-}
+export * from './Organisation';
+export * from './Project';
+export * from './User';

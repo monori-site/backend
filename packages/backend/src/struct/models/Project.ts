@@ -20,8 +20,19 @@
  * SOFTWARE.
  */
 
-/** */
-interface JSON {
-  stringify<T>(value: T, replacer?: ((this: any, key: string, value: string) => any), space?: string | number): string;
-  parse<T>(content: string, reviver?: ((this: any, key: string, value: any) => any)): T;
+/**
+ * Represents a Project
+ */
+export interface Project {
+  translations: Translation[];
+  github: string | null;
+  owner: string;
+  name: string;
+}
+
+interface Translation {
+  filePath: string | null;
+  branch: string | null;
+  owner: string;
+  code: string;
 }

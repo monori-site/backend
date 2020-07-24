@@ -86,11 +86,20 @@ interface MockedRouteOptions {
   /** If the route should add authenication */
   authenicate?: boolean;
 
+  /** If we should require any parameters */
+  parameters?: { name: string; required: boolean }[];
+
+  /** If we should require any parameters */
+  queries?: { name: string; required: boolean }[];
+
   /** If the route should be ran by an administrator */
   admin?: boolean;
 
   /** The method to use */
   method: Method;
+
+  /** If we should require a body */
+  body?: { name: string; required: boolean }[];
 }
 
 /**
@@ -109,6 +118,10 @@ export function mockRoute(path: string, router: MockedRouter, opts: MockedRouteO
     admin,
     method: opts.method,
     prefix: path,
+    parameters: opts.parameters || [],
+    queries: opts.queries || [],
+    body: opts.body || [],
+    type: 'none',
     async run(req, res) {
       res.status(200).send('haha data go brrr');
     }

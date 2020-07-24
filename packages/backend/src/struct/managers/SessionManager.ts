@@ -27,6 +27,8 @@ import { Signale } from 'signale';
 interface Session {
   startedAt: number;
   sessionID: string;
+  username: string;
+  jwt: string;
   ip: string;
 }
 export default class SessionManager {
@@ -42,12 +44,14 @@ export default class SessionManager {
     return JSON.parse<Session>(data);
   }
 
-  async createSession(ip: string) {
+  async createSession(username: string, jwt: string, ip: string) {
     const data = await this.website.redis.client.get(`sessions:${ip}`);
     if (data === null) {
-      const packet = JSON.stringify({
+      const packet = JSON.stringify<Session>({
         startedAt: Date.now(),
         sessionID: randomBytes(2).toString('hex'),
+        username,
+        jwt,
         ip
       });
 
@@ -101,7 +105,7 @@ export default class SessionManager {
         const exists = await this.website.redis.client.exists(session);
         if (exists) {
           await this.removeSession(sess.ip);
-          this.logger.info(`Expired session: "${sess.sessionID}"`);
+          this.logger.info(`Expired session: "${sess.sessionID}" (user: ${sess.username})`);
         }
       }, sess.startedAt - (Date.now() + 604800000));
     }

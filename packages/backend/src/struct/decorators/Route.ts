@@ -106,7 +106,7 @@ interface RouteDecoratorOptions {
 
 interface Required {
   /** If it's required */
-  required: string;
+  required: boolean;
 
   /** The name */
   name: string;

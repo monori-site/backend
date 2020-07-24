@@ -20,8 +20,37 @@
  * SOFTWARE.
  */
 
-/** */
-interface JSON {
-  stringify<T>(value: T, replacer?: ((this: any, key: string, value: string) => any), space?: string | number): string;
-  parse<T>(content: string, reviver?: ((this: any, key: string, value: any) => any)): T;
+/**
+ * Represents a User
+ */
+export interface User {
+  /** The user's registered orgainisations */
+  organisations: string[];
+
+  /** If they contributed to any project */
+  contributor: boolean;
+
+  /** If they made a translation for any project */
+  translator: boolean;
+
+  /** The user's username */
+  username: string;
+
+  /** The user's password */
+  password: string;
+
+  /** The user's registered projects */
+  projects: string[];
+
+  /** The user's GitHub username (or null if not used the OAuth2 system) */
+  github: string | null;
+
+  /** The user's email address */
+  email: string;
+
+  /** The user's hashed password */
+  hash: string;
+
+  /** The user's JWT token (if created) */
+  jwt: string | null;
 }

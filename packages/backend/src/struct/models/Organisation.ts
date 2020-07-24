@@ -20,8 +20,26 @@
  * SOFTWARE.
  */
 
-/** */
-interface JSON {
-  stringify<T>(value: T, replacer?: ((this: any, key: string, value: string) => any), space?: string | number): string;
-  parse<T>(content: string, reviver?: ((this: any, key: string, value: any) => any)): T;
+/**
+ * Represents an organisation
+ */
+export interface Organisation {
+  permissions: MemberPermissions;
+  projects: string[];
+  members: string;
+  owner: string;
+  name: string;
 }
+
+/**
+ * Represents a base member's permission
+ */
+// eslint-disable-next-line
+type MemberPermissions = {
+  [x: string]: {
+    editSettings: boolean | null;
+    editStrings: boolean | null;
+    publish: boolean | null;
+    '*': boolean | null;
+  };
+};

@@ -8,7 +8,7 @@
   "repository": "https://github.com/auguwu/Monori/tree/expiremental/postgres/packages/backend",
   "scripts": {
     "build:watch": "yarn lint && yarn clean && yarn tsc -w",
-    "prepare": "rm -fr node_modules/@augu/logging/node_modules && yarn test",
+    "prepare": "yarn test",
     "compile": "yarn tsc",
     "build": "yarn lint && yarn clean && yarn compile && yarn move",
     "clean": "rm -fr build",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@augu/immutable": "0.3.1",
-    "@augu/maru": "1.0.3",
+    "@augu/maru": "1.2.1",
     "@augu/orchid": "1.3.1",
     "fastify": "3.1.1",
     "fastify-rate-limit": "4.0.2",
