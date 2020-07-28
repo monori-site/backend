@@ -78,7 +78,8 @@ export default class AnalyticsManager {
         .pipe(pipelines.Count('projects'))
         .pipe(pipelines.Count('users'));
 
-      const [orgs, projects, users] = await Promise.all([batch.next<number>(), batch.next<number>(), batch.next<number>()]);
+      // @ts-ignore
+      const [orgs, projects, users] = await batch.all<number>();
 
       this.databaseStats = {
         organisations: orgs!,

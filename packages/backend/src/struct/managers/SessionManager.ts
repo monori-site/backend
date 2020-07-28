@@ -71,6 +71,11 @@ export default class SessionManager {
     return true;
   }
 
+  getWeek() {
+    // some dumb function to return this dont ask
+    return 604800000;
+  }
+
   apply(ip: string, session: Session) {
     this.logger.info(`New session: ${session.sessionID}`);
     setTimeout(async() => {
@@ -79,7 +84,7 @@ export default class SessionManager {
         await this.removeSession(ip);
         this.logger.info(`Session "${session.sessionID}" has expired`);
       }
-    }, 604800000);
+    }, this.getWeek());
   }
 
   exists(ip: string) {
@@ -107,7 +112,7 @@ export default class SessionManager {
           await this.removeSession(sess.ip);
           this.logger.info(`Expired session: "${sess.sessionID}" (user: ${sess.username})`);
         }
-      }, sess.startedAt - (Date.now() + 604800000));
+      }, sess.startedAt - (Date.now() + this.getWeek()));
     }
   }
 }

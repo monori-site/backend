@@ -21,7 +21,6 @@
  */
 
 import { HashWorker, HashOptions } from './Hash';
-import { getOption } from '../../../util';
 
 /**
  * Encrypts the key
@@ -34,12 +33,13 @@ export function encrypt(key: string, options?: HashOptions) {
 
 /**
  * Decrypts the key with it's hash and checks if it's right
- * @param key The key to use
- * @param options The options
+ * @param hash The key to use
+ * @param val The value
+ * @param options The options to use
  */
-export function check(key: string, options?: HashOptions) {
-  const hash = new HashWorker(options);
-  return hash.check(key, getOption(options!, 'digest', 'md5'));
+export function check(hash: string, val: string, options?: HashOptions) {
+  const worker = new HashWorker(options);
+  return worker.check(hash, val);
 }
 
 export { HashWorker };

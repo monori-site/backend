@@ -41,6 +41,9 @@ export interface User {
 
   /** The user's registered projects */
   projects: string[];
+  
+  /** If the user is admin or not */
+  admin: boolean;
 
   /** The user's GitHub username (or null if not used the OAuth2 system) */
   github: string | null;

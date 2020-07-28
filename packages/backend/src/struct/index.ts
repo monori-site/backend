@@ -21,7 +21,8 @@
  */
 
 import { GitHubConfig } from './managers/ConfigManager';
+import * as models from './models';
 
 export * from './decorators';
 export * from './internals';
-export { GitHubConfig };
+export { GitHubConfig, models };

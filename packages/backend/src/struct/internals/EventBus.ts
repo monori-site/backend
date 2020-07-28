@@ -106,12 +106,8 @@ export class EventBus<T extends EventBusMap = EventBusMap> {
     const listeners = this.events[event]!;
     if (!listeners.length) return false;
 
-    for (let i = listeners.length; i > 0; i--) {
-      if (listeners[i] === listener) {
-        listeners.splice(i, 1);
-        break;
-      }
-    }
+    const index = listeners.indexOf(listener);
+    if (index !== -1) listeners.splice(index, 1);
 
     if (!listeners.length) {
       delete this.events[event];

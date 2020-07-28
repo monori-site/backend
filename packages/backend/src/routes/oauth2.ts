@@ -97,7 +97,7 @@ export default class OAuth2Router extends BaseRouter {
   async github(req: FastifyRequest, res: FastifyReply) {
     if (await this.website.sessions.exists(req.connection.remoteAddress!)) return res.status(500).send({
       statusCode: 500,
-      message: 'Address has an concurrent session, continue'
+      message: 'User has an concurrent session, continue'
     });
 
     const config = this.website.config.get<GitHubConfig>('github');

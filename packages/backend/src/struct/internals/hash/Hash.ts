@@ -101,13 +101,13 @@ export class HashWorker {
 
   /**
    * Decrypts the key with it's hash and checks if it's right
-   * @param key The key to use
-   * @param hash The hash to use
+   * @param hash The key to use
+   * @param val The value
    */
-  check(key: string, hash: Hashes) {
+  check(hash: string, val: string) {
     if (!hashes.includes(this.digest)) throw new Error(`Digest "${this.digest}" is not a valid digest to use.`);
 
-    const value = pbkdf2Sync(key, this.salt, this.iterations, this.length, this.digest).toString('base64');
-    return !!(value === hash); // cast it to a boolean
+    const value = pbkdf2Sync(hash, this.salt, this.iterations, this.length, this.digest).toString('base64');
+    return !!(value === val); // cast it to a boolean
   }
 }

@@ -82,6 +82,7 @@ export function getCommitHash() {
  * @returns The value from `options` or `defaultValue`
  */
 export function getOption<O, V = unknown>(options: O, prop: keyof O, defaultValue: V): V {
+  // this feels redudant but i give zero fucks
   return options[prop as any] ? options[prop as any]! : defaultValue;
 }
 
