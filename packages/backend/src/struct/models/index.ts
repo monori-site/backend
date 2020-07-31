@@ -21,6 +21,5 @@
  */
 
 export * from './Organisation';
-export * from './JWTStorage';
 export * from './Project';
 export * from './User';

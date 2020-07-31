@@ -67,13 +67,11 @@ export default class UserAPIRouter extends BaseRouter {
     ]
   })
   async getUser(req: GetUserRequest, res: FastifyReply) {
-    const batch = this
+    const user = await this
       .website
       .connection
-      .createBatch()
-      .pipe(pipelines.Select('users', ['username', req.params.id!]));
+      .query<models.User>(pipelines.Select('users', ['username', req.params.id!]), false);
 
-    const user = await batch.next<models.User>();
     if (user === null) {
       return res.status(404).send({
         statusCode: 404,
@@ -104,13 +102,11 @@ export default class UserAPIRouter extends BaseRouter {
     // concurrent sessions (if they exist or not), so it's not needed.
     // Also, I'll have to make it non nullable, so using assertions is fine (for now)
     const session = await this.website.sessions.getSession(req.connection.remoteAddress!);
-    const batch = this
+    const user = await this
       .website
       .connection
-      .createBatch()
-      .pipe(pipelines.Select('users', ['username', session!.username]));
+      .query<models.User>(pipelines.Select('users', ['username', session!.username]), false);
 
-    const user = await batch.next<models.User>();
     return res.status(200).send({
       statusCode: 200,
       data: {
@@ -132,31 +128,21 @@ export default class UserAPIRouter extends BaseRouter {
   @Get('/users/@me/jwt', { authenicate: true })
   async getJwt(req: FastifyRequest, res: FastifyReply) {
     const session = await this.website.sessions.getSession(req.connection.remoteAddress!);
-    const batch = this
+    const user = await this
       .website
       .connection
-      .createBatch()
-      .pipe(pipelines.Select('users', ['username', session!.username]));
-
-    const user = await batch.next<models.User>();
-    const salt = this.website.config.get<string>('salt');
-    if (salt === null) return res.status(500).send({
-      statusCode: 500,
-      message: 'Administrators hasn\'t set a salt token, please contact them!'
-    });
+      .query<models.User>(pipelines.Select('users', ['username', session!.username]), false);
 
     if (user!.jwt === null) {
-      const token = JWT.issue(user!.username, user!.password, salt);
-      const batch = this.website.connection.createBatch()
-        .pipe(pipelines.Update({
-          values: [
-            ['jwt', token]
-          ],
-          table: 'token',
-          type: 'set'
-        }));
+      const token = JWT.issue(user!.username, user!.password);
 
-      await batch.next(); // Execute the batch
+      await this.website.connection.query(pipelines.Update({
+        values: {
+          jwt: token
+        },
+        table: 'token',
+        type: 'set'
+      }), false);
       return res.status(200).send({
         statusCode: 200,
         data: {
@@ -164,22 +150,20 @@ export default class UserAPIRouter extends BaseRouter {
         }
       });
     } else {
-      const decoded = JWT.decode(user!.jwt, salt);
+      const decoded = JWT.decode(user!.jwt);
       if (!decoded.username) {
         switch (decoded.status) {
           case TokenStatus.Expired: {
-            const token = JWT.issue(user!.username, user!.password, salt);
-            const batch = this.website.connection.createBatch()
-              .pipe(pipelines.Update({
-                returning: ['jwt'],
-                values: {
-                  jwt: token
-                },
-                table: 'token',
-                type: 'set'
-              }));
+            const token = JWT.issue(user!.username, user!.password);
+            const resp = await this.website.connection.query<any>(pipelines.Update({
+              returning: ['jwt'],
+              values: {
+                jwt: token
+              },
+              table: 'token',
+              type: 'set'
+            }), false);
       
-            const resp = await batch.next<any>(); // Execute the batch
             return res.status(200).send({
               statusCode: 200,
               data: {
@@ -221,28 +205,20 @@ export default class UserAPIRouter extends BaseRouter {
       .pipe(pipelines.Select('users', ['username', session!.username]));
 
     const user = await batch.next<models.User>();
-    const salt = this.website.config.get<string>('salt');
-    if (salt === null) return res.status(500).send({
-      statusCode: 500,
-      message: 'Administrators hasn\'t set a salt token, please contact them!'
-    });
+    const token = JWT.issue(user!.username, user!.password);
+    const query = await this.website.connection.query<{ jwt: string }>(pipelines.Update({
+      returning: ['jwt'],
+      values: {
+        jwt: token
+      },
+      table: 'token',
+      type: 'set'
+    }), false);
 
-    const token = JWT.issue(user!.username, user!.password, salt);
-    const otherBatch = this.website.connection.createBatch()
-      .pipe(pipelines.Update({
-        returning: ['jwt'],
-        values: {
-          jwt: token
-        },
-        table: 'token',
-        type: 'set'
-      }));
-
-    const resp = await otherBatch.next<{ jwt: string }>(); // Execute the batch
     return res.status(200).send({
       statusCode: 200,
       data: {
-        token: resp!.jwt
+        token: query!.jwt
       }
     });
   }
@@ -298,15 +274,12 @@ export default class UserAPIRouter extends BaseRouter {
       }
     }
 
-    const update = this.website.connection.createBatch()
-      .pipe(pipelines.Update({
+    try {
+      await this.website.connection.query(pipelines.Update({
         values: obj,
         table: 'users',
         type: 'set'
-      }));
-
-    try {
-      await update.all();
+      }), false);
       return res.status(200).send({
         statusCode: 200,
         data: {
@@ -355,27 +328,23 @@ export default class UserAPIRouter extends BaseRouter {
       message: `User with email "${req.body.email}" already exists`
     });
 
-    const batch2 = this.website.connection.createBatch()
-      .pipe(pipelines.Insert<models.User>({
-        values: {
-          organisations: [],
-          contributor: false,
-          translator: false,
-          username: req.body.username,
-          password: req.body.password,
-          projects: [],
-          github: null,
-          email: req.body.email,
-          hash: Hash.encrypt(req.body.password),
-          jwt: null
-        },
-        table: 'users'
-      }));
+    await this.website.connection.query(pipelines.Insert<models.User>({
+      values: {
+        organisations: [],
+        contributor: false,
+        translator: false,
+        username: req.body.username,
+        password: req.body.password,
+        projects: [],
+        github: null,
+        email: req.body.email,
+        hash: Hash.encrypt(req.body.password),
+        jwt: null
+      },
+      table: 'users'
+    }), false);
 
-    await batch2.next(); // Execute it
-    return res.status(201).send({
-      statusCode: 201
-    });
+    return res.status(201).send();
   }
 
   @Delete('/users/@me', {
@@ -383,10 +352,8 @@ export default class UserAPIRouter extends BaseRouter {
   })
   async deleteUser(req: FastifyRequest, res: FastifyReply) {
     const session = await this.website.sessions.getSession(req.connection.remoteAddress!);
-    const batch = this.website.connection.createBatch()
-      .pipe(pipelines.Delete('users', ['username', session!.username]));
 
-    await batch.all();
+    await this.website.connection.query(pipelines.Delete('users', ['username', session!.username]), false);
     await this.website.sessions.removeSession(req.connection.remoteAddress!);
     return res.status(204).send({ statusCode: 204 });
   }
@@ -394,10 +361,7 @@ export default class UserAPIRouter extends BaseRouter {
   @Get('/users/@me/projects', { authenicate: true })
   async getUserProjects(req: FastifyRequest, res: FastifyReply) {
     const session = await this.website.sessions.getSession(req.connection.remoteAddress!);
-    const batch = this.website.connection.createBatch()
-      .pipe(pipelines.Select('projects', ['owner', session!.username]));
-
-    const projects = await batch.next<models.Project[]>(true);
+    const projects = await this.website.connection.query<models.Project[]>(pipelines.Select('projects', ['owner', session!.username]), true);
     if (projects === null) return res.status(404).send({
       statusCode: 404,
       message: 'Current user hasn\'t made any projects.'
@@ -412,10 +376,8 @@ export default class UserAPIRouter extends BaseRouter {
   @Get('/users/@me/organisations', { authenicate: true })
   async getUserOrgs(req: FastifyRequest, res: FastifyReply) {
     const session = await this.website.sessions.getSession(req.connection.remoteAddress!);
-    const batch = this.website.connection.createBatch()
-      .pipe(pipelines.Select('organisations', ['owner', session!.username]));
+    const orgs = await this.website.connection.query<models.Organisation[]>(pipelines.Select('organisations', ['owner', session!.username]), true);
 
-    const orgs = await batch.next<models.Organisation[]>(true);
     if (orgs === null) return res.status(404).send({
       statusCode: 404,
       message: 'Current user hasn\'t made any projects.'
@@ -445,10 +407,7 @@ export default class UserAPIRouter extends BaseRouter {
       message: 'User has an concurrent session, continue'
     });
 
-    const batch = this.website.connection.createBatch()
-      .pipe(pipelines.Select('users', ['username', req.body.username]));
-
-    const user = await batch.next<models.User>();
+    const user = await this.website.connection.query<models.User>(pipelines.Select('users', ['username', req.body.username]), false);
     if (user === null) return res.status(404).send({
       statusCode: 404,
       message: `User "${req.body.username}" doesn't exist?`

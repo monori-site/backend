@@ -61,9 +61,9 @@ export default class AnalyticsManager {
   constructor(private website: Website) {
     this.databaseStats = undefined;
     this.requests = 0;
-    this.enabled = website.config.get('analytics', false);
-    this.logger = new Signale({ scope: 'Analytics' });
+    this.enabled = process.env.ANALYTICS;
     this.dbCalls = 0;
+    this.logger = new Signale({ scope: 'Analytics' });
   }
 
   /**

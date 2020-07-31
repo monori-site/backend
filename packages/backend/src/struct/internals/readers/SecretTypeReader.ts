@@ -20,52 +20,19 @@
  * SOFTWARE.
  */
 
-import { validate, schedule } from 'node-cron';
-import type { Website } from './Website';
+import { TypeReader } from '@augu/dotenv';
 
-/**
- * Represents information of a cron job
- */
-interface CronJobInfo {
-  /** The interval */
-  interval: string;
-
-  /** The name of the Job */
-  name: string;
-}
-
-export abstract class Job {
-  /** The interval */
-  public interval: string;
-
-  /** The website itself */
-  public website!: Website;
-
-  /** The name */
-  public name: string;
-
-  /**
-   * Constructs a new instance of Job
-   * @param info The information to get
-   */
-  constructor(info: CronJobInfo) {
-    if (!validate(info.interval)) throw new Error(`Invalid syntax in "${info.interval}"`);
-
-    this.interval = info.interval;
-    this.name = info.name;
+export class SecretTypeReader extends TypeReader<string> {
+  constructor() {
+    super('secret');
   }
 
-  /**
-   * Initialises the Job
-   * @param website The website itself
-   */
-  init(website: Website) {
-    this.website = website;
-    schedule(this.interval, this.run);
+  validate(arg: string) {
+    if (arg.length < 32) return false;
+    return true;
   }
 
-  /**
-   * Function to run the job
-   */
-  public abstract run(): Promise<void>;
+  parse(arg: string) {
+    return arg;
+  }
 }

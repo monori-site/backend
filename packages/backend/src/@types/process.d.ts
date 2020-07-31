@@ -20,8 +20,24 @@
  * SOFTWARE.
  */
 
-import * as models from './models';
+declare namespace NodeJS {
+  interface ProcessEnv {
+    // So we prevent the error:
+    // Property 'prop' of type 'type' is not assignable to string index type 'string | undefined'. ts(2411)
+    [x: string]: any;
 
-export * from './decorators';
-export * from './internals';
-export { models };
+    GITHUB_CLIENT_SECRET: string;
+    GITHUB_CALLBACK_URL: string;
+    DATABASE_USERNAME: string;
+    DATABASE_PASSWORD: string;
+    GITHUB_CLIENT_ID: string;
+    GITHUB_ENABLED: boolean;
+    DATABASE_PORT: number;
+    DATABASE_HOST: string;
+    DATABASE_NAME: string;
+    ANALYTICS: boolean;
+    NODE_ENV: 'development' | 'production';
+    SECRET: string;
+    PORT: number;
+  }
+}

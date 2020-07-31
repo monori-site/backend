@@ -1,5 +1,58 @@
-/*
-  @Get('/projects/:uuid', {
+/**
+ * Copyright (c) 2020 August
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+import { BaseRouter, Get, Put, Delete, Patch, models } from '../struct';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import { pipelines } from '@augu/maru';
+
+type DeleteProjectRequest = GetProjectRequest;
+type GetProjectRequest = FastifyRequest<{
+  Params: {
+    uuid: string;
+  }
+}>;
+
+type PutProjectRequest = FastifyRequest<{
+  Body: {
+    name: string;
+  }
+}>;
+
+type PatchProjectRequest = FastifyRequest<{
+  Params: {
+    uuid: string;
+  }
+
+  Body: {
+    data: { [x: string]: any }
+  }
+}>;
+
+export default class ProjectsAPIRouter extends BaseRouter {
+  constructor() {
+    super('/api/projects');
+  }
+
+  @Get('/:uuid', {
     parameters: [
       {
         required: true,
@@ -8,19 +61,19 @@
     ]
   })
   async getProject(req: GetProjectRequest, res: FastifyReply) {
-    const batch = this.website.connection.createBatch()
-      .pipe(pipelines.Select('projects', ['name', req.params.uuid]));
+    const project = await this.website.connection.query<models.Project>(pipelines.Select('projects', ['name', req.params.uuid]), false);
+    if (project === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Project with name "${req.params.uuid}" doesn't exist`
+    });
 
-    const data = await batch.next<Project>();
-    if (data === null) return res.status(404).send({ statusCode: 404, message: `Project with name "${req.params.uuid}" was not found.` });
-    
     return res.status(200).send({
-      statusCode: 200,
-      data
+      statusCode: 404,
+      data: project
     });
   }
 
-  @Put('/projects/:uuid', {
+  @Put('/', {
     authenicate: true,
     body: [
       {
@@ -32,16 +85,8 @@
   async newProject(req: PutProjectRequest, res: FastifyReply) {
     const session = await this.website.sessions.getSession(req.connection.remoteAddress!);
     const batch = this.website.connection.createBatch()
-      .pipe(pipelines.Select('projects', ['name', req.body.name]));
-
-    const result = await batch.next<Project>();
-    if (result !== null) return res.status(500).send({
-      statusCode: 500,
-      message: `Project by name "${req.body.name}" exists`
-    });
-
-    const batch2 = this.website.connection.createBatch()
-      .pipe(pipelines.Insert<Project>({
+      .pipe(pipelines.Select('projects', ['name', req.body.name]))
+      .pipe(pipelines.Insert<models.Project>({
         values: {
           translations: [],
           github: null,
@@ -51,14 +96,24 @@
         table: 'projects'
       }));
 
-    await batch2.next<Project>();
-    return res.status(201).send({
-      statusCode: 201
+    const result = await batch.next<models.Project>();
+    if (result !== null) return res.status(500).send({
+      statusCode: 500,
+      message: `Project by name "${req.body.name}" exists`
     });
+
+    await batch.next(); // Execute the insert pipe
+    return res.status(201).send({ statusCode: 201 });
   }
 
-  @Patch('/projects/:uuid', {
+  @Patch('/:uuid', {
     authenicate: true,
+    parameters: [
+      {
+        required: true,
+        name: 'uuid'
+      }
+    ],
     body: [
       {
         required: true,
@@ -83,10 +138,7 @@
         message: `"username" must be a string (received ${typeof req.body.data.name})`
       });
 
-      const batch = this.website.connection.createBatch()
-        .pipe(pipelines.Select('projects', ['name', req.body.data.name]));
-
-      const result = await batch.next<Project>();
+      const result = await this.website.connection.query(pipelines.Select('projects', ['name', req.body.data.name]), false);
       if (result === null) {
         updates['name'] = req.body.data.name;
       } else {
@@ -97,27 +149,48 @@
       }
     }
 
-    const update = this.website.connection.createBatch()
-      .pipe(pipelines.Update({
+    try {
+      await this.website.connection.query(pipelines.Update({
         values: updates,
         table: 'projects',
         type: 'set'
-      }));
+      }), false);
 
-    try {
-      await update.all();
-      return res.status(200).send({
-        statusCode: 200,
-        data: { updated: true }
-      });
+      return res.status(204).send();
     } catch(ex) {
       return res.status(500).send({
         statusCode: 500,
-        data: {
-          updated: false,
-          message: ex.message
-        }
+        message: `[${ex.name}] ${ex.message}`
       });
     }
   }
-  */
+
+  @Delete('/:uuid', {
+    authenicate: true,
+    parameters: [
+      {
+        required: true,
+        name: 'uuid'
+      }
+    ]
+  })
+  async deleteProject(req: DeleteProjectRequest, res: FastifyReply) {
+    const project = await this.website.connection.query<models.Project>(pipelines.Select('projects', ['name', req.params.uuid]), false);
+    if (project === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Project with name "${req.params.uuid}" doesn't exist`
+    });
+
+    const session = await this.website.sessions.getSession(req.connection.remoteAddress!);
+    const isOwner = await this.website.connection.query<models.Project>(pipelines.Select('projects', ['owner', session!.username]), true)
+      .then((result) => result === null || result.some(arr => arr.owner === session!.username));
+
+    if (!isOwner) return res.status(403).send({
+      statusCode: 403,
+      message: `User "${session!.username}" is not the owner of project "${project.name}"`
+    });
+
+    await this.website.connection.query(pipelines.Delete('projects', ['name', project.name]), false);
+    return res.status(204).send();
+  }
+}

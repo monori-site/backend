@@ -116,8 +116,17 @@ export function getKindOf(value: unknown) {
 }
 
 /**
- * Asynchronous halt the process for x amount of milliseconds
+ * Asynchronous way to halt the process for x amount of milliseconds
+ * 
+ * Since `Promise` are macro-tasks and stuff like setTimeout, setInterval are micro-tasks,
+ * the event loop will run any synchronous code first THEN all of the Promises in that code,
+ * then all of the micro-tasks; so it's an endless loop of doing all 3 I described.
+ * 
+ * Why is this important? We can basically "manipulate" the event-loop to halt a certain
+ * process until another process is done, I know... I'm weird at explaining stuff.
+ * 
  * @param ms The amount of time to "sleep"
+ * @returns An unknown Promise
  */
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));

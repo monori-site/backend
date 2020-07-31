@@ -21,7 +21,6 @@
  */
 
 import fastify, { FastifyInstance as Server } from 'fastify';
-import ConfigManager, { Configuration } from '../managers/ConfigManager';
 import { Dialect, Connection } from '@augu/maru';
 import AnalyticsManager from '../managers/AnalyticsManager';
 import RoutingManager from '../managers/RoutingManager';
@@ -30,6 +29,7 @@ import RedisManager from '../managers/RedisManager';
 import { EventBus } from '.';
 import { Signale } from 'signale';
 import ratelimit from 'fastify-rate-limit';
+import { models } from '..';
 import { sleep } from '../../util';
 
 // eslint-disable-next-line
@@ -38,23 +38,39 @@ type Events = {
   online: () => void;
 };
 
+export interface Config {
+  GITHUB_CLIENT_SECRET: string | null;
+  GITHUB_CALLBACK_URL: string | null;
+  DATABASE_USERNAME: string;
+  DATABASE_PASSWORD: string;
+  GITHUB_CLIENT_ID: string | null;
+  GITHUB_ENABLED: boolean;
+  REDIS_PASSWORD: string | null;
+  DATABASE_PORT: number;
+  DATABASE_HOST: string;
+  DATABASE_NAME: string;
+  REDIS_HOST: string;
+  REDIS_PORT: number;
+  ANALYTICS: boolean;
+  NODE_ENV: 'development' | 'production';
+  SECRET: string;
+  PORT: number;
+}
+
 export class Website extends EventBus<Events> {
   public connection!: Connection;
   public analytics: AnalyticsManager;
   public sessions: SessionManager;
   public bootedAt: number;
   private logger: Signale;
-  public config: ConfigManager;
   public routes: RoutingManager;
   public server: Server;
   public redis: RedisManager;
   private maru: Dialect;
 
-  constructor(config: Configuration) {
+  constructor() {
     super();
 
-    // javascript sometimes i hate u smh
-    this.config = new ConfigManager(config);
     this.analytics = new AnalyticsManager(this);
     this.sessions = new SessionManager(this);
     this.bootedAt = Date.now();
@@ -64,8 +80,11 @@ export class Website extends EventBus<Events> {
     this.redis = new RedisManager(this);
     this.maru = new Dialect({
       activeConnections: 1,
-      ...config.database,
-      database: 'i18n'
+      username: process.env.DATABASE_USERNAME,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
+      host: process.env.DATABASE_HOST,
+      port: process.env.DATABASE_PORT
     });
   }
 
@@ -117,11 +136,12 @@ export class Website extends EventBus<Events> {
     this.connection = this.maru.createConnection();
     await this.connection.connect();
     await this.redis.connect();
+    await this._createTables();
 
     this.logger.info('Now booting server...');
     await sleep(2000);
 
-    this.server.listen(this.config.get<number>('port', 6969), (error) => {
+    this.server.listen(process.env.PORT, (error) => {
       if (error) {
         this.logger.error('Unable to load server', error);
         process.exit(1);
@@ -137,4 +157,105 @@ export class Website extends EventBus<Events> {
 
     this.emit('disposed');
   }
+
+  private async _createTables() {
+    const { pipelines } = await import('@augu/maru');
+    this.logger.info('Creating database tables (if they don\'t exist...)');
+
+    await this.connection.query(pipelines.CreateTable<models.User>('users', {
+      values: {
+        organisations: {
+          nullable: false,
+          primary: false,
+          type: 'array'
+        },
+        contributor: {
+          nullable: false,
+          primary: false,
+          type: 'boolean'
+        },
+        translator: {
+          nullable: false,
+          primary: false,
+          type: 'boolean'
+        },
+        username: {
+          nullable: false,
+          primary: true,
+          type: 'string'
+        },
+        password: {
+          nullable: false,
+          primary: false,
+          type: 'string'
+        },
+        projects: {
+          nullable: false,
+          primary: false,
+          type: 'array'
+        },
+        admin: {
+          nullable: false,
+          primary: false,
+          type: 'boolean'
+        },
+        github: {
+          nullable: true,
+          primary: false,
+          type: 'string'
+        },
+        hash: {
+          nullable: false,
+          primary: false,
+          type: 'string'
+        },
+        jwt: {
+          nullable: true,
+          primary: false,
+          type: 'string'
+        }
+      }
+    }), false);
+
+    await this.connection.query(pipelines.CreateTable<models.Project>('projects', {
+      values: {
+        translations: {
+          nullable: false,
+          primary: false,
+          type: 'array'
+        },
+        github: {
+          nullable: true,
+          primary: false,
+          type: 'string'
+        },
+        owner: {
+          nullable: false,
+          primary: false,
+          type: 'string'
+        },
+        name: {
+          nullable: false,
+          primary: true,
+          type: 'string'
+        }
+      }
+    }), false);
+  }
 }
+
+/*
+export interface Project {
+  translations: Translation[];
+  github: string | null;
+  owner: string;
+  name: string;
+}
+
+interface Translation {
+  filePath: string | null;
+  branch: string | null;
+  owner: string;
+  code: string;
+}
+*/

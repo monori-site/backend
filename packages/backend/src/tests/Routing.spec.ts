@@ -24,7 +24,6 @@
 
 import * as mocked from '../util/mock';
 import { Method } from '../struct';
-import { exit } from 'process';
 
 describe('Routing', () => {
   let router!: mocked.MockedRouter;

@@ -26,11 +26,8 @@ import { pipelines } from '@augu/maru';
 import JWT, { TokenStatus } from '../../util/JWT';
 
 async function reissue(this: Website, user: models.User): Promise<[boolean, string | undefined]> {
-  const salt = this.config.get<string>('salt');
-  if (salt === null) return <any> [false, undefined];
-
   if (user.jwt === null) {
-    const token = JWT.issue(user.username, user.password, salt);
+    const token = JWT.issue(user.username, user.password);
     const batch = this.connection.createBatch()
       .pipe(pipelines.Update({
         returning: ['jwt'],
@@ -45,23 +42,21 @@ async function reissue(this: Website, user: models.User): Promise<[boolean, stri
     return <any> [true, token];
   }
 
-  const decoded = JWT.decode(user.jwt!, salt);
+  const decoded = JWT.decode(user.jwt!);
   if (decoded.hasOwnProperty('reason')) {
     switch (decoded.status) {
       case TokenStatus.Expired: {
-        const token = JWT.issue(user.username, user.password, salt);
-        const batch = this.connection.createBatch()
-          .pipe(pipelines.Update({
-            returning: ['jwt'],
-            values: {
-              jwt: token
-            },
-            table: 'users',
-            type: 'set'
-          }));
+        const token = JWT.issue(user.username, user.password);
+        const query = await this.connection.query<any>(pipelines.Update({
+          returning: ['jwt'],
+          values: {
+            jwt: token
+          },
+          table: 'users',
+          type: 'set'
+        }), false);
     
-        await batch.next(); // Execute it
-        return <any> [true, token];
+        return <any> [true, query.jwt];
       }
 
       case TokenStatus.Invalid: return <any> [false, undefined];
@@ -98,10 +93,8 @@ export default async function onRequest(
     switch (route.type) {
       case 'jwt': {
         const session = await this.sessions.getSession(req.connection.remoteAddress!);
-        const batch = this.connection.createBatch()
-          .pipe(pipelines.Select('users', ['username', session!.username]));
+        const user = await this.connection.query<models.User>(pipelines.Select('users', ['username', session!.username]), false);
         
-        const user = await batch.next<models.User>();
         if (user === null) return res.status(401).send({
           statusCode: 401,
           message: 'No session has been created, please login'
@@ -121,10 +114,8 @@ export default async function onRequest(
 
       default: {
         const session = await this.sessions.getSession(req.connection.remoteAddress!);
-        const batch = this.connection.createBatch()
-          .pipe(pipelines.Select('users', ['username', session!.username]));
-        
-        const user = await batch.next<models.User>();
+        const user = await this.connection.query<models.User>(pipelines.Select('users', ['username', session!.username]), false);
+
         if (user === null) return res.status(401).send({
           statusCode: 401,
           message: 'No session has been created, please login'
@@ -135,10 +126,8 @@ export default async function onRequest(
 
   if (route.admin) {
     const session = await this.sessions.getSession(req.connection.remoteAddress!);
-    const batch = this.connection.createBatch()
-      .pipe(pipelines.Select('users', ['username', session!.username]));
-    
-    const user = await batch.next<models.User>();
+    const user = await this.connection.query<models.User>(pipelines.Select('users', ['username', session!.username]), false);
+
     if (user === null) return res.status(401).send({
       statusCode: 401,
       message: 'No session has been created, please login'

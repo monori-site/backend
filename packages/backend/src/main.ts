@@ -20,10 +20,12 @@
  * SOFTWARE.
  */
 
+import { Website, Config, SecretTypeReader } from './struct';
 import { existsSync, mkdirSync } from 'fs';
 import { Signale } from 'signale';
-import { Website } from './struct';
 import { getPath } from './util';
+import { parse } from '@augu/dotenv';
+import { join } from 'path';
 
 if (!existsSync(getPath('logs'))) mkdirSync(getPath('logs'));
 
@@ -36,10 +38,61 @@ if (!existsSync(getPath('config.json'))) {
 }
 
 logger.info(`Initialising website... (v${pkg.version})`);
-const website = new Website(require('./config.json'));
-const env = website.config.get<'development' | 'production'>('environment', 'development');
+const website = new Website();
 
-if (env === 'development') logger.warn('Site is in development mode, expect crashes and/or bugs! Report them at https://github.com/auguwu/monori/issues if you find any crashes and bugs.');
+parse<Config>({
+  populate: true,
+  file: join(__dirname, '..', '.env'),
+  readers: [SecretTypeReader],
+  schema: {
+    GITHUB_CLIENT_SECRET: {
+      default: null,
+      type: 'string'
+    },
+    GITHUB_CALLBACK_URL: {
+      default: null,
+      type: 'string'
+    },
+    DATABASE_USERNAME: 'string',
+    DATABASE_PASSWORD: 'string',
+    GITHUB_CLIENT_ID: {
+      default: null,
+      type: 'string'
+    },
+    GITHUB_ENABLED: {
+      default: false,
+      type: 'boolean'
+    },
+    REDIS_PASSWORD: {
+      default: null,
+      type: 'string'
+    },
+    DATABASE_PORT: 'int',
+    DATABASE_HOST: 'string',
+    DATABASE_NAME: 'string',
+    REDIS_HOST: 'string',
+    REDIS_PORT: {
+      default: 6379,
+      type: 'int'
+    },
+    ANALYTICS: {
+      default: false,
+      type: 'boolean'
+    },
+    NODE_ENV: {
+      default: 'development',
+      oneOf: ['development', 'production'],
+      type: 'string'
+    },
+    SECRET: 'secret',
+    PORT: {
+      default: 6969,
+      type: 'int'
+    }
+  }
+});
+
+if (process.env.NODE_ENV === 'development') logger.warn('Site is in development mode, expect crashes and/or bugs! Report them at https://github.com/auguwu/monori/issues if you find any crashes and bugs.');
 
 website.on('online', async () => {
   logger.info('Website has initialised successfully');

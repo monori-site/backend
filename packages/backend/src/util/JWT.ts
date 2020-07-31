@@ -45,8 +45,8 @@ export default class JWTUtil {
    * @param password The user's password
    * @param salt The salt token
    */
-  static issue(username: string, password: string, salt: string) {
-    return jwt.sign({ username, password }, salt, { algorithm: 'HS512', expiresIn: '7 days' });
+  static issue(username: string, password: string) {
+    return jwt.sign({ username, password }, process.env.SECRET, { algorithm: 'HS512', expiresIn: '7 days' });
   }
 
   /**
@@ -54,9 +54,9 @@ export default class JWTUtil {
    * @param token The access token
    * @param salt The salt token
    */
-  static decode(token: string, salt: string): DecodeResult {
+  static decode(token: string): DecodeResult {
     try {
-      const value = jwt.verify(token, salt, { algorithms: ['HS512'] });
+      const value = jwt.verify(token, process.env.SECRET, { algorithms: ['HS512'] });
       if (typeof value === 'string') return {
         status: TokenStatus.Invalid,
         reason: 'Result wasn\'t an object'
