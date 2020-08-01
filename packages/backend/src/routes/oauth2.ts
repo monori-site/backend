@@ -21,19 +21,13 @@
  */
 
 /* eslint-disable camelcase */
-
-import { BaseRouter, Get, Post, GitHubConfig } from '../struct';
+import { BaseRouter, Get, Post, NormalOAuthCallback, GitHubOAuth2Provider, Website, InvalidOAuthStateError, models } from '../struct';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { randomBytes } from 'crypto';
 import { HttpClient } from '@augu/orchid';
 import { pipelines } from '@augu/maru';
-import { Queue } from '@augu/immutable';
 
-interface IncomingQuery {
+interface IncomingQuery extends NormalOAuthCallback {
   code: string;
-  state: string;
-  error?: string;
-  error_description?: string;
 }
 
 interface GitHubUser {
@@ -84,107 +78,88 @@ interface UserPlan {
 }
 
 export default class OAuth2Router extends BaseRouter {
-  private states: Queue<string> = new Queue();
+  private provider: GitHubOAuth2Provider;
   private http: HttpClient = new HttpClient({
     agent: 'auguwu/i18n-backend (https://github.com/auguwu/tree/expiremental/postgres/packages/i18n-backend)'
   });
 
   constructor() {
     super('/oauth2');
+
+    this.provider = new GitHubOAuth2Provider();
+  }
+
+  init(website: Website) {
+    this.provider.init(website);
+    return super.init(website);
   }
 
   @Get('/github')
   async github(req: FastifyRequest, res: FastifyReply) {
-    if (await this.website.sessions.exists(req.connection.remoteAddress!)) return res.status(500).send({
-      statusCode: 500,
-      message: 'User has an concurrent session, continue'
-    });
+    try {
+      const url = await this.provider.redirect(req.connection.remoteAddress!, 
+        (redirectUrl, state) => 
+          `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_url=${redirectUrl}&scope=${process.env.GITHUB_SCOPES.join('%20')}${state === undefined ? '' : `&state=${state}`}`
+      );
 
-    const config = this.website.config.get<GitHubConfig>('github');
-    const env = this.website.config.get<string>('environment', 'development');
-
-    if (config === null || !config!.callbackUrls.hasOwnProperty(env)) return res.status(500).send({
-      statusCode: 500,
-      message: config === null ? 'GitHub OAuth2 is not enabled.' : `Environment "${env}" is not supported in GitHub OAuth2 callback urls`
-    });
-
-    const redirectUri = config.callbackUrls[env].replace('{port}', String(this.website.config.get('port')!));
-    const state = randomBytes(4).toString('hex');
-    this.states.add(state);
-
-    return res.redirect(`https://github.com/login/oauth/authorize?client_id=${config.clientID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${config.scopes.join('%20')}&state=${state}`);
+      return res.redirect(url);
+    } catch(ex) {
+      return res.status(500).send({
+        statusCode: 500,
+        message: ex.message
+      });
+    }
   }
 
   @Post('/github/callback')
   async ghCallback(req: FastifyRequest, res: FastifyReply) {
-    if (await this.website.sessions.exists(req.connection.remoteAddress!)) return res.status(500).send({
-      statusCode: 500,
-      message: 'Address has an concurrent session, continue'
-    });
-
     const query = (req.query as IncomingQuery);
-    if (!query.code || !query.state) return res.status(500).send({
-      statusCode: 500,
-      message: 'Missing ?code or ?state query parameter'
-    });
-    
-    if (query.error && query.error_description) return res.status(403).send({
-      statusCode: 403,
-      message: `[${query.error}] ${query.error_description}`
-    });
-
-    if (!this.states.includes(query.state)) return res.status(401).send({
-      statusCode: 401,
-      message: 'State was not valid, not continuing'
-    });
-
-    const config = this.website.config.get<GitHubConfig>('github');
-    const env = this.website.config.get<string>('environment', 'development');
-
-    if (config === null || !config!.callbackUrls.hasOwnProperty(env)) return res.status(500).send({
-      statusCode: 500,
-      message: config === null ? 'GitHub OAuth2 is not enabled.' : `Environment "${env}" is not supported in GitHub OAuth2 callback urls`
-    });
-
-    try {
-      const oauth2 = await this.http.request({
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-        },
-        url: `https://github.com/login/oauth2/access_token?client_id=${config.clientID}&client_secret=${config.clientSecret}&code=${query.code}&state=${query.state}`
-      });
-
-      const data = oauth2.json();
-      const resp2 = await this.http.request({
-        method: 'GET',
-        url: 'https://api.github.com/user',
-        headers: {
-          'Authorization': `token ${data.access_token}`,
-          'Accept': 'application/json'
+    this.provider.onReceived<IncomingQuery>(query, async (error) => {
+      if (error) {
+        if (error instanceof InvalidOAuthStateError) {
+          return res.status(403).send({
+            statusCode: 403,
+            message: `State "${query.state}" is invalid.`
+          });
+        } else {
+          return res.status(500).send({
+            statusCode: 500,
+            message: error.message
+          });
         }
+      }
+
+      const oauthReq = await this.http.request({
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        url: `https://github.com/login/oauth2/access_token?client_id=${process.env.GITHUB_CLIENT_ID}&client_secret=${process.env.GITHUB_CLIENT_SECRET}&code=${query.code}${query.state === undefined ? '' : `&state=${query.state}`}`
       });
 
-      const user = resp2.json<GitHubUser>();
-      console.log(user);
-
-      const transaction = this.website.connection.createBatch();
-      transaction
-        .pipe(pipelines.Select('users', ['github', user.id]));
-
-      const result = await transaction.next<any>();
-      console.log(result);
-
-      return res.status(200).send({
-        statusCode: 200,
-        message: 'Successfully logged in with GitHub'
+      const { access_token: accessToken } = oauthReq.json();
+      const userReq = await this.http.request({
+        method: 'GET',
+        headers: {
+          Authorization: `token ${accessToken}`,
+          Accept: 'application/json'
+        },
+        url: 'https://api.github.com/user'
       });
-    } catch (ex) {
-      res.status(500).send({
-        statusCode: 500,
-        message: 'Unable to fufill request',
-        error: `[${ex.name}] ${ex.message}`
-      });
-    }
+
+      const user = userReq.json<GitHubUser>();
+      const model = await this.website.connection.query<models.User>(pipelines.Select('users', ['github', user.id]), false);
+    
+      if (model !== null) {
+        const session = await this.website.sessions.getSession(req.connection.remoteAddress!);
+        await this.website.connection.query(pipelines.Update({
+          values: { github: user.name },
+          query: ['username', session!.username],
+          type: 'set',
+          table: 'users'
+        }), false);
+
+        // TODO: Get URL path from config
+        return res.redirect('http://localhost:3000');
+      }
+    });
   }
 }

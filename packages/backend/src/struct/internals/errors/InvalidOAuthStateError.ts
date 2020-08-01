@@ -20,9 +20,13 @@
  * SOFTWARE.
  */
 
-import * as models from './models';
+/**
+ * Exception when the user has provided an invalid OAuth2 state
+ */
+export class InvalidOAuthStateError extends Error {
+  constructor(code: string) {
+    super(`State "${code}" is invalid, forbidden request.`);
 
-export * from './decorators';
-export * from './internals';
-export * from './oauth2';
-export { models };
+    this.name = 'InvalidOAuthStateError [5230]';
+  }
+}

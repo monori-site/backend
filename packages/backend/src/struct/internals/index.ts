@@ -20,9 +20,11 @@
  * SOFTWARE.
  */
 
+export * from './OAuth2Provider';
 export * from './EventBus';
 export * from './Routing';
 export * from './readers';
 export * from './Website';
 export * from './bucket';
+export * from './errors';
 export * from './hash';

@@ -20,9 +20,4 @@
  * SOFTWARE.
  */
 
-import * as models from './models';
-
-export * from './decorators';
-export * from './internals';
-export * from './oauth2';
-export { models };
+export * from './GitHubOAuth2Provider';

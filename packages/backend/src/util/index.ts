@@ -131,3 +131,23 @@ export function getKindOf(value: unknown) {
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+/**
+ * Gets a random number of characters
+ * @param len The length to use
+ */
+export function randomChars(len: number = 32) {
+  len = len *= 2;
+
+  const CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHINKLMNOPQRSTUVWXYZ0123456789';
+  let text = '';
+
+  for (let i = 0; i < len; i++) {
+    const shouldCapital = Math.random() <= 0.278;
+    const char = CHARS.charAt(Math.floor(Math.random() * (len / 2)));
+
+    text += shouldCapital ? char.toUpperCase() : char;
+  }
+
+  return text;
+}

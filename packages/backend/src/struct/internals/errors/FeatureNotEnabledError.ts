@@ -20,9 +20,13 @@
  * SOFTWARE.
  */
 
-import * as models from './models';
+/**
+ * Exception when the feature isn't enabled
+ */
+export class FeatureNotEnabledError extends Error {
+  constructor(feature: string) {
+    super(`Feature "${feature}" is not enabled, contact an administrator.`);
 
-export * from './decorators';
-export * from './internals';
-export * from './oauth2';
-export { models };
+    this.name = 'FeatureNotEnabledError [3250]';
+  }
+}

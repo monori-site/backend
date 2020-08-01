@@ -20,9 +20,18 @@
  * SOFTWARE.
  */
 
-import * as models from './models';
+import { OAuth2Provider } from '..';
 
-export * from './decorators';
-export * from './internals';
-export * from './oauth2';
-export { models };
+export class GitHubOAuth2Provider extends OAuth2Provider {
+  constructor() {
+    super({ useStates: true });
+  }
+
+  get feature() {
+    return 'GitHub OAuth2';
+  }
+
+  get isEnabled() {
+    return process.env.GITHUB_ENABLED;
+  }
+}

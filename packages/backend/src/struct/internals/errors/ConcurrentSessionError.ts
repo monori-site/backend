@@ -20,9 +20,13 @@
  * SOFTWARE.
  */
 
-import * as models from './models';
+/**
+ * Exception when a user already has a concurrent session running
+ */
+export class ConcurrentSessionError extends Error {
+  constructor() {
+    super('User already has a concurrent session running');
 
-export * from './decorators';
-export * from './internals';
-export * from './oauth2';
-export { models };
+    this.name = 'ConcurrentSessionError [4200]';
+  }
+}
