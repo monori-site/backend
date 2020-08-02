@@ -57,7 +57,7 @@ describe('Routing', () => {
     const route = mocked.mockRoute('/abcd', uRouter, { method: Method.Get, parameters: [{ name: 'id', required: true }, { name: 'required', required: false }] });
 
     expect(route.parameters.length).toBe(2);
-    expect(route.parameters.map(s => s.name)).toBe(['id', 'required']);
+    expect(route.parameters.map(s => s.name)).toStrictEqual(['id', 'required']);
   });
 
   it('should have queries of "id" and "required"', () => {
@@ -66,7 +66,7 @@ describe('Routing', () => {
 
     expect(route.parameters.length).toBe(0);
     expect(route.queries.length).toBe(2);
-    expect(route.queries.map(s => s.name)).toBe(['id', 'required']);
+    expect(route.queries.map(s => s.name)).toStrictEqual(['id', 'required']);
   });
 
   it('should have body of "id" and "required"', () => {
@@ -75,6 +75,6 @@ describe('Routing', () => {
 
     expect(route.parameters.length).toBe(0);
     expect(route.body.length).toBe(2);
-    expect(route.body.map(s => s.name)).toBe(['id', 'required']);
+    expect(route.body.map(s => s.name)).toStrictEqual(['id', 'required']);
   });
 });

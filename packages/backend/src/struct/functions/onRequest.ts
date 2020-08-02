@@ -22,8 +22,8 @@
 
 import type { Website, Route, BaseRouter, models } from '..';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { pipelines } from '@augu/maru';
 import JWT, { TokenStatus } from '../../util/JWT';
+import { pipelines } from '@augu/maru';
 
 async function reissue(this: Website, user: models.User): Promise<[boolean, string | undefined]> {
   if (user.jwt === null) {
@@ -39,7 +39,7 @@ async function reissue(this: Website, user: models.User): Promise<[boolean, stri
       }));
 
     await batch.next(); // Execute it
-    return <any> [true, token];
+    return [true, token];
   }
 
   const decoded = JWT.decode(user.jwt!);
@@ -56,12 +56,12 @@ async function reissue(this: Website, user: models.User): Promise<[boolean, stri
           type: 'set'
         }), false);
     
-        return <any> [true, query.jwt];
+        return [true, query.jwt];
       }
 
-      case TokenStatus.Invalid: return <any> [false, undefined];
-      case TokenStatus.Unknown: return <any> [false, undefined];
-      default: return <any> [true, user.jwt!];
+      case TokenStatus.Invalid: return [false, undefined];
+      case TokenStatus.Unknown: return [false, undefined];
+      default: return [true, user.jwt!];
     }
   } else {
     return [true, user.jwt!];
@@ -133,7 +133,7 @@ export default async function onRequest(
       message: 'No session has been created, please login'
     });
 
-    if (!user!.admin) return res.status(403).send({ statusCode: 401 });
+    if (!user!.admin) return res.status(403).send({ statusCode: 403 });
   }
 
   if (route.parameters.length) {

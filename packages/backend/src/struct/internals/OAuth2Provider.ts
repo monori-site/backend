@@ -23,6 +23,7 @@
 import { getOption, randomChars } from '../../util';
 import type { Website } from '.';
 import * as errors from './errors';
+import { Queue } from '@augu/immutable';
 
 /** Interface of the options used in this OAuth2 provider */
 interface OAuth2ProviderInfo {
@@ -44,7 +45,7 @@ export abstract class OAuth2Provider {
   private website!: Website;
 
   /** The stats to validate the request */
-  public states?: Set<string>;
+  public states?: Queue<string>;
 
   /**
    * Creates a new OAuth2 Provider
@@ -53,7 +54,7 @@ export abstract class OAuth2Provider {
   constructor(private options: OAuth2ProviderInfo) {
     const useStates = getOption(options, 'useStates', true);
 
-    if (useStates) this.states = new Set();
+    if (useStates) this.states = new Queue();
   }
 
   /**
@@ -116,7 +117,10 @@ export abstract class OAuth2Provider {
       const hasState = getOption(data, 'state', null) === null;
 
       if (!hasState) return callback(new Error('States is enabled but didn\'t receive one?'));
-      if (!this.states!.has(data.state!)) return callback(new errors.InvalidOAuthStateError(data.state!));
+      if (!this.states!.includes(data.state!)) return callback(new errors.InvalidOAuthStateError(data.state!));
+
+      // Remove the state from the queue
+      this.states!.remove(data.state!);
     }
 
     return callback();

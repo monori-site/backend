@@ -37,11 +37,20 @@ export default class RedisManager extends EventBus<Events> {
   private buckets: Collection<RedisBucket<any>>;
   public client: IRedis;
 
-  constructor(website: Website) {
+  constructor() {
     super();
 
+    const options: {
+      [x: string]: any
+    } = {
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT
+    };
+
+    if (process.env.REDIS_PASSWORD !== null) options.password = process.env.REDIS_PASSWORD;
+
     this.buckets = new Collection();
-    this.client = new RedisClient(website.config!.get<RedisConfig>('redis')!);
+    this.client = new RedisClient(options);
   }
 
   async connect() {
