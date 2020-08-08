@@ -45,6 +45,7 @@ export interface Config {
   DATABASE_PASSWORD: string;
   GITHUB_CLIENT_ID: string | null;
   GITHUB_ENABLED: boolean;
+  GITHUB_SCOPES: string[];
   REDIS_PASSWORD: string | null;
   DATABASE_PORT: number;
   DATABASE_HOST: string;
@@ -68,7 +69,7 @@ export class Website extends EventBus<Events> {
   public redis: RedisManager;
   private maru: Dialect;
 
-  constructor() {
+  constructor(result: Config, populate: () => void) {
     super();
 
     this.analytics = new AnalyticsManager(this);
@@ -77,18 +78,22 @@ export class Website extends EventBus<Events> {
     this.logger = new Signale({ scope: 'Website ' });
     this.routes = new RoutingManager(this);
     this.server = fastify();
-    this.redis = new RedisManager(this);
+    this.redis = new RedisManager(result.REDIS_HOST, result.REDIS_PORT, result.REDIS_PASSWORD === null ? undefined : result.REDIS_PASSWORD!);
     this.maru = new Dialect({
       activeConnections: 1,
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      host: process.env.DATABASE_HOST,
-      port: process.env.DATABASE_PORT
+      username: result.DATABASE_USERNAME,
+      password: result.DATABASE_PASSWORD,
+      database: result.DATABASE_NAME,
+      host: result.DATABASE_HOST,
+      port: result.DATABASE_PORT
     });
+
+    populate();
   }
 
   private addMiddleware() {
+    // 1,000 requests per hour
+    // TODO?: Make this more strict?
     this.server.register(ratelimit, {
       timeWindow: 3600000,
       max: 1000
@@ -120,6 +125,13 @@ export class Website extends EventBus<Events> {
         statusCode: 500,
         message: `Route "${req.raw.method!.toUpperCase()} ${req.raw.url}" was not found`
       });
+    });
+
+    this.server.addHook('onRoute', (opts) => {
+      opts.onResponse = (_, reply, done) => {
+        reply.header('X-Powered-By', 'auguwu tehc (https://github.com/auguwu/Monori)');
+        done();
+      };
     });
   }
 
@@ -160,102 +172,110 @@ export class Website extends EventBus<Events> {
 
   private async _createTables() {
     const { pipelines } = await import('@augu/maru');
-    this.logger.info('Creating database tables (if they don\'t exist...)');
-
-    await this.connection.query(pipelines.CreateTable<models.User>('users', {
-      values: {
-        organisations: {
-          nullable: false,
-          primary: false,
-          type: 'array'
-        },
-        contributor: {
-          nullable: false,
-          primary: false,
-          type: 'boolean'
-        },
-        translator: {
-          nullable: false,
-          primary: false,
-          type: 'boolean'
-        },
-        username: {
-          nullable: false,
-          primary: true,
-          type: 'string'
-        },
-        password: {
-          nullable: false,
-          primary: false,
-          type: 'string'
-        },
-        projects: {
-          nullable: false,
-          primary: false,
-          type: 'array'
-        },
-        admin: {
-          nullable: false,
-          primary: false,
-          type: 'boolean'
-        },
-        github: {
-          nullable: true,
-          primary: false,
-          type: 'string'
-        },
-        hash: {
-          nullable: false,
-          primary: false,
-          type: 'string'
-        },
-        jwt: {
-          nullable: true,
-          primary: false,
-          type: 'string'
+    const batch = this.connection.createBatch()
+      .pipe(pipelines.CreateTable<models.User>('users', {
+        values: {
+          organisations: {
+            nullable: false,
+            primary: false,
+            type: 'array'
+          },
+          contributor: {
+            nullable: false,
+            primary: false,
+            type: 'boolean'
+          },
+          translator: {
+            nullable: false,
+            primary: false,
+            type: 'boolean'
+          },
+          username: {
+            nullable: false,
+            primary: true,
+            type: 'string'
+          },
+          password: {
+            nullable: false,
+            primary: false,
+            type: 'string'
+          },
+          projects: {
+            nullable: false,
+            primary: false,
+            type: 'array'
+          },
+          admin: {
+            nullable: false,
+            primary: false,
+            type: 'boolean'
+          },
+          github: {
+            nullable: true,
+            primary: false,
+            type: 'string'
+          },
+          hash: {
+            nullable: false,
+            primary: false,
+            type: 'string'
+          },
+          jwt: {
+            nullable: true,
+            primary: false,
+            type: 'string'
+          }
         }
-      }
-    }), false);
-
-    await this.connection.query(pipelines.CreateTable<models.Project>('projects', {
-      values: {
-        translations: {
-          nullable: false,
-          primary: false,
-          type: 'array'
-        },
-        github: {
-          nullable: true,
-          primary: false,
-          type: 'string'
-        },
-        owner: {
-          nullable: false,
-          primary: false,
-          type: 'string'
-        },
-        name: {
-          nullable: false,
-          primary: true,
-          type: 'string'
+      }))
+      .pipe(pipelines.CreateTable<models.Project>('projects', {
+        values: {
+          translations: {
+            nullable: false,
+            primary: false,
+            type: 'array'
+          },
+          github: {
+            nullable: true,
+            primary: false,
+            type: 'string'
+          },
+          owner: {
+            nullable: false,
+            primary: false,
+            type: 'string'
+          },
+          name: {
+            nullable: false,
+            primary: true,
+            type: 'string'
+          }
         }
-      }
-    }), false);
+      }))
+      .pipe(pipelines.CreateTable<models.Organisation>('organisations', {
+        values: {
+          projects: {
+            nullable: false,
+            primary: false,
+            type: 'array'
+          },
+          members: {
+            nullable: false,
+            primary: false,
+            type: 'array'
+          },
+          owner: {
+            nullable: false,
+            primary: false,
+            type: 'string'
+          },
+          name: {
+            nullable: false,
+            primary: true,
+            type: 'string'
+          }
+        }
+      }));
+
+    await batch.all();
   }
 }
-
-/*
-export interface Project {
-  translations: Translation[];
-  github: string | null;
-  owner: string;
-  name: string;
-}
-
-interface Translation {
-  filePath: string | null;
-  branch: string | null;
-  owner: string;
-  code: string;
-}
-*/

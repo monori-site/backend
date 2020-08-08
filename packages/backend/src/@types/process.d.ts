@@ -32,10 +32,14 @@ declare namespace NodeJS {
     DATABASE_PASSWORD: string;
     GITHUB_CLIENT_ID: string;
     GITHUB_ENABLED: boolean;
+    REDIS_PASSWORD: string | null;
+    GITHUB_SCOPES: string[];
     DATABASE_PORT: number;
     DATABASE_HOST: string;
     DATABASE_NAME: string;
     ANALYTICS: boolean;
+    REDIS_HOST: string;
+    REDIS_PORT: number;
     NODE_ENV: 'development' | 'production';
     SECRET: string;
     PORT: number;

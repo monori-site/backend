@@ -32,18 +32,11 @@ if (!existsSync(getPath('logs'))) mkdirSync(getPath('logs'));
 const logger = new Signale({ scope: 'Master  ' });
 const pkg = require('../package.json');
 
-if (!existsSync(getPath('config.json'))) {
-  logger.fatal(`Missing "config.json" file in ${getPath('config.json')}`);
-  process.exitCode = 1;
-}
-
-logger.info(`Initialising website... (v${pkg.version})`);
-const website = new Website();
-
-parse<Config>({
-  populate: true,
+const result = parse<Config>({
+  populate: false,
   file: join(__dirname, '..', '.env'),
   readers: [SecretTypeReader],
+  delimiter: ',',
   schema: {
     GITHUB_CLIENT_SECRET: {
       default: null,
@@ -58,6 +51,10 @@ parse<Config>({
     GITHUB_CLIENT_ID: {
       default: null,
       type: 'string'
+    },
+    GITHUB_SCOPES: {
+      default: [],
+      type: 'array'
     },
     GITHUB_ENABLED: {
       default: false,
@@ -92,6 +89,9 @@ parse<Config>({
   }
 });
 
+logger.info(`Initialising website... (v${pkg.version})`);
+const website = new Website(<any> result);
+
 if (process.env.NODE_ENV === 'development') logger.warn('Site is in development mode, expect crashes and/or bugs! Report them at https://github.com/auguwu/monori/issues if you find any crashes and bugs.');
 
 website.on('online', async () => {
@@ -102,7 +102,7 @@ website.on('online', async () => {
 website
   .load()
   .catch(error => {
-    logger.fatal('Unable to initialise the website', error);
+    logger.fatal('Unable to initialise the website\n', error);
     process.exit(1);
   });
 

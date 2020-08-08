@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-import RedisClient, { Redis as IRedis, RedisOptions as RedisConfig } from 'ioredis';
-import type { Website } from '../internals/Website';
+import RedisClient, { Redis as IRedis } from 'ioredis';
+import type { Website } from '../internals';
 import { RedisBucket } from '../internals/bucket';
 import { Collection } from '@augu/immutable';
 import { EventBus } from '../internals/EventBus';
@@ -33,24 +33,15 @@ type Events = {
 };
 
 export default class RedisManager extends EventBus<Events> {
-  public connected!: boolean;
+  public connected: boolean = false;
   private buckets: Collection<RedisBucket<any>>;
   public client: IRedis;
 
-  constructor() {
+  constructor(website: Website) {
     super();
 
-    const options: {
-      [x: string]: any
-    } = {
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT
-    };
-
-    if (process.env.REDIS_PASSWORD !== null) options.password = process.env.REDIS_PASSWORD;
-
     this.buckets = new Collection();
-    this.client = new RedisClient(options);
+    this.client = new RedisClient(website.config.redis);
   }
 
   async connect() {

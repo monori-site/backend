@@ -1,6 +1,6 @@
-packages/**/src/config.json
 packages/**/node_modules
 packages/**/build
+packages/**/.env
 node_modules/
 old/
 

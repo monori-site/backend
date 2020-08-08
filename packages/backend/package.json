@@ -10,9 +10,8 @@
     "build:watch": "yarn lint && yarn clean && yarn tsc -w",
     "prepare": "yarn test",
     "compile": "yarn tsc",
-    "build": "yarn lint && yarn clean && yarn compile && yarn move",
+    "build": "yarn lint && yarn clean && yarn compile",
     "clean": "rm -fr build",
-    "move": "cp src/config.json build/config.json",
     "lint": "eslint src --ext .ts --fix",
     "test": "jest --config jest.config.js --forceExit && rm -fr logs"
   },
