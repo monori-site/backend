@@ -1,0 +1,7 @@
+{
+  "extends": ["@augu/eslint-config/ts.js", "@augu/eslint-config/vue.js"],
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "parser": "@typescript-eslint/parser"
+  }
+}

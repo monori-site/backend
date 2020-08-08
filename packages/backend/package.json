@@ -1,0 +1,47 @@
+{
+  "name": "@august/i18n-backend",
+  "description": "👻✏️ Backend portion of i18n",
+  "version": "1.0.0-alpha.0",
+  "main": "build/main.js",
+  "license": "MIT",
+  "author": "August <august@augu.dev>",
+  "repository": "https://github.com/auguwu/Monori/tree/expiremental/postgres/packages/backend",
+  "scripts": {
+    "build:watch": "yarn lint && yarn clean && yarn tsc -w",
+    "prepare": "yarn test",
+    "compile": "yarn tsc",
+    "build": "yarn lint && yarn clean && yarn compile",
+    "clean": "rm -fr build",
+    "lint": "eslint src --ext .ts --fix",
+    "test": "jest --config jest.config.js --forceExit && rm -fr logs"
+  },
+  "dependencies": {
+    "@augu/dotenv": "1.1.0",
+    "@augu/immutable": "0.3.1",
+    "@augu/maru": "1.2.1",
+    "@augu/orchid": "1.3.1",
+    "fastify": "3.1.1",
+    "fastify-rate-limit": "4.0.2",
+    "ioredis": "4.17.3",
+    "jsonwebtoken": "8.5.1",
+    "pbkdf2": "3.1.1",
+    "pg": "8.3.0",
+    "signale": "1.4.0"
+  },
+  "devDependencies": {
+    "@augu/eslint-config": "1.6.1",
+    "@types/ioredis": "4.17.2",
+    "@types/jest": "26.0.7",
+    "@types/jsonwebtoken": "8.5.0",
+    "@types/node": "14.0.27",
+    "@types/pbkdf2": "3.1.0",
+    "@types/pg": "7.14.4",
+    "@types/signale": "1.4.1",
+    "@typescript-eslint/eslint-plugin": "3.7.1",
+    "@typescript-eslint/parser": "3.7.1",
+    "eslint": "7.5.0",
+    "jest": "26.1.0",
+    "ts-jest": "26.1.4",
+    "typescript": "3.9.7"
+  }
+}

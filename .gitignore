@@ -1,6 +1,8 @@
-src/config.json
+packages/**/node_modules
+packages/**/build
+packages/**/.env
 node_modules/
-build/
+old/
 
 package-lock.json
 yarn.lock
