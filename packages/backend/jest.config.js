@@ -1,7 +1,6 @@
 module.exports = {
-  name: 'i18n',
+  name: 'Monori | Backend',
   verbose: true,
-  preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['<rootDir>/src/tests/*.spec.ts']
+  testMatch: ['<rootDir>/tests/*.spec.js']
 };

@@ -3,8 +3,9 @@ on:
   push:
     branches:
       - master
-      - dev
+      - indev
       - 'feature/**'
+      - 'side/gh-**'
     paths-ignore:
       - '.github/**'
       - '.vscode/**'
