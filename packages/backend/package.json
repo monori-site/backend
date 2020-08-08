@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@augu/dotenv": "1.1.0",
-    "@augu/immutable": "0.3.1",
+    "@augu/immutable": "0.3.2",
     "@augu/maru": "1.2.1",
     "@augu/orchid": "1.3.1",
     "fastify": "3.1.1",
