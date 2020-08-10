@@ -24,6 +24,6 @@
   "devDependencies": {
     "@augu/eslint-config": "1.6.1",
     "eslint": "7.6.0",
-    "jest": "26.2.2"
+    "jest": "26.3.0"
   }
 }
