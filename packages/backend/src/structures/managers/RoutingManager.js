@@ -82,10 +82,8 @@ module.exports = class RoutingManager extends Collection {
     }
 
     for (const file of files) {
-      const Router = require(join(this.path, file));
-
       /** @type {import('../Routing').Router} */
-      const router = new Router();
+      const router = require(join(this.path, file));
 
       this.set(router.prefix, router);
       this.service.inject(router);

@@ -25,5 +25,5 @@
  */
 module.exports = {
   Analytics: 1800000, // 30 minutes
-  Epoch: 1577862000000
+  Epoch: 1577862000000 // January 1st, 2020 - Epoch
 };

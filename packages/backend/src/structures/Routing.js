@@ -22,6 +22,8 @@
 
 const { Collection } = require('@augu/immutable');
 
+const Methods = ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'];
+
 /**
  * Represents a [Route] class, which basically indicates this route is a normal
  * route when making a request in the browser
@@ -29,10 +31,17 @@ const { Collection } = require('@augu/immutable');
 class Route {
   /**
    * Creates a new [Route] instance
+   * @param {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'} method The method
    * @param {string} path The path
    * @param {RouteRunner} run The run function
    */
-  constructor(path, run) {
+  constructor(method, path, run) {
+    /**
+     * The route's method
+     * @type {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'}
+     */
+    this.method = method;
+    
     /**
      * The path of the route
      * @type {string}
@@ -96,17 +105,70 @@ class Router {
 
   /**
    * Adds a route to this router
+   * @param {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'} method The method
    * @param {string} path The path
    * @param {RouteRunner} run The run function
    * @returns {this} This router for chaining methods
    */
-  add(path, run) {
+  add(method, path, run) {
+    if (!Methods.includes(method)) throw new TypeError(`Expecting ${Methods.join(', ')} but gotten ${method}`);
+
     const func = run.bind(this.server);
-    const prefix = Route.prefix(path, this.prefix);
+    const prefix = Route.prefix(method, path, this.prefix);
     const route = new Route(prefix, func);
 
     this.routes.set(prefix, route);
     return this;
+  }
+
+  /**
+   * Adds a GET method to the router
+   * @param {string} path The path
+   * @param {RouteRunner} run The run function
+   * @returns {this} This router for chaining methods
+   */
+  get(path, run) {
+    return this.add('GET', path, run);
+  }
+
+  /**
+   * Adds a PUT method to the router
+   * @param {string} path The path
+   * @param {RouteRunner} run The run function
+   * @returns {this} This router for chaining methods
+   */
+  put(path, run) {
+    return this.add('PUT', path, run);
+  }
+
+  /**
+   * Adds a POST method to the router
+   * @param {string} path The path
+   * @param {RouteRunner} run The run function
+   * @returns {this} This router for chaining methods
+   */
+  post(path, run) {
+    return this.add('POST', path, run);
+  }
+
+  /**
+   * Adds a DELETE method to the router
+   * @param {string} path The path
+   * @param {RouteRunner} run The run function
+   * @returns {this} This router for chaining methods
+   */
+  delete(path, run) {
+    return this.add('DELETE', path, run);
+  }
+
+  /**
+   * Adds a PATCH method to the router
+   * @param {string} path The path
+   * @param {RouteRunner} run The run function
+   * @returns {this} This router for chaining methods
+   */
+  patch(path, run) {
+    return this.add('PATCH', path, run);
   }
 }
 
@@ -117,4 +179,5 @@ module.exports = { Router, Route };
  * @typedef {import('fastify').FastifyReply} Response
  * @typedef {(this: import('./Server'), req: Request, res: Response) => Promise<void>} RouteRunner
  * @typedef {Router} Router
+ * @typedef {Route} Route
  */
