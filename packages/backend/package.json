@@ -19,7 +19,8 @@
     "ioredis": "4.17.3",
     "jsonwebtoken": "8.5.1",
     "pbkdf2": "3.1.1",
-    "signale": "1.4.0"
+    "signale": "1.4.0",
+    "snowflakey": "0.2.0"
   },
   "devDependencies": {
     "@augu/eslint-config": "1.6.1",

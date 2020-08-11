@@ -20,50 +20,46 @@
  * SOFTWARE.
  */
 
-const SnowflakeWorker = require('./SnowflakeWorker');
+const { Worker } = require('snowflakey');
 const SaltWorker = require('./SaltWorker');
+const constants = require('../../util/Constants');
 
 /**
  * Creates a salt hash for a password
  * @param {string} password The password
- * @param {import('./SaltWorker').Options} opts The options
+ * @param {import('./SaltWorker').WorkerOptions} opts The options
  */
 const createSalt = (password, opts) => {
-  const worker = new SaltWorker(password, opts);
-  return worker.create();
+  const worker = new SaltWorker(opts);
+  return worker.create(password);
 };
 
 /**
  * Creates a "snowflake" of a user, org, or project
- * @param {string} content The content to push to this Snowflake
  */
-const createSnowflake = (content) => {
-  const worker = new SnowflakeWorker();
-  return worker.create(content);
+const createSnowflake = () => {
+  const worker = new Worker({
+    incrementBits: 14,
+    processBits: 0,
+    workerBits: 8,
+    processId: process.pid,
+    workerId: 28,
+    epoc: constants.Epoch
+  });
+
+  const snowflake = worker.generate();
+  return String(snowflake);
 };
 
 /**
  * Decodes a salt hash or a snowflake and return the contents or an Error that it wasn't found
- * @param {'salt' | 'snowflake'} type The type to use
- * @param {string} content The content to validate
- * @param {import('./SaltWorker').Options} [opts] The options (only neded for the salt worker)
+ * @param {string} password The user's password
+ * @param {string} salt The salt hash itself
+ * @param {import('./SaltWorker').WorkerOptions} opts The options
  */
-const decode = (type, content, opts) => {
-  switch (type) {
-    case 'snowflake': {
-      if (opts !== undefined) throw new TypeError('`opts` shouldn\'t exist in the Snowflake worker');
-
-      const worker = new SnowflakeWorker();
-      return worker.decode(content);
-    }
-
-    case 'salt': {
-      const worker = new SaltWorker(content, opts);
-      return worker.decode();
-    }
-
-    default: throw new SyntaxError(`Expecting 'salt' or 'snowflake', received ${type}.`);
-  }
+const decode = (password, salt, opts) => {
+  const worker = new SaltWorker(opts);
+  return worker.decode(password, salt);
 };
 
 module.exports = { createSnowflake, createSalt, decode };

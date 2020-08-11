@@ -20,51 +20,10 @@
  * SOFTWARE.
  */
 
-const { Signale } = require('signale');
-const RedisClient = require('ioredis');
-
 /**
- * Handles all concurrent sessions with Redis
+ * Represents the "constant" values
  */
-module.exports = class RedisManager {
-  /**
-   * Creates a new [RedisManager] instance
-   * @param {import('../Server')} server The server instance
-   */
-  constructor(server) {
-    /**
-     * If we are connected to Redis
-     * @type {boolean}
-     */
-    this.connected = false;
-
-    /**
-     * Logger instance owO
-     * @type {import('signale').Signale}
-     */
-    this.logger = new Signale({ scope: 'Redis' });
-
-    /**
-     * Represents the Redis instance itself
-     */
-    this.client = new RedisClient(server.config.redis);
-  }
-
-  /**
-   * Connects to Redis
-   */
-  connect() {
-    this.client.once('ready', () => {
-      this.connected = true;
-      this.logger.info('Connected to Redis');
-    });
-  }
-
-  /**
-   * Disposes this [RedisManager] instance
-   */
-  dispose() {
-    this.client.disconnect();
-    this.connected = false;
-  }
+module.exports = {
+  Analytics: 1800000, // 30 minutes
+  Epoch: 1577862000000
 };
