@@ -54,9 +54,8 @@ module.exports = class Middleware {
    * Function to call this [Middleware] when a route is requested
    * @param {import('fastify').FastifyRequest} req The request
    * @param {import('fastify').FastifyReply} res The response
-   * @param {(error?: import('fastify').FastifyError) => void} done Callback function to make this [Middleware] instance done
    */
-  async run(req, res, done) {
-    throw new SyntaxError(`Midding override function in middleware "${this.name}": run(req, res, done)`);
+  async run(req, res) {
+    throw new SyntaxError(`Midding override function in middleware "${this.name}": run(req, res)`);
   }
 };

@@ -55,7 +55,7 @@ module.exports = class RouterService {
    * @param {import('fastify').FastifyReply} res The response
    */
   async invoke(route, req, res) {
-    // TODO: validate parameters, body, and query params
+    // TODO: validate parameters, body, query params, and admin/auth middleware
     try {
       await route.run.apply(this.server, [req, res]);
     } catch(ex) {

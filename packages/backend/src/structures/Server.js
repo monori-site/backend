@@ -130,7 +130,7 @@ module.exports = class Server {
     // when a user made a request, let's verify
     // all of the middleware we use
     this.app.addHook('onRequest', async (req, res, done) => {
-      for (const middleware of this.middleware.values()) await middleware.run(req, res, done);
+      for (const middleware of this.middleware.values()) await middleware.run(req, res);
     });
 
     // Overrides the default error handler
