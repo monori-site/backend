@@ -126,13 +126,6 @@ module.exports = class Server {
       }
     });
 
-    // Adds the 'onRequest' hook, which basically is
-    // when a user made a request, let's verify
-    // all of the middleware we use
-    this.app.addHook('onRequest', async (req, res, done) => {
-      for (const middleware of this.middleware.values()) await middleware.run(req, res);
-    });
-
     // Overrides the default error handler
     this.app.setErrorHandler((error, _, reply) => {
       this.logger.fatal('Unable to process request', error);

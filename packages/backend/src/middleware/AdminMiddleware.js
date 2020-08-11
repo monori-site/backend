@@ -33,18 +33,6 @@ module.exports = class AdminMiddleware extends Middleware {
    * @param {import('fastify').FastifyReply} res The response
    */
   async run(req, res) {
-    // Check if we can use the IP address to fetch a session
-    if (!req.connection.hasOwnProperty('remoteAddress')) return res.status(500).send({
-      statusCode: 500,
-      message: 'Unable to validate session due to no IP address being shown'
-    });
-
-    // Check if it exists, if not let's throw a 401
-    if (!(await this.server.sessions.exists(req.connection.remoteAddress))) return res.status(401).send({
-      statusCode: 401,
-      message: 'No session has been created, ignoring'
-    });
-
     const session = await this.server.sessions.get(req.connection.remoteAddress);
     const user = await this.server.database.getUser(session.userID);
     if (user === null) return res.status(404).send({
@@ -56,7 +44,5 @@ module.exports = class AdminMiddleware extends Middleware {
       statusCode: 403,
       message: 'User is not an administrator'
     });
-
-    return; // we did it :D
   }
 };
