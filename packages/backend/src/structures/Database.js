@@ -109,25 +109,224 @@ module.exports = class Database {
    * @param {string} username The user's username
    * @param {string} password The user's password
    * @param {string} email The user's email
+   * @returns {Promise<string>} The ID of the user that was created
    */
-  createUser(username, password, email) {
+  async createUser(username, password, email) {
     const salt = Hash.createSalt(password, { digest: 'md5' });
+    const id = Hash.createSnowflake(`${username}:${Date.now()}`);
 
-    return this.connection.query(pipelines.Insert({
+    await this.connection.query(pipelines.Insert({
       values: {
         organisations: [],
         description: '',
         contributor: false,
         translator: false,
+        createdAt: new Date(),
         projects: [],
         username,
         password,
         admin: false,
         email,
-        salt
+        salt,
+        id
       },
       table: 'users'
     }));
+
+    return id;
+  }
+
+  /**
+   * Updates a user's account information
+   * @param {string} username The user's username
+   * @param {{ [x: string]: any }} data The data to supply
+   * @returns {Promise<boolean>} If the update was successful or not
+   */
+  async updateUser(username, data) {
+    const user = await this.getUser('username', username);
+    const table = {};
+    
+    if (user === null) return false;
+    if (data.hasOwnProperty('username') && user.username !== data.username) {
+      const u = await this.getUser('username', data.username);
+      if (u === null) {
+        table.username = data.username;
+      } else {
+        throw new TypeError(`Username "${data.username}" is already taken`);
+      }
+    }
+    
+    if (data.hasOwnProperty('email') && user.email !== data.email) {
+      const u = await this.getUser('email', data.email);
+      if (u === null) {
+        table.email = data.email;
+      } else {
+        throw new TypeError(`Email "${data.email}" is already taken`);
+      }
+    }
+
+    if (data.hasOwnProperty('password') && user.password !== data.password) {
+      const salt = Hash.createSalt(data.password, { digest: 'md5' });
+
+      table.salt = salt;
+      table.password = data.password;
+    }
+
+    if (data.hasOwnProperty('project') && !user.projects.includes(data.project)) {
+      const projects = user.projects.concat([data.project]);
+      table.projects = projects;
+    }
+
+    if (data.hasOwnProperty('organisation') && !user.organisations.includes(data.organisation)) {
+      const orgs = user.organisations.concat([data.organisation]);
+      table.organisations = orgs;
+    }
+
+    if (data.hasOwnProperty('contributor')) {
+      if (!['yes', 'no'].includes(data.contributor)) throw new TypeError('Only accepting "yes" or "no"');
+      table.contributor = data.contributor;
+    }
+
+    if (data.hasOwnProperty('translator')) {
+      if (!['yes', 'no'].includes(data.translator)) throw new TypeError('Only accepting "yes" or "no"');
+      table.translator = data.translator;
+    }
+
+    if (data.hasOwnProperty('description') && user.description !== data.description) {
+      table.description = data.description;
+    }
+
+    return this.connection.query(pipelines.Update({
+      returning: Object.keys(table),
+      values: table,
+      query: ['username', username],
+      table: 'users',
+      type: 'set'
+    }))
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  /**
+   * Removes a user from the database
+   * @param {string} id The user's ID
+   */
+  deleteUser(id) {
+    return this.connection.query(pipelines.Delete('users', ['id', id]));
+  }
+
+  /**
+   * Creates a new project
+   * @param {string} name The project's name
+   * @param {string} id The ID of the owner
+   * @returns {Promise<string>} The ID of the project that was created
+   */
+  async createProject(name, userID) {
+    const id = Hash.createSnowflake(`${name}:${Date.now()}`);
+    const user = await this.getUser('id', userID);
+    const org = await this.getOrganisation(userID);
+
+    if (user === null || org === null) throw new SyntaxError(`ID "${userID}" didn't cache as a user or organisation`);
+
+    const sql = pipelines.Insert({
+      values: {
+        translations: {},
+        createdAt: new Date(),
+        owner: userID,
+        type: isOrg ? 'org' : 'user',
+        name,
+        id
+      },
+      table: 'projects'
+    });
+
+    const table = user === null ? 'organisations' : 'users';
+    const list = user === null ? org.projects : user.projects;
+    list.push(name);
+
+    const pipe = pipelines.Update({
+      values: { projects: list },
+      query: ['id', id],
+      table,
+      type: 'set'
+    });
+
+    const batch = this.connection.createBatch()
+      .pipe(pipe)
+      .pipe(sql);
+
+    await batch.all(); // Executes the batch
+    return id;
+  }
+
+  /**
+   * Gets a project
+   * @param {string} name The project's name
+   * @returns {Promise<Project | null>} The project or `null` if it wasn't found
+   */
+  getProject(name) {
+    return this.connection.query(pipelines.Select('projects', ['name', name]));
+  }
+
+  /**
+   * Gets a list of user's projects
+   * @param {string} id The user's ID
+   * @returns {Promise<Project[]>} The projects created by the user or an empty array
+   */
+  getUserProjects(id) {
+    return this.connection.query(pipelines.Select('projects', ['owner', id]), true)
+      .then((results) => {
+        if (results === null) return [];
+        return results.filter(project => project.type === 'user');
+      });
+  }
+
+  /**
+   * Gets a list of the organisation's projects
+   * @param {string} id The organisation's ID
+   * @returns {Promise<Project[]>} The projects created by the org or an empty Array
+   */
+  getOrganisationProjects(id) {
+    return this.connection.query(pipelines.Select('projects', ['owner', id]), true)
+      .then(results => results === null ? [] : results.filter(p => p.type === 'org'));
+  }
+
+  /**
+   * Removes a project from the user or organisation's project list and the database
+   * @param {string} name The project's name
+   * @returns {Promise<boolean>} If it was successful or not
+   */
+  async deleteProject(name) {
+    const project = await this.getProject(name);
+    if (project === null) return false;
+
+    if (project.type === 'user') {
+      const user = await this.getUser(project.owner);
+      const index = user.projects.indexOf(name);
+      if (index !== -1) user.projects.splice(index, 1);
+
+      await this.connection.query(pipelines.Update({
+        values: { projects: user.projects },
+        query: ['id', project.owner],
+        table: 'users',
+        type: 'set'
+      }));
+    } else {
+      const org = await this.getOrganisation(project.owner);
+      const index = org.projects.indexOf(name);
+      if (index !== -1) org.projects.splice(index, 1);
+
+      await this.connection.query(pipelines.Update({
+        values: { projects: org.projects },
+        query: ['id', project.owner],
+        table: 'organisations',
+        type: 'set'
+      }));
+    }
+
+    return this.connection.query(pipelines.Delete('projects', ['name', name]))
+      .then(() => true)
+      .catch(() => false);
   }
 };
 
