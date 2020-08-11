@@ -22,6 +22,7 @@
 
 const { Router, Route } = require('./Routing');
 const Middleware = require('./Middleware');
+const Plugin = require('./Plugin');
 const Server = require('./Server');
 
-module.exports = { Middleware, Router, Route, Server };
+module.exports = { Middleware, Router, Route, Server, Plugin };

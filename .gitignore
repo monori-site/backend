@@ -1,5 +1,5 @@
 packages/**/node_modules
-packages/**/build
+packages/**/.cache
 packages/**/.env
 node_modules/
 old/

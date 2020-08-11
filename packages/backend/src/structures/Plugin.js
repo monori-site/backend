@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2020 August
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,43 +20,41 @@
  * SOFTWARE.
  */
 
+const plugin = require('fastify-plugin');
+
 /**
- * Represents middleware for a Fastify route
+ * Represents a [Plugin] class, which represents a class-based version for fastify-plugin
  */
-module.exports = class Middleware {
+module.exports = class Plugin {
   /**
-   * Creates a new [Middleware] instance
-   * @param {string} name The middleware's name
+   * Creates a new [Plugin] instance
+   * @param {string} name The plugin's name
    */
   constructor(name) {
     /**
-     * The middleware's name
+     * The plugin's name
      * @type {string}
      */
     this.name = name;
   }
 
   /**
-   * Injects the [Server] instance to this [Middleware] instance
-   * @param {import('./Server')} server The server
+   * Abstract function to run the plugin
+   * @param {import('fastify').FastifyInstance} server The server
+   * @param {any} opts Any options to use
+   * @param {(error?: import('fastify').FastifyError) => void} done Function to call when the plugin is done initialising
    */
-  init(server) {
-    /**
-     * The server instance
-     * @type {import('./Server')}
-     */
-    this.server = server;
-
-    return this;
+  async run(server, opts, done) {
+    throw new SyntaxError(`Plugin "${this.name}" requires the following function: "Plugin.run(server, opts, done)"`);
   }
 
   /**
-   * Function to call this [Middleware] when a route is requested
-   * @param {import('fastify').FastifyRequest} req The request
-   * @param {import('fastify').FastifyReply} res The response
-   * @param {(error?: import('fastify').FastifyError) => void} done Callback function to make this [Middleware] instance done
+   * Gets the fastify-plugin instance
    */
-  async run(req, res, done) {
-    throw new SyntaxError(`Midding override function in middleware "${this.name}": run(req, res, done)`);
+  get fastifyPlugin() {
+    return plugin(this.run.bind(this), {
+      fastify: '>=3.x',
+      name: this.name
+    });
   }
 };
