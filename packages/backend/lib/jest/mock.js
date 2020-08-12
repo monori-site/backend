@@ -47,9 +47,9 @@ const mockRouter = (prefix) => {
     add(method, prefix, run) {
       // Override the default behaviour
       const path = Route.prefix(prefix, this.prefix);
-      this.routes.set(path, new Route(method, path, run));
+      this.routes.set(path, new Route(method, { path, run }));
 
-      return new Route(method, path, run);
+      return new Route(method, { path, run });
     }
   });
 
