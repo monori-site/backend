@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+const Permissions = require('../util/Permissions');
 const { Router } = require('../structures');
 const router = new Router('/organisations');
 
@@ -29,7 +30,205 @@ router.get({
   ],
   path: '/',
   async run(req, res) {
+    const org = await this.database.getOrganisation(req.params.id);
+    if (org === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Organisation with ID "${req.params.id}" was not found`
+    });
 
+    return res.status(200).send({
+      statusCode: 200,
+      data: {
+        permissions: org.permissions,
+        createdAt: org.createdAt,
+        projects: org.projects,
+        members: org.members,
+        github: org.github,
+        avatar: org.avatar,
+        name: org.name,
+        id: org.id
+      }
+    });
+  }
+});
+
+router.put({
+  authenicate: true,
+  body: [
+    ['name', true]
+  ],
+  path: '/',
+  async run(req, res) {
+    const id = await this.database.createOrganisation(req.body.name);
+    return res.statusCode(201).send({
+      statusCode: 201,
+      data: id
+    });
+  }
+});
+
+router.patch({
+  authenicate: true,
+  body: [
+    ['data', true]
+  ],
+  path: '/',
+  async run(req, res) {
+    const successful = await this.database.updateOrganisation(req.body.data);
+    return res.status(200).send({
+      statusCode: 200,
+      data: { successful }
+    });
+  }
+});
+
+router.delete({
+  authenicate: true,
+  parameters: [
+    ['id', true]
+  ],
+  path: '/',
+  async run(req, res) {
+    await this.database.deleteOrganisation(req.params.id);
+    return res.status(204).send();
+  }
+});
+
+router.patch({
+  authenicate: true,
+  body: [
+    ['memberID', true],
+    ['orgID', true]
+  ],
+  path: '/members/remove',
+  async run(req, res) {
+    const org = await this.database.getOrganisation(req.body.orgID);
+    if (org === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Organisation with ID "${req.body.orgID}" doesn't exist`
+    });
+
+    if (!org.members.includes(req.body.memberID)) return res.status(403).send({
+      statusCode: 403,
+      message: 'Cannot remove member since they aren\'t apart of the organisation'
+    });
+
+    await this.database.deleteMemberFromOrg(req.body.orgID, req.body.memberID);
+    return res.status(204).send();
+  }
+});
+
+router.patch({
+  authenicate: true,
+  body: [
+    ['memberID', true],
+    ['orgID', true]
+  ],
+  path: '/members/add',
+  async run(req, res) {
+    const org = await this.database.getOrganisation(req.body.orgID);
+    if (org === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Organisation with ID "${req.body.orgID}" doesn't exist`
+    });
+
+    if (org.members.includes(req.body.memberID)) return res.status(403).send({
+      statusCode: 403,
+      message: 'Cannot ad member since they are apart of the organisation'
+    });
+
+    await this.database.addMemberToOrg(req.body.orgID, req.body.memberID);
+    return res.status(204).send();
+  }
+});
+
+router.patch({
+  authenicate: true,
+  body: [
+    ['memberID', true],
+    ['permission', true],
+    ['orgID', true]
+  ],
+  patch: '/members/add/permission',
+  async run(req, res) {
+    const org = await this.database.getOrganisation(req.body.orgID);
+    if (org === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Organisation with ID "${req.body.orgID}" doesn't exist`
+    });
+
+    if (org.members.includes(req.body.memberID)) return res.status(403).send({
+      statusCode: 403,
+      message: 'Cannot ad member since they are apart of the organisation'
+    });
+
+    const raw = org.permissions[req.body.memberID];
+    const permissions = new Permissions(raw.allowed, raw.denied);
+
+    if (permissions.overlaps(req.body.permission)) return res.status(406).send({
+      statusCode: 406,
+      message: `User already overlaps permission "${req.body.permission}"`
+    });
+
+    // this is gonna be an overhaul of how to do it but eh
+    const bytecode = permissions.allowed + req.body.permission;
+
+    await this.database.updateOrganisation({
+      permission: {
+        range: {
+          allowed: bytecode,
+          denied: permissions.denied
+        },
+        memberID: req.body.memberID
+      }
+    });
+
+    return res.status(204).send();
+  }
+});
+
+router.patch({
+  authenicate: true,
+  body: [
+    ['memberID', true],
+    ['permission', true],
+    ['orgID', true]
+  ],
+  patch: '/members/remove/permission',
+  async run(req, res) {
+    const org = await this.database.getOrganisation(req.body.orgID);
+    if (org === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Organisation with ID "${req.body.orgID}" doesn't exist`
+    });
+
+    if (org.members.includes(req.body.memberID)) return res.status(403).send({
+      statusCode: 403,
+      message: 'Cannot ad member since they are apart of the organisation'
+    });
+
+    const raw = org.permissions[req.body.memberID];
+    const permissions = new Permissions(raw.allowed, raw.denied);
+
+    if (!permissions.overlaps(req.body.permission)) return res.status(406).send({
+      statusCode: 406,
+      message: `User doesn't overlap permission "${req.body.permission}"`
+    });
+
+    // this is gonna be an overhaul of how to do it but eh
+    const bytecode = permissions.allowed - req.body.permission;
+
+    await this.database.updateOrganisation({
+      permission: {
+        range: {
+          allowed: bytecode,
+          denied: permissions.denied + req.body.permission
+        },
+        memberID: req.body.memberID
+      }
+    });
+
+    return res.status(204).send();
   }
 });
 

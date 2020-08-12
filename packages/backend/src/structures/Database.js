@@ -428,7 +428,7 @@ module.exports = class Database {
     const index = org.members.indexOf(memberID);
     if (index !== -1) org.members.splice(index, 1);
 
-    delete permissions[memebrID];
+    delete permissions[memberID];
 
     // Push it to the database
     return this.connection.query(pipelines.Update({
@@ -452,6 +452,15 @@ module.exports = class Database {
     const table = {};
 
     if (org === null) return false;
+    if (data.hasOwnProperty('permission')) {
+      if (!data.hasOwnProperty('range') || !data.hasOwnProperty('memberID')) throw new TypeError('Missing `range` or `memberID` in `permission`');
+
+      // make a hard copy
+      const permissions = org.permissions;
+      permissions[memberID] = data.permission.range;
+      table.permissions = permissions;
+    }
+
     if (data.hasOwnProperty('project') && !org.projects.includes(data.project)) {
       table.projects = org.projects.concat([data.project]);
     }
@@ -509,7 +518,7 @@ module.exports = class Database {
 
 /**
  * @typedef {object} Organisation Represents the organisations model
- * @prop {OrgPermissions} permissions Object of the permissions by member
+ * @prop {{ [x: string]: { allowed: number; denied: number; mutual: number; }}} permissions Object of the permissions by member
  * @prop {Date} createdAt Date string when the organisation was created
  * @prop {string[]} projects The list of projects this organisation has made
  * @prop {string[]} members A list of members (by their ID)

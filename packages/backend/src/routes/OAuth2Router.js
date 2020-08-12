@@ -92,7 +92,7 @@ router.get({
         return res.status(200).send({
           statusCode: 200,
           message: `Account "${user.id}" hasn't been authenicated with Monori, but logged in!`,
-          data: user // useful for PATCH /users/@me
+          id: user.id
         });
       }
     } catch(ex) {

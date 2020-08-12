@@ -85,4 +85,12 @@ module.exports = class Permissions {
 
     return !!(this.allowed & all[perm]);
   }
+
+  /**
+   * Check if it overlaps
+   * @param {number} required The required permission
+   */
+  overlaps(required) {
+    return ((this.allowed & required) === required);
+  }
 };
