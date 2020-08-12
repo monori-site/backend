@@ -56,7 +56,7 @@ module.exports = class RoutingManager extends Collection {
      * @private
      * @type {import('signale').Signale}
      */
-    this.logger = new Signale({ scope: 'Plugins' });
+    this.logger = new Signale({ scope: 'Routing' });
 
     /**
      * The path to the routers directory
@@ -89,8 +89,8 @@ module.exports = class RoutingManager extends Collection {
 
         this.set(router.prefix, router);
         this.service.inject(router);
-      } catch {
-        // ignore
+      } catch(ex) {
+        this.logger.error(ex);
       }
     }
   }

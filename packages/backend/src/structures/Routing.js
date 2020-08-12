@@ -158,7 +158,7 @@ class Router {
     if (!Methods.includes(method)) throw new TypeError(`Expecting ${Methods.join(', ')} but gotten ${method}`);
     if (!opts.run || !opts.path) throw new SyntaxError('Missing "run" or "path" in opts');
 
-    const prefix = Route.prefix(path, this.prefix);
+    const prefix = Route.prefix(opts.path, this.prefix);
     opts.path = prefix;
 
     const route = new Route(method, opts);
