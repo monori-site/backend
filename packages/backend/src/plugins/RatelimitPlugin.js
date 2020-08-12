@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-const { Collection } = require('@augu/immutable');
+const RatelimitCollection = require('./internal/RatelimitCollection');
 const { Plugin } = require('../structures');
 
 /**
@@ -35,35 +35,47 @@ module.exports = class RatelimitPlugin extends Plugin {
 
     /**
      * The collection of holding the ratelimits
-     * @type {Collection<Collection<{ ratelimited: boolean; left: number; }>>}
      */
-    this.ratelimits = new Collection();
+    this.ratelimits = new RatelimitCollection();
   }
 
   /**
-   * Gets the request limit before halting
-   */
-  get requests() {
-    return 100;
-  }
-
-  /**
-   * The time before halting
-   */
-  get time() {
-    return 60000;
-  }
-  /**
-   * Abstract function to run the plugin
+   * Inject this plugin to Fastify
    * @param {import('fastify').FastifyInstance} server The server
    * @param {any} opts Any options to use
    * @param {(error?: import('fastify').FastifyError) => void} done Function to call when the plugin is done initialising
    */
-  async run(server, _, next) {
-    server.addHook('onRoute', opts => {
+  async run(server, _, done) {
+    server.addHook('onRequest', (req, res, done) => {
+      const ratelimit = this.ratelimits.inc(req.raw.url, req.connection.remoteAddress);
 
+      // Check if the headers weren't sent, so we can add our own!
+      if (!res.raw.headersSent) {
+        res.headers({
+          'X-Ratelimit-Remaining': ratelimit.timeLeft,
+          'X-Ratelimit-Limit': ratelimit.left,
+          'X-Ratelimit-Reset': Math.ceil(ratelimit.resetTime.getTime() / 1000),
+          'X-Ratelimit-Date': new Date().toGMTString()
+        });
+      }
+
+      res
+        .raw
+        // Remove the IP address from the ratelimit if the response has failed or not
+        .on('finish', () => this.ratelimits.decrement(req.raw.url, req.connection.remoteAddress))
+        .on('close', () => {
+          // If the response wasn't finished, let's decrement it
+          if (!res.raw.finished) this.ratelimits.decrement(req.raw.url, req.connection.remoteAddress);
+        })
+        .on('error', () => this.ratelimits.decrement(req.raw.url, req.connection.remoteAddress));
+
+      if (ratelimit.ratelimited) {
+        if (!res.raw.headersSent) res.header('X-Ratelimit-Retry-After', Math.ceil(60000 / 1000));
+      }
+
+      done();
     });
 
-    next();
+    done();
   }
 };

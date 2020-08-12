@@ -75,6 +75,7 @@ module.exports = class PluginManager extends Collection {
     }
 
     for (const file of files) {
+      if (file === 'internal') continue;
       const plugin = require(join(this.path, file));
 
       /** @type {import('../Plugin')} */

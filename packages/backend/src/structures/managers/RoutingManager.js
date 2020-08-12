@@ -82,11 +82,16 @@ module.exports = class RoutingManager extends Collection {
     }
 
     for (const file of files) {
-      /** @type {import('../Routing').Router} */
-      const router = require(join(this.path, file));
+      try {
+        /** @type {import('../Routing').Router} */
+        const router = require(join(this.path, file));
+        if (router.routes.empty) continue;
 
-      this.set(router.prefix, router);
-      this.service.inject(router);
+        this.set(router.prefix, router);
+        this.service.inject(router);
+      } catch {
+        // ignore
+      }
     }
   }
 };

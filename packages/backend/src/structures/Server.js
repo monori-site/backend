@@ -47,13 +47,37 @@ module.exports = class Server {
      * The configuration as an object
      * @type {Config}
      */
-    this.config = {};
+    this.config = {
+      database: {
+        username: config.database_username,
+        password: config.database_password,
+        host: config.database_host,
+        port: config.database_port,
+        db: config.database_name
+      },
+      github: {
+        clientSecret: config.github_client_secret,
+        callbackUrl: config.github_callback_url,
+        clientID: config.github_client_id,
+        enabled: config.github_enabled,
+        scopes: config.github_scopes
+      },
+      redis: {
+        password: config.redis_password,
+        host: config.redis_host,
+        port: config.redis_port
+      },
+      environment: config.node_env,
+      analytics: config.analytics,
+      secret: config.secret,
+      port: config.port
+    };
 
     /**
      * Analytics manager
      * @type {AnalyticsManager}
      */
-    this.analytics = new AnalyticsManager(config.analytics_enabled);
+    this.analytics = new AnalyticsManager(this);
 
     /**
      * Handles all middeware for Fastify (View [here](https://www.fastify.io/docs/latest/Hooks/#onrequest) for more information)
@@ -158,6 +182,7 @@ module.exports = class Server {
     await this.middleware.load();
     await this.database.connect();
     this.redis.connect();
+    this.analytics.createTimer();
 
     // We loaded everything and connected to Redis and PostgreSQL, let's boot it up!
     this.app.listen(this.config.port, (error, address) => {
@@ -183,3 +208,52 @@ module.exports = class Server {
     this.logger.warn('* Server has been disposed successfully');
   }
 };
+
+/**
+ * @typedef {object} EnvConfig
+ * @prop {string} [github_callback_url] The callback URL
+ * @prop {string} [github_client_secret] The client's secret (undefined if it's not enabled)
+ * @prop {string} [github_client_id] The client's ID (undefined if it's not enabled)
+ * @prop {string[]} [github_scopes] The scopes to use when using the OAuth2 API
+ * @prop {string} database_username The database username
+ * @prop {string} database_password The database password
+ * @prop {string} [redis_password] The password (optional) to connect to Redis
+ * @prop {boolean} github_enabled If GitHub OAuth2 is enabled
+ * @prop {string} database_host The database host
+ * @prop {number} database_port The database port
+ * @prop {string} database_name The database's name
+ * @prop {string} redis_host The host to connect to Redis
+ * @prop {number} redis_port The port to connect to Redis
+ * @prop {boolean} analytics If analytics are enabled
+ * @prop {'development' | 'production'} node_env The state of the environment
+ * @prop {string} secret The JWT secret
+ * @prop {number} port The port of the API
+ * 
+ * @typedef {object} Config
+ * @prop {'development' | 'production'} environment The state of the environment
+ * @prop {boolean} analytics If analytics are enabled
+ * @prop {DatabaseConfig} database The database config
+ * @prop {GitHubConfig} github The GitHub OAuth2 config
+ * @prop {RedisConfig} redis The redis config
+ * @prop {string} secret The JWT secret
+ * @prop {number} port The port of the API
+ * 
+ * @typedef {object} DatabaseConfig
+ * @prop {string} username The database username
+ * @prop {string} password The database password
+ * @prop {string} host The database host
+ * @prop {number} port The database port
+ * @prop {string} name The database's name
+ * 
+ * @typedef {object} RedisConfig
+ * @prop {string} [password] The password (optional) to connect to Redis
+ * @prop {string} host The host to connect to Redis
+ * @prop {number} port The port to connect to Redis
+ * 
+ * @typedef {object} GitHubConfig
+ * @prop {string} [clientSecret] The client's secret
+ * @prop {string} [callbackUrl] The callback URL
+ * @prop {string} [clientID] The client's ID
+ * @prop {string[]} [scopes] The scopes to use
+ * @prop {boolean} enabled
+ */

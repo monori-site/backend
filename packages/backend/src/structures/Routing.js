@@ -114,8 +114,8 @@ class Router {
     if (!Methods.includes(method)) throw new TypeError(`Expecting ${Methods.join(', ')} but gotten ${method}`);
 
     const func = run.bind(this.server);
-    const prefix = Route.prefix(method, path, this.prefix);
-    const route = new Route(prefix, func);
+    const prefix = Route.prefix(path, this.prefix);
+    const route = new Route(method, prefix, func);
 
     this.routes.set(prefix, route);
     return this;

@@ -39,7 +39,7 @@ module.exports = class AnalyticsManager {
      * Statistics of the database, can return `undefined` if the instance isn't enabled
      * @type {{ organisations: number; projects: number; users: number; online: boolean } | undefined}
      */
-    this.databaseStats = enabled ? {
+    this.databaseStats = server.config.analytics ? {
       organisations: 0,
       projects: 0,
       online: false,
@@ -50,7 +50,7 @@ module.exports = class AnalyticsManager {
      * The memory usage, can return `undefined` if this instance isn't enabled
      * @type {{ rss: string; heapUsed: string; heapTotal: string; } | undefined}
      */
-    this.memoryUsage = enabled ? {
+    this.memoryUsage = server.config.analytics ? {
       heapTotal: formatSize(process.memoryUsage().heapTotal),
       heapUsed: formatSize(process.memoryUsage().heapUsed),
       rss: formatSize(process.memoryUsage().rss)
@@ -60,7 +60,7 @@ module.exports = class AnalyticsManager {
      * The CPU usage, can return `undefined` if this instance isn't enabled
      * @type {{ system: string; user: { name: string; usage: string; } } | undefined}
      */
-    this.cpuUsage = enabled ? {
+    this.cpuUsage = server.config.analytics ? {
       system: toPercent(process.cpuUsage().system),
       user: {
         usage: toPercent(process.cpuUsage().user),

@@ -12,10 +12,11 @@
   },
   "dependencies": {
     "@augu/dotenv": "1.1.0",
-    "@augu/immutable": "0.3.2",
+    "@augu/immutable": "0.4.0",
     "@augu/maru": "1.2.6",
     "@augu/orchid": "1.4.0",
     "fastify": "3.2.0",
+    "fastify-plugin": "2.3.0",
     "ioredis": "4.17.3",
     "jsonwebtoken": "8.5.1",
     "pbkdf2": "3.1.1",

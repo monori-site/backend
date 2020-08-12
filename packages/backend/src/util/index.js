@@ -51,7 +51,8 @@ module.exports = class Utilities {
    * @returns {string} The paths conjoined 
    */
   static getPath(...paths) {
-    return `${process.cwd()}${Utilities.sep}${paths.join(Utilities.sep)}`;
+    const sep = process.platform === 'win32' ? '\\' : '/';
+    return `${process.cwd()}${sep}${paths.join(sep)}`;
   }
 
   /**
