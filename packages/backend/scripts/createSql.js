@@ -124,6 +124,11 @@ const users = pipelines.CreateTable('users', {
       primary: false,
       type: 'boolean'
     },
+    github: {
+      nullable: true,
+      primary: false,
+      type: 'string'
+    },
     email: {
       nullable: false,
       primary: false,

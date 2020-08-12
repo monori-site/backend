@@ -104,6 +104,17 @@ class Router {
   }
 
   /**
+   * Returns a list of endpoints in this Router
+   * @returns {string[]} A list of endpoints
+   */
+  getEndpoints() {
+    const endpoints = [];
+    this.routes.forEach(route => endpoints.push(`${route.method} ${route.path}`));
+
+    return endpoints;
+  }
+
+  /**
    * Adds a route to this router
    * @param {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'} method The method
    * @param {string} path The path
@@ -113,9 +124,8 @@ class Router {
   add(method, path, run) {
     if (!Methods.includes(method)) throw new TypeError(`Expecting ${Methods.join(', ')} but gotten ${method}`);
 
-    const func = run.bind(this.server);
     const prefix = Route.prefix(path, this.prefix);
-    const route = new Route(method, prefix, func);
+    const route = new Route(method, prefix, run);
 
     this.routes.set(prefix, route);
     return this;

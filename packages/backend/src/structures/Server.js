@@ -192,7 +192,7 @@ module.exports = class Server {
         this.dispose();
         process.exit(1);
       } else {
-        this.logger.info(`-> Server has booted up at ${address}`);
+        this.logger.info(`Server has booted up at ${address}`);
       }
     });
   }
@@ -206,7 +206,7 @@ module.exports = class Server {
     this.database.dispose();
     this.analytics.stopTimer();
 
-    this.logger.warn('* Server has been disposed successfully');
+    this.logger.warn('Server has been disposed successfully');
   }
 };
 
