@@ -19,32 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/// <reference types="../node_modules/@types/jest" />
-// Tests for the Routing aspect of Monori
 
-const { mocked } = require('../lib');
-
-describe('Routing', () => {
-  let router;
-  beforeAll(() => 
-    router = mocked.mockRouter('/')
-  );
-  afterAll(() => router.routes.clear());
-
-  it('should return a Route instance', () => {
-    const route = router.add('GET', '/', () => void 0);
-
-    expect(route).toBeDefined();
-    expect(route.path).toBe('/');
-    expect(route.method).toBe('GET');
-  });
-
-  it('should return /u/abcd when added', () => {
-    const uRouter = mocked.mockRouter('/u');
-    const route = uRouter.add('GET', '/abcd', () => void 0);
-
-    expect(route).toBeDefined();
-    expect(route.path).toBe('/u/abcd');
-    expect(route.method).toBe('GET');
-  });
-});
+/**
+ * Extra utilities that don't require to be in the source directory
+ */
+module.exports = {
+  mocked: require('./jest/mock')
+};

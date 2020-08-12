@@ -8,7 +8,7 @@
   "repository": "https://github.com/auguwu/Monori/tree/master/packages/backend",
   "scripts": {
     "lint": "eslint src --ext .js --fix",
-    "test": "jest --config jest.config.js --forceExit && rm -fr logs"
+    "test": "jest --config jest.config.js --forceExit"
   },
   "dependencies": {
     "@augu/dotenv": "1.1.0",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@augu/eslint-config": "1.6.1",
+    "@types/jest": "26.0.9",
     "eslint": "7.6.0",
     "jest": "26.3.0"
   }

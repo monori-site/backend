@@ -19,32 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/// <reference types="../node_modules/@types/jest" />
-// Tests for the Routing aspect of Monori
 
-const { mocked } = require('../lib');
+const { Router, Route } = require('../../src/structures');
 
-describe('Routing', () => {
-  let router;
-  beforeAll(() => 
-    router = mocked.mockRouter('/')
-  );
-  afterAll(() => router.routes.clear());
+/**
+ * Creates a new instance of what a Router should feel like
+ * @param {string} prefix The prefix
+ */
+const mockRouter = (prefix) => {
+  const MockedRouter = (class MockedRouter extends Router {
+    /**
+     * Creates a new [MockedRouter] instance
+     */
+    constructor() {
+      super(prefix);
 
-  it('should return a Route instance', () => {
-    const route = router.add('GET', '/', () => void 0);
+      this.mocked = true;
+    }
 
-    expect(route).toBeDefined();
-    expect(route.path).toBe('/');
-    expect(route.method).toBe('GET');
+    /**
+     * Adds a route to this router
+     * @param {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'} method The method
+     * @param {string} path The path
+     * @param {RouteRunner} run The run function
+     * @returns {Route} The newly created route
+     */
+    add(method, prefix, run) {
+      // Override the default behaviour
+      const path = Route.prefix(prefix, this.prefix);
+      this.routes.set(path, new Route(method, path, run));
+
+      return new Route(method, path, run);
+    }
   });
 
-  it('should return /u/abcd when added', () => {
-    const uRouter = mocked.mockRouter('/u');
-    const route = uRouter.add('GET', '/abcd', () => void 0);
+  return new MockedRouter(prefix);
+};
 
-    expect(route).toBeDefined();
-    expect(route.path).toBe('/u/abcd');
-    expect(route.method).toBe('GET');
-  });
-});
+module.exports = { mockRouter };

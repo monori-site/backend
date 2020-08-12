@@ -31,7 +31,7 @@ module.exports = class Utilities {
   /**
    * Returns the seperator for the correspondant Operating System
    */
-  get sep() {
+  static get sep() {
     return process.platform === 'win32' ? '\\' : '/';
   }
 
@@ -51,8 +51,7 @@ module.exports = class Utilities {
    * @returns {string} The paths conjoined 
    */
   static getPath(...paths) {
-    const sep = process.platform === 'win32' ? '\\' : '/';
-    return `${process.cwd()}${sep}${paths.join(sep)}`;
+    return `${process.cwd()}${Utilities.sep}${paths.join(Utilities.sep)}`;
   }
 
   /**
