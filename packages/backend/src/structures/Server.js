@@ -204,6 +204,7 @@ module.exports = class Server {
     this.app.close();
     this.redis.dispose();
     this.database.dispose();
+    this.analytics.stopTimer();
 
     this.logger.warn('* Server has been disposed successfully');
   }
