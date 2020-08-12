@@ -22,9 +22,9 @@
 
 const { Middleware } = require('../structures');
 
-module.exports = class AdminMiddleware extends Middleware {
+module.exports = class AuthenicateMiddleware extends Middleware {
   constructor() {
-    super('admin');
+    super('auth');
   }
 
   /**
@@ -44,7 +44,5 @@ module.exports = class AdminMiddleware extends Middleware {
       statusCode: 401,
       message: 'No session has been created, ignoring'
     });
-
-    return;
   }
 };

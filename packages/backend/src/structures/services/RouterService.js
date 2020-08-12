@@ -55,8 +55,46 @@ module.exports = class RouterService {
    * @param {import('fastify').FastifyReply} res The response
    */
   async invoke(route, req, res) {
-    // TODO: validate parameters, body, and query params
-    //for (const middleware of this.server.middleware.values()) await middleware.run(req, res);
+    if (route.method !== req.method) return res.status(405).send({
+      statusCode: 405,
+      message: `Expected "${route.method} ${route.path}" but gotten "${req.method} ${req.url}"`
+    });
+
+    if (route.authenicate) return this.server.middleware.get('auth').run(req, res);
+    if (route.admin) return this.server.middleware.get('admin').run(req, res);
+
+    if (route.parameters.length) {
+      const denied = route.parameters.some(([param, required]) =>
+        required && !req.params.hasOwnProperty(param)
+      );
+
+      if (denied.length) return res.status(400).send({
+        statusCode: 400,
+        message: `Missing the following parameters: ${route.parameters.filter(([param, required]) => required && !req.params.hasOwnProperty(param)).join(', ')}`
+      });
+    }
+
+    if (route.queries.length) {
+      const denied = route.queries.some(([param, required]) =>
+        required && !req.query.hasOwnProperty(param)
+      );
+
+      if (denied.length) return res.status(400).send({
+        statusCode: 400,
+        message: `Missing the following queries: ${route.queries.filter(([param, required]) => required && !req.params.hasOwnProperty(param)).map(([param], index) => index === 0 ? `?${param}` : `&${param}`).join(', ')}`
+      });
+    }
+
+    if (route.body.length) {
+      const denied = route.queries.some(([param, required]) =>
+        required && !req.body.hasOwnProperty(param)
+      );
+
+      if (denied.length) return res.status(400).send({
+        statusCode: 400,
+        message: `Missing the following request body: ${route.body.filter(([param, required]) => required && !req.params.hasOwnProperty(param)).join(', ')}`
+      });
+    }
 
     try {
       await route.run.apply(this.server, [req, res]);

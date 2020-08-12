@@ -32,27 +32,56 @@ class Route {
   /**
    * Creates a new [Route] instance
    * @param {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'} method The method
-   * @param {string} path The path
-   * @param {RouteRunner} run The run function
+   * @param {RouteOptions} opts The options
    */
-  constructor(method, path, run) {
+  constructor(method, opts) {
+    /**
+     * If we should use the Authenication middleware
+     * @type {boolean}
+     */
+    this.authenicate = opts.hasOwnProperty('authenicate') ? opts.authenicate : false;
+
+    /**
+     * List of "required" parameters
+     * @type {[string, boolean][]}
+     */
+    this.parameters = opts.hasOwnProperty('parameters') ? opts.parameters : [];
+
+    /**
+     * List of "required" query parameters
+     * @type {[string, boolean][]}
+     */
+    this.queries = opts.hasOwnProperty('queries') ? opts.queries : [];
+
     /**
      * The route's method
      * @type {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'}
      */
     this.method = method;
+
+    /**
+     * If we should the Admin middleware
+     * @type {boolean}
+     */
+    this.admin = opts.hasOwnProperty('admin') ? opts.admin : false;
+
+    /**
+     * List of "required" request body params
+     * @type {[string, boolean][]}
+     */
+    this.body = opts.hasOwnProperty('body') ? opts.body : [];
     
     /**
      * The path of the route
      * @type {string}
      */
-    this.path = path;
+    this.path = opts.path;
 
     /**
      * The route's callback
      * @type {RouteRunner}
      */
-    this.run = run;
+    this.run = opts.run;
   }
 
   /**
@@ -117,68 +146,69 @@ class Router {
   /**
    * Adds a route to this router
    * @param {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'} method The method
-   * @param {string} path The path
-   * @param {RouteRunner} run The run function
+   * @param {RouteOptions} opts The options to use
    * @returns {this} This router for chaining methods
    */
-  add(method, path, run) {
+  add(method, opts) {
+    if (opts.authenicate && typeof opts.authenicate !== 'boolean') throw new TypeError(`Expecting 'boolean' but received ${typeof opts.authenicate}`);
+    if (opts.parameters && !Array.isArray(opts.parameters)) throw new TypeError(`Expecting an array but received ${typeof opts.parameters}`);
+    if (opts.queries && !Array.isArray(opts.queries)) throw new TypeError(`Expecting an array but received ${typeof opts.queries}`);
+    if (opts.admin && typeof opts.admin !== 'boolean') throw new TypeError(`Expecting 'boolean' but received ${typeof opts.admin}`);
+    if (opts.body && !Array.isArray(opts.body)) throw new TypeError(`Expecting an array but received ${typeof opts.body}`);
     if (!Methods.includes(method)) throw new TypeError(`Expecting ${Methods.join(', ')} but gotten ${method}`);
+    if (!opts.run || !opts.path) throw new SyntaxError('Missing "run" or "path" in opts');
 
     const prefix = Route.prefix(path, this.prefix);
-    const route = new Route(method, prefix, run);
+    opts.path = prefix;
 
+    const route = new Route(method, opts);
     this.routes.set(prefix, route);
     return this;
   }
 
   /**
    * Adds a GET method to the router
-   * @param {string} path The path
-   * @param {RouteRunner} run The run function
+   * @param {RouteOptions} opts The options to use
    * @returns {this} This router for chaining methods
    */
-  get(path, run) {
-    return this.add('GET', path, run);
+  get(opts) {
+    return this.add('GET', opts);
   }
 
   /**
    * Adds a PUT method to the router
-   * @param {string} path The path
-   * @param {RouteRunner} run The run function
+   * @param {RouteOptions} opts The options to use
    * @returns {this} This router for chaining methods
    */
-  put(path, run) {
-    return this.add('PUT', path, run);
+  put(opts) {
+    return this.add('PUT', opts);
   }
 
   /**
    * Adds a POST method to the router
-   * @param {string} path The path
-   * @param {RouteRunner} run The run function
+   * @param {RouteOptions} opts The options to use
    * @returns {this} This router for chaining methods
    */
-  post(path, run) {
-    return this.add('POST', path, run);
+  post(opts) {
+    return this.add('POST', opts);
   }
 
   /**
    * Adds a DELETE method to the router
-   * @param {string} path The path
-   * @param {RouteRunner} run The run function
+   * @param {RouteOptions} opts The options to use
    * @returns {this} This router for chaining methods
    */
-  delete(path, run) {
-    return this.add('DELETE', path, run);
+  delete(opts) {
+    return this.add('DELETE', opts);
   }
 
   /**
    * Adds a PATCH method to the router
-   * @param {string} path The path
-   * @param {RouteRunner} run The run function
+   * @param {RouteOptions} opts The options to use
    * @returns {this} This router for chaining methods
    */
-  patch(path, run) {
-    return this.add('PATCH', path, run);
+  patch(opts) {
+    return this.add('PATCH', opts);
   }
 }
 
@@ -190,4 +220,14 @@ module.exports = { Router, Route };
  * @typedef {(this: import('./Server'), req: Request, res: Response) => Promise<void>} RouteRunner
  * @typedef {Router} Router
  * @typedef {Route} Route
+ * 
+ * @typedef {object} RouteOptions
+ * @prop {boolean} [authenicate] If we require the Authenication middleware
+ * @prop {[string, boolean][]} [parameters] List of parameters that are(n't) required by the route
+ * @prop {[string, boolean][]} [queries] List of query params that are(n't) required by the route
+ * @prop {'GET' | 'POST' | 'DELETE' | 'PATCH' | 'PUT'} method The method to use
+ * @prop {boolean} [admin] If this route requires administrator
+ * @prop {[string, boolean][]} [body] List of the request body that are(n't) required by the route
+ * @prop {string} path The path to the route
+ * @prop {RouteRunner} run Executes the path
  */
