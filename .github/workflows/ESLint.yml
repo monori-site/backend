@@ -26,16 +26,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Installs global packages
-        run: npm i -g eslint
-      - name: Goes into packages/i18n-backend directory
-        run: cd packages/i18n-backend
+        run: npm i -g eslint jest
       - name: Install dependencies
+        working-directory: ./packages/backend
         run: npm i
       - name: Lints the repository (backend)
+        working-directory: ./packages/backend
         run: npm run lint
       - name: Run unit tests
+        working-directory: ./packages/backend
         run: npm test
-      - name: Goes into packages/i18n-frontend directory
-        run: cd ../../packages/i18n-frontend
       - name: Lints the repository (frontend)
+        working-directory: ./packages/frontend
         run: npm run lint
