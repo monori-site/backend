@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-const Permissions = require('../util/Permissions');
+const { pipelines } = require('@augu/maru');
 const { Router } = require('../structures');
 const router = new Router('/projects');
 
@@ -93,6 +93,7 @@ router.patch({
   async run(req, res) {
     try {
       await this.database.updateProject(req.body.data);
+      return res.status(204).send();
     } catch(ex) {
       return res.status(500).send({
         statusCode: 500,
@@ -105,12 +106,72 @@ router.patch({
 router.put({
   authenicate: true,
   parameters: [
+    ['language', true],
     ['id', true]
   ],
   path: '/translations/add',
   async run(req, res) {
     const project = await this.database.getProject(req.params.id);
-    if (project === null) return void 0;
+    if (project === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Project with ID "${req.params.id}" was not found`
+    });
+
+    // If it wasn't found, let's add it!
+    if (!project.translations.hasOwnProperty(language)) {
+      const hecc = project.translations; // create a hard copy
+      hecc[req.params.language] = null;
+
+      await this.database.connection.query(pipelines.Update({
+        values: { translations: hecc },
+        query: ['id', project.id],
+        table: 'projects',
+        type: 'set'
+      }));
+
+      return res.status(204).send();
+    } else {
+      return res.status(400).send({
+        statusCode: 400,
+        message: `Translation "${language}" already exists`
+      });
+    }
+  }
+});
+
+router.delete({
+  authenicate: true,
+  parameters: [
+    ['language', true],
+    ['id', true]
+  ],
+  path: '/translations/remove',
+  async run(req, res) {
+    const project = await this.database.getProject(req.params.id);
+    if (project === null) return res.status(404).send({
+      statusCode: 404,
+      message: `Project with ID "${req.params.id}" was not found`
+    });
+
+    // If it was found, let's remove it!
+    if (project.translations.hasOwnProperty(language)) {
+      const hecc = project.translations; // create a hard copy
+      delete hecc[req.params.language];
+
+      await this.database.connection.query(pipelines.Update({
+        values: { translations: hecc },
+        query: ['id', project.id],
+        table: 'projects',
+        type: 'set'
+      }));
+
+      return res.status(204).send();
+    } else {
+      return res.status(400).send({
+        statusCode: 400,
+        message: `Translation "${language}" doesn't exist`
+      });
+    }
   }
 });
 

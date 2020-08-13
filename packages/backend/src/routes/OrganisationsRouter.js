@@ -45,6 +45,7 @@ router.get({
         members: org.members,
         github: org.github,
         avatar: org.avatar,
+        owner: org.owner,
         name: org.name,
         id: org.id
       }
