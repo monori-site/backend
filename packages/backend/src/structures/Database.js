@@ -21,7 +21,9 @@
  */
 
 const { Dialect, pipelines } = require('@augu/maru');
+const { HttpClient } = require('@augu/orchid');
 const { Signale } = require('signale');
+const { URL } = require('url');
 const Hash = require('./hash');
 
 /**
@@ -274,10 +276,7 @@ module.exports = class Database {
    */
   getUserProjects(id) {
     return this.connection.query(pipelines.Select('projects', ['owner', id]), true)
-      .then((results) => {
-        if (results === null) return [];
-        return results.filter(project => project.type === 'user');
-      });
+      .then((results) => results === null ? [] : results.filter(p => p.type === 'user'));
   }
 
   /**
@@ -287,7 +286,7 @@ module.exports = class Database {
    */
   getOrganisationProjects(id) {
     return this.connection.query(pipelines.Select('projects', ['owner', id]), true)
-      .then(results => results === null ? [] : results.filter(p => p.type === 'org'));
+      .then(results => results === null ? [] : results.filter(p => p.type === 'organisation'));
   }
 
   /**
@@ -306,7 +305,7 @@ module.exports = class Database {
 
       await this.connection.query(pipelines.Update({
         values: { projects: user.projects },
-        query: ['id', project.owner],
+        query: ['id', user.id],
         table: 'users',
         type: 'set'
       }));
@@ -317,7 +316,7 @@ module.exports = class Database {
 
       await this.connection.query(pipelines.Update({
         values: { projects: org.projects },
-        query: ['id', project.owner],
+        query: ['id', org.id],
         table: 'organisations',
         type: 'set'
       }));
@@ -326,6 +325,75 @@ module.exports = class Database {
     return this.connection.query(pipelines.Delete('projects', ['name', name]))
       .then(() => true)
       .catch(() => false);
+  }
+
+  /**
+   * Updates a project's metadata
+   * @param {string} id The project's ID
+   * @param {{ [x: string]: any; }} data The metadata to edit
+   * @returns {Promise<boolean>} Boolean value if it was changed or not
+   */
+  async updateProject(id, data) {
+    const project = await this.getProject(id);
+    const table = {};
+
+    if (data.hasOwnProperty('translations')) return false; // find a way to do this
+    if (data.hasOwnProperty('completed') && Array.isArray(data.completed)) {
+      if (data.completed.length < 1) throw new TypeError('`completed` must be an Array of 2 items [language, completed]');
+
+      const [language, completed] = [data.completed[0], Number(data.completed[1])];
+      if (Number.isNaN(completed) || !Number.isSafeInteger(completed)) throw new TypeError('2nd item in Array must be a number or an integer');
+      if (completed > 100) throw new TypeError('Completed must be lower or equal to 100');
+      if (completed < 0) throw new TypeError('Completed must be higher or equal to 0');
+
+      // create a hard copy
+      const hecc = project.completed;
+      if (!hecc.hasOwnProperty(language)) throw new TypeError(`Language "${language}" doesn't exist?`);
+
+      hecc[language] = completed;
+      table.completed = hecc;
+    }
+
+    if (data.hasOwnProperty('github') && typeof data.github === 'string') {
+      /** @type {URL} */
+      let url;
+
+      if (!data.github.startsWith('/')) url = new URL(data.github, 'https://github.com');
+      else url = new URL(data.github);
+
+      const http = new HttpClient();
+      const res = await http.request({
+        method: 'GET',
+        url
+      });
+
+      if (res.successful) {
+        table.github = url.toString();
+      } else {
+        throw new TypeError(`${res.status}: ${res.text()}`);
+      }
+    }
+
+    if (data.hasOwnProperty('description') && project.description !== data.description) {
+      table.description = data.description;
+    }
+
+    if (data.hasOwnProperty('name') && project.name !== data.name) {
+      table.name = data.name;
+    }
+
+    try {
+      await this.connection.query(pipelines.Update({
+        values: table,
+        query: ['id', id],
+        table: 'projects',
+        type: 'set'
+      }));
+
+      return true;
+    } catch { // haha ur gay lol
+      return false;
+    }
   }
 
   /**
@@ -531,7 +599,7 @@ module.exports = class Database {
  * @typedef {object} Project Represents a user or organisation's project
  * @prop {{ [x: string]: string; }} translations Object of the project's translations (key: file name, value: translations itself as a string)
  * @prop {{ [x: string]: number; }} completed Object of the project's translation's completion
- * @prop {string} description The organsiation's description
+ * @prop {string} description The project's description
  * @prop {string} [github=null] GitHub repository URL (if needed)
  * @prop {string} owner The owner's ID
  * @prop {'organisation' | 'user'} type The type of project
