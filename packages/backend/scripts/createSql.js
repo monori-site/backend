@@ -51,7 +51,12 @@ const organisations = pipelines.CreateTable('organisations', {
 const projects = pipelines.CreateTable('projects', {
   exists: true,
   schema: {
-    translations: {
+    translations: { // {"en_US":"file or gh url"}
+      nullable: false,
+      primary: false,
+      type: 'object'
+    },
+    completed: { // {"code":100} - example
       nullable: false,
       primary: false,
       type: 'object'

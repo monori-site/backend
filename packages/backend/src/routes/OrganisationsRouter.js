@@ -28,7 +28,7 @@ router.get({
   parameters: [
     ['id', true]
   ],
-  path: '/',
+  path: '/:id',
   async run(req, res) {
     const org = await this.database.getOrganisation(req.params.id);
     if (org === null) return res.status(404).send({
@@ -52,6 +52,34 @@ router.get({
   }
 });
 
+router.get({
+  parameters: [
+    ['id', true]
+  ],
+  path: '/:id/projects',
+  async run(req, res) {
+    const projects = await this.database.getOrganisationProjects(req.params.id);
+    if (projects === null || !projects.length) return res.status(404).send({
+      statusCode: 404,
+      message: `Organisation with ID "${req.params.id}" was not found or no projects were inserted`
+    });
+
+    return res.status(200).send({
+      statusCode: 200,
+      data: projects.map(project => ({
+        translations: project.translations,
+        description: project.description,
+        completed: project.completed,
+        github: project.github,
+        avatar: project.avatar,
+        owner: project.owner,
+        name: project.name,
+        id: project.id
+      }))
+    });
+  }
+});
+
 router.put({
   authenicate: true,
   body: [
@@ -59,7 +87,9 @@ router.put({
   ],
   path: '/',
   async run(req, res) {
-    const id = await this.database.createOrganisation(req.body.name);
+    const session = await this.sessions.get(req.connection.remoteAddress);
+    const id = await this.database.createOrganisation(req.body.name, session.userID);
+
     return res.statusCode(201).send({
       statusCode: 201,
       data: id

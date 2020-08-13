@@ -1,6 +1,0 @@
-{
-  "extends": ["@augu", "plugin:vue/essential"],
-  "parserOptions": {
-    "parser": "babel-eslint"
-  }
-}

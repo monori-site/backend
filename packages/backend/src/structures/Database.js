@@ -530,6 +530,7 @@ module.exports = class Database {
  * 
  * @typedef {object} Project Represents a user or organisation's project
  * @prop {{ [x: string]: string; }} translations Object of the project's translations (key: file name, value: translations itself as a string)
+ * @prop {{ [x: string]: number; }} completed Object of the project's translation's completion
  * @prop {string} description The organsiation's description
  * @prop {string} [github=null] GitHub repository URL (if needed)
  * @prop {string} owner The owner's ID

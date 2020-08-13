@@ -36,9 +36,9 @@ jobs:
       - name: Run unit tests
         working-directory: ./packages/backend
         run: npm test
-      - name: Install dependencies (frontend)
-        working-directory: ./packages/frontend
-        run: npm i
-      - name: Lints the repository (frontend)
-        working-directory: ./packages/frontend
-        run: npm run lint
+      #- name: Install dependencies (frontend)
+      #  working-directory: ./packages/frontend
+      #  run: npm i
+      #- name: Lints the repository (frontend)
+      #  working-directory: ./packages/frontend
+      #  run: npm run lint
