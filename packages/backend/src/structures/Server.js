@@ -132,6 +132,8 @@ module.exports = class Server {
      * @type {import('fastify').FastifyInstance}
      */
     this.app = fastify();
+
+    this.logger.config({ displayBadge: true, displayTimestamp: true });
   }
 
   /**
@@ -141,7 +143,8 @@ module.exports = class Server {
     // Overrides the default JSON serializer
     this.app.addContentTypeParser('application/json', { parseAs: 'buffer' }, (_, body, next) => {
       try {
-        next(null, JSON.parse(body.toString()));
+        const data = JSON.parse(body.toString());
+        next(null, data);
       } catch(ex) {
         ex.statusCode = 500;
         this.logger.fatal('Unable to parse payload from client', ex);
@@ -175,17 +178,17 @@ module.exports = class Server {
 
     // Before we do anything, lets override the default behaviour of Fastify
     this.addMiddleware();
+    this.analytics.createTimer();
 
     // Now we can load everything!
     await this.routes.load();
     await this.plugins.load();
     await this.middleware.load();
     await this.database.connect();
-    this.redis.connect();
-    this.analytics.createTimer();
+    await this.redis.connect();
 
     // We loaded everything and connected to Redis and PostgreSQL, let's boot it up!
-    this.app.listen(this.config.port, (error, address) => {
+    this.app.listen(this.config.port, async(error, address) => {
       if (error) {
         this.logger.fatal('Unable to connect to the server', error);
 
@@ -193,6 +196,7 @@ module.exports = class Server {
         process.exit(1);
       } else {
         this.logger.info(`Server has booted up at ${address}`);
+        await this.sessions.reapply();
       }
     });
   }

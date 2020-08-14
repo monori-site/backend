@@ -56,6 +56,8 @@ module.exports = class MiddlewareManager extends Collection {
      * @type {string}
      */
     this.path = getPath('middleware');
+
+    this.logger.config({ displayBadge: true, displayTimestamp: true });
   }
 
   /**

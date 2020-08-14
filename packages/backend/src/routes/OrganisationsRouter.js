@@ -25,6 +25,16 @@ const { Router } = require('../structures');
 const router = new Router('/organisations');
 
 router.get({
+  path: '/',
+  async run(_, res) {
+    return res.status(406).send({
+      statusCode: 406,
+      message: 'Missing "id" parameter'
+    });
+  }
+});
+
+router.get({
   parameters: [
     ['id', true]
   ],
@@ -40,7 +50,7 @@ router.get({
       statusCode: 200,
       data: {
         permissions: org.permissions,
-        createdAt: org.createdAt,
+        createdAt: org.created_at,
         projects: org.projects,
         members: org.members,
         github: org.github,
@@ -180,7 +190,7 @@ router.patch({
     ['permission', true],
     ['orgID', true]
   ],
-  patch: '/members/add/permission',
+  path: '/members/add/permission',
   async run(req, res) {
     const org = await this.database.getOrganisation(req.body.orgID);
     if (org === null) return res.status(404).send({
@@ -225,7 +235,7 @@ router.patch({
     ['permission', true],
     ['orgID', true]
   ],
-  patch: '/members/remove/permission',
+  path: '/members/remove/permission',
   async run(req, res) {
     const org = await this.database.getOrganisation(req.body.orgID);
     if (org === null) return res.status(404).send({

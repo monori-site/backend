@@ -41,8 +41,9 @@ module.exports = class RouterService {
    * @param {import('../Routing').Router} router The router
    */
   inject(router) {
-    for (const [path, route] of router.routes) {
-      this.server.app[route.method.toLowerCase()](path, async (req, res) => 
+    for (const route of router.routes.values()) {
+      r.push(route);
+      this.server.app[route.method.toLowerCase()](route.path, async (req, res) => 
         this.invoke(route, req, res)
       );
     }
@@ -60,8 +61,8 @@ module.exports = class RouterService {
       message: `Expected "${route.method} ${route.path}" but gotten "${req.method} ${req.url}"`
     });
 
-    if (route.authenicate) return this.server.middleware.get('auth').run(req, res);
-    if (route.admin) return this.server.middleware.get('admin').run(req, res);
+    if (route.authenicate) this.server.middleware.get('auth').run(req, res);
+    if (route.admin) this.server.middleware.get('admin').run(req, res);
 
     if (route.parameters.length) {
       const denied = route.parameters.some(([param, required]) =>
@@ -99,6 +100,7 @@ module.exports = class RouterService {
     try {
       await route.run.apply(this.server, [req, res]);
     } catch(ex) {
+      this.server.logger.error(`Unexpected error occured in route "${route.method} ${route.path}"\n`, ex);
       return res.status(500).send({
         statusCode: 500,
         message: 'Unexpected error has occured, view the result below',

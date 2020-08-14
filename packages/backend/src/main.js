@@ -29,6 +29,7 @@ const { parse } = require('@augu/dotenv');
 const { join } = require('path');
 
 const logger = new Signale({ scope: 'Master' });
+logger.config({ displayTimestamp: true, displayBadge: true });
 if (!isNode10()) {
   logger.fatal(`Sorry but version ${process.version} is not an avaliable version to run Monori. Please update your Node.js installation to v10 or higher.`);
   process.exit(1);

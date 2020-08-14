@@ -44,7 +44,7 @@ const createSnowflake = () => {
     workerBits: 8,
     processId: process.pid,
     workerId: 28,
-    epoc: constants.Epoch
+    epoch: constants.Epoch
   });
 
   const snowflake = worker.generate();

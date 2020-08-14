@@ -47,13 +47,25 @@ module.exports = class RedisManager {
     /**
      * Represents the Redis instance itself
      */
-    this.client = new RedisClient(server.config.redis);
+    this.client = new RedisClient({
+      lazyConnect: true,
+      ...server.config.redis
+    });
+
+    this.logger.config({ displayBadge: true, displayTimestamp: true });
   }
 
   /**
    * Connects to Redis
    */
-  connect() {
+  async connect() {
+    try {
+      await this.client.connect();
+    } catch(ex) {
+      this.logger.error(ex);
+      return;
+    }
+    
     this.client.once('ready', () => {
       this.connected = true;
       this.logger.info('Connected to Redis');

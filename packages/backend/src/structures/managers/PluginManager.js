@@ -56,6 +56,8 @@ module.exports = class PluginManager extends Collection {
      * @type {string}
      */
     this.path = getPath('plugins');
+  
+    this.logger.config({ displayBadge: true, displayTimestamp: true });
   }
 
   /**

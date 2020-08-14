@@ -25,6 +25,16 @@ const { Router } = require('../structures');
 const router = new Router('/projects');
 
 router.get({
+  path: '/',
+  async run(_, res) {
+    return res.status(406).send({
+      statusCode: 406,
+      message: 'Missing "id" parameter'
+    });
+  }
+});
+
+router.get({
   parameters: [
     ['id', true]
   ],
@@ -41,6 +51,7 @@ router.get({
       data: {
         translations: project.translations,
         description: project.description,
+        createdAt: project.created_at,
         completed: project.completed,
         github: project.github,
         avatar: project.avatar,

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Script to make a .sql file to create the tables
+/* eslint-disable camelcase */
 
 const { existsSync, writeFileSync, mkdirSync, unlinkSync } = require('fs');
 const { pipelines } = require('@augu/maru');
@@ -13,6 +14,11 @@ const organisations = pipelines.CreateTable('organisations', {
       nullable: false,
       primary: false,
       type: 'object'
+    },
+    created_at: {
+      nullable: false,
+      primary: false,
+      type: 'date'
     },
     projects: {
       nullable: false,
@@ -60,6 +66,11 @@ const projects = pipelines.CreateTable('projects', {
       nullable: false,
       primary: false,
       type: 'object'
+    },
+    created_at: {
+      nullable: false,
+      primary: false,
+      type: 'date'
     },
     github: {
       nullable: true,
@@ -123,6 +134,11 @@ const users = pipelines.CreateTable('users', {
       nullable: false,
       primary: false,
       type: 'string'
+    },
+    created_at: {
+      nullable: false,
+      primary: false,
+      type: 'date'
     },
     admin: {
       nullable: false,

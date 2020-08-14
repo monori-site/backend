@@ -48,25 +48,25 @@ module.exports = class SaltWorker {
      * Amount of iterations to do
      * @type {number}
      */
-    this.iterations = getOption(opts, 'iterations', defaults.iterations);
+    this.iterations = opts.hasOwnProperty('iterations') ? opts.iterations : defaults.iterations;
 
     /**
      * Digest method
      * @type {Hashes}
      */
-    this.digest = getOption(opts, 'digest', defaults.digest);
+    this.digest = opts.hasOwnProperty('digest') ? opts.digest : defaults.digest;
 
     /**
      * Length of the salt
      * @type {number}
      */
-    this.length = getOption(opts, 'length', defaults.length);
+    this.length = opts.hasOwnProperty('length') ? opts.length : defaults.length;
 
     /**
      * Token itself
      * @type {string}
      */
-    this.salt = getOption(opts, 'salt', defaults.salt);
+    this.salt = opts.hasOwnProperty('salt') ? opts.salt : defaults.salt;
   }
 
   /**

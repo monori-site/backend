@@ -25,6 +25,16 @@ const { decode } = require('../structures/hash');
 const router = new Router('/users');
 
 router.get({
+  path: '/',
+  async run(_, res) {
+    return res.status(406).send({
+      statusCode: 406,
+      message: 'Missing "id" parameter'
+    });
+  }
+});
+
+router.get({
   parameters: [
     ['id', true]
   ],
@@ -109,6 +119,7 @@ router.get({
         })),
         contributor: user.contributor,
         description: user.description,
+        createdAt: user.created_at,
         translator: user.translator,
         projects: projects.map(project => ({
           translations: project.translations,
@@ -152,7 +163,10 @@ router.put({
     const id = await this.database.createUser(req.body.username, req.body.password, req.body.email);
     await this.sessions.create(id, req.connection.remoteAddress);
 
-    return res.status(204).send();
+    return res.status(201).send({
+      statusCode: 201,
+      data: id
+    });
   }
 });
 

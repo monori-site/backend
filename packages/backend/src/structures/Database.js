@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+/* eslint-disable camelcase */
+
 const { Dialect, pipelines } = require('@augu/maru');
 const { HttpClient } = require('@augu/orchid');
 const { Signale } = require('signale');
@@ -50,13 +52,17 @@ module.exports = class Database {
      * @private
      * @type {import('signale').Signale}
      */
-    this.logger = new Signale({ scope: 'Database' });
+    this.logger = new Signale({ 
+      scope: 'Database' 
+    });
 
     /**
      * The server instance
      * @type {import('./Server')}
      */
     this.server = server;
+
+    this.logger.config({ displayBadge: true, displayTimestamp: true });
   }
 
   /**
@@ -114,16 +120,14 @@ module.exports = class Database {
    */
   async createUser(username, password, email) {
     const salt = Hash.createSalt(password, { digest: 'md5' });
-    const id = Hash.createSnowflake(`${username}:${Date.now()}`);
+    const id = Hash.createSnowflake();
 
     await this.connection.query(pipelines.Insert({
       values: {
-        organisations: [],
         description: '',
         contributor: false,
         translator: false,
-        createdAt: new Date(),
-        projects: [],
+        //createdat: new Date(),
         username,
         password,
         admin: false,
@@ -197,6 +201,10 @@ module.exports = class Database {
       table.description = data.description;
     }
 
+    if (data.hasOwnProperty('github') && user.github !== data.github) {
+      table.github = data.github;
+    }
+
     return this.connection.query(pipelines.Update({
       returning: Object.keys(table),
       values: table,
@@ -232,7 +240,7 @@ module.exports = class Database {
     const sql = pipelines.Insert({
       values: {
         translations: {},
-        createdAt: new Date(),
+        //createdat: new Date(),
         owner: userID,
         type: isOrg ? 'org' : 'user',
         name,
@@ -432,9 +440,7 @@ module.exports = class Database {
       .pipe(pipelines.Insert({
         values: {
           permissions,
-          createdAt: new Date(),
-          projects: [],
-          members: [],
+          //createdat: new Date(),
           github: null,
           owner: userID,
           name,
@@ -587,7 +593,7 @@ module.exports = class Database {
 /**
  * @typedef {object} Organisation Represents the organisations model
  * @prop {{ [x: string]: { allowed: number; denied: number; mutual: number; }}} permissions Object of the permissions by member
- * @prop {Date} createdAt Date string when the organisation was created
+ * @prop {Date} created_at Date string when the organisation was created
  * @prop {string[]} projects The list of projects this organisation has made
  * @prop {string[]} members A list of members (by their ID)
  * @prop {string} [github=null] GitHub organisation link
@@ -615,6 +621,7 @@ module.exports = class Database {
  * @prop {string} username The user's username
  * @prop {string} password The raw password
  * @prop {string} avatar The user's avatar (or a Gravatar URL)
+ * @prop {string} github The user's GitHub account
  * @prop {boolean} admin If the user is an adminstrator or not
  * @prop {string} email The user's email address
  * @prop {string} salt The salt to convert the password

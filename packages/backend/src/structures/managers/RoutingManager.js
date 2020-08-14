@@ -63,6 +63,8 @@ module.exports = class RoutingManager extends Collection {
      * @type {string}
      */
     this.path = getPath('routes');
+
+    this.logger.config({ displayBadge: true, displayTimestamp: true });
   }
 
   /**

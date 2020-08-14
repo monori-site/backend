@@ -82,17 +82,21 @@ router.get({
       });
   
       const user = userReq.json();
-      const query = await this.database.getUser('github', String(user.id));
+      if (!(await this.sessions.exists(req.connection.remoteAddress))) return res.status(403).send({
+        statusCode: 403,
+        message: 'Not logged in :('
+      });
+
+      const session = await this.sessions.get(req.connection.remoteAddress);
+      const query = await this.database.getUser('id', session.userID);
+
       if (query !== null) {
-        return res.status(200).send({
-          statusCode: 200,
-          message: 'Logged in with GitHub!'
-        });
+        if (query.github === null || query.github !== String(user.id)) await this.database.updateUser(session.userID, { github: String(user.id) });
+        return res.redirect('https://github.com'); 
       } else {
-        return res.status(200).send({
-          statusCode: 200,
-          message: `Account "${user.id}" hasn't been authenicated with Monori, but logged in!`,
-          id: user.id
+        return res.status(401).send({
+          statusCode: 401,
+          message: 'User doesnt exist?'
         });
       }
     } catch(ex) {

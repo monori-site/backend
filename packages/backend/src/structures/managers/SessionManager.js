@@ -58,6 +58,8 @@ module.exports = class SessionManager {
      * @type {import('../Server')}
      */
     this.server = server;
+
+    this.logger.config({ displayBadge: true, displayTimestamp: true });
   }
 
   /**
@@ -115,12 +117,12 @@ module.exports = class SessionManager {
    * @param {Session} session The session
    */
   apply(session) {
-    this.logger.info(`-> New session created: ${session.sessionID}`);
+    this.logger.info(`New session created: ${session.sessionID}`);
     setTimeout(async () => {
       const exists = await this.server.redis.client.hexists('sessions', session.ip);
       if (exists) {
         await this.remove(session.ip);
-        this.logger.warn(`- Session ${session.sessionID} has expired`);
+        this.logger.warn(`Session ${session.sessionID} has expired`);
       }
     }, WEEK);
   }
@@ -137,10 +139,10 @@ module.exports = class SessionManager {
    * Re-applies all of the sessions back
    */
   async reapply() {
-    this.logger.info('* Now re-applying sessions...');
+    this.logger.info('Now re-applying sessions...');
     const all = await this.server.redis.client.hkeys('sessions');
     if (!all.length) {
-      this.logger.warn('- No sessions were made, continuing...');
+      this.logger.warn('No sessions were made, continuing...');
       return;
     }
 
@@ -151,11 +153,17 @@ module.exports = class SessionManager {
       const sess = JSON.parse(session);
       if (!sess.sessionID) continue; // dud session, let's continue
 
+      console.log(sess);
+
+      const timeout = sess.startedAt - (Date.now() + WEEK);
+      console.log(timeout);
+      if (timeout === 0) continue;
+
       setTimeout(async () => {
         const exists = await this.server.redis.client.hexists('sessions', sess.ip);
         if (exists) {
           await this.remove(sess.ip);
-          this.logger.warn(`- Session ${sess.sessionID} has expired`);
+          this.logger.warn(`Session ${sess.sessionID} has expired`);
         }
       }, sess.startedAt - (Date.now() + WEEK));
     }
