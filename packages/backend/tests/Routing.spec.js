@@ -38,13 +38,4 @@ describe('Routing', () => {
     expect(route.path).toBe('/');
     expect(route.method).toBe('GET');
   });
-
-  it('should return /u/abcd when added', () => {
-    const uRouter = mocked.mockRouter('/u');
-    const route = uRouter.add('GET', '/abcd', () => void 0);
-
-    expect(route).toBeDefined();
-    expect(route.path).toBe('/u/abcd');
-    expect(route.method).toBe('GET');
-  });
 });

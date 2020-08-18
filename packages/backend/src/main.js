@@ -80,7 +80,7 @@ const config = parse({
     DATABASE_PORT: 'int',
     DATABASE_NAME: {
       type: 'string',
-      default: 'pressfbot'
+      default: 'i18n'
     },
     REDIS_HOST: {
       type: 'string',

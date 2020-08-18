@@ -27,7 +27,7 @@ const router = new Router('/projects');
 router.get({
   path: '/',
   async run(_, res) {
-    return res.status(406).send({
+    return res.status(406).json({
       statusCode: 406,
       message: 'Missing "id" parameter'
     });
@@ -41,12 +41,12 @@ router.get({
   path: '/:id',
   async run(req, res) {
     const project = await this.database.getProject(req.params.id);
-    if (project === null) return res.status(404).send({
+    if (project === null) return res.status(404).json({
       statusCode: 404,
       message: `Project with ID "${req.params.id}" wasn't found`
     });
 
-    return res.status(200).send({
+    return res.status(200).json({
       statusCode: 200,
       data: {
         translations: project.translations,
@@ -73,7 +73,7 @@ router.put({
     const session = await this.sessions.get(req.connection.remoteAddress);
     const id = await this.database.createProject(req.body.name, session.userID);
 
-    return res.status(201).send({
+    return res.status(201).json({
       statusCode: 201,
       data: id
     });
@@ -106,7 +106,7 @@ router.patch({
       await this.database.updateProject(req.body.data);
       return res.status(204).send();
     } catch(ex) {
-      return res.status(500).send({
+      return res.status(500).json({
         statusCode: 500,
         message: `[${ex.name}] ${ex.message.slice(ex.message.indexOf(ex.name) + 1)}`
       });
@@ -123,7 +123,7 @@ router.put({
   path: '/translations/add',
   async run(req, res) {
     const project = await this.database.getProject(req.params.id);
-    if (project === null) return res.status(404).send({
+    if (project === null) return res.status(404).json({
       statusCode: 404,
       message: `Project with ID "${req.params.id}" was not found`
     });
@@ -142,7 +142,7 @@ router.put({
 
       return res.status(204).send();
     } else {
-      return res.status(400).send({
+      return res.status(400).json({
         statusCode: 400,
         message: `Translation "${language}" already exists`
       });
@@ -159,7 +159,7 @@ router.delete({
   path: '/translations/remove',
   async run(req, res) {
     const project = await this.database.getProject(req.params.id);
-    if (project === null) return res.status(404).send({
+    if (project === null) return res.status(404).json({
       statusCode: 404,
       message: `Project with ID "${req.params.id}" was not found`
     });
@@ -178,7 +178,7 @@ router.delete({
 
       return res.status(204).send();
     } else {
-      return res.status(400).send({
+      return res.status(400).json({
         statusCode: 400,
         message: `Translation "${language}" doesn't exist`
       });

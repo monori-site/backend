@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 /// <reference types="../node_modules/@types/jest" />
-// Tests for the Routing aspect of Monori
+// Tests for the Utilities aspect of Monori
 
 const { sep, getPath, toPercent } = require('../src/util');
 

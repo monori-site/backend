@@ -27,7 +27,7 @@ const router = new Router('/organisations');
 router.get({
   path: '/',
   async run(_, res) {
-    return res.status(406).send({
+    return res.status(406).json({
       statusCode: 406,
       message: 'Missing "id" parameter'
     });
@@ -41,12 +41,12 @@ router.get({
   path: '/:id',
   async run(req, res) {
     const org = await this.database.getOrganisation(req.params.id);
-    if (org === null) return res.status(404).send({
+    if (org === null) return res.status(404).json({
       statusCode: 404,
       message: `Organisation with ID "${req.params.id}" was not found`
     });
 
-    return res.status(200).send({
+    return res.status(200).json({
       statusCode: 200,
       data: {
         permissions: org.permissions,
@@ -70,12 +70,12 @@ router.get({
   path: '/:id/projects',
   async run(req, res) {
     const projects = await this.database.getOrganisationProjects(req.params.id);
-    if (projects === null || !projects.length) return res.status(404).send({
+    if (projects === null || !projects.length) return res.status(404).json({
       statusCode: 404,
       message: `Organisation with ID "${req.params.id}" was not found or no projects were inserted`
     });
 
-    return res.status(200).send({
+    return res.status(200).json({
       statusCode: 200,
       data: projects.map(project => ({
         translations: project.translations,
@@ -101,7 +101,7 @@ router.put({
     const session = await this.sessions.get(req.connection.remoteAddress);
     const id = await this.database.createOrganisation(req.body.name, session.userID);
 
-    return res.statusCode(201).send({
+    return res.statusCode(201).json({
       statusCode: 201,
       data: id
     });
@@ -116,7 +116,7 @@ router.patch({
   path: '/',
   async run(req, res) {
     const successful = await this.database.updateOrganisation(req.body.data);
-    return res.status(200).send({
+    return res.status(200).json({
       statusCode: 200,
       data: { successful }
     });
@@ -144,12 +144,12 @@ router.patch({
   path: '/members/remove',
   async run(req, res) {
     const org = await this.database.getOrganisation(req.body.orgID);
-    if (org === null) return res.status(404).send({
+    if (org === null) return res.status(404).json({
       statusCode: 404,
       message: `Organisation with ID "${req.body.orgID}" doesn't exist`
     });
 
-    if (!org.members.includes(req.body.memberID)) return res.status(403).send({
+    if (!org.members.includes(req.body.memberID)) return res.status(403).json({
       statusCode: 403,
       message: 'Cannot remove member since they aren\'t apart of the organisation'
     });
@@ -168,12 +168,12 @@ router.patch({
   path: '/members/add',
   async run(req, res) {
     const org = await this.database.getOrganisation(req.body.orgID);
-    if (org === null) return res.status(404).send({
+    if (org === null) return res.status(404).json({
       statusCode: 404,
       message: `Organisation with ID "${req.body.orgID}" doesn't exist`
     });
 
-    if (org.members.includes(req.body.memberID)) return res.status(403).send({
+    if (org.members.includes(req.body.memberID)) return res.status(403).json({
       statusCode: 403,
       message: 'Cannot ad member since they are apart of the organisation'
     });
@@ -193,12 +193,12 @@ router.patch({
   path: '/members/add/permission',
   async run(req, res) {
     const org = await this.database.getOrganisation(req.body.orgID);
-    if (org === null) return res.status(404).send({
+    if (org === null) return res.status(404).json({
       statusCode: 404,
       message: `Organisation with ID "${req.body.orgID}" doesn't exist`
     });
 
-    if (org.members.includes(req.body.memberID)) return res.status(403).send({
+    if (org.members.includes(req.body.memberID)) return res.status(403).json({
       statusCode: 403,
       message: 'Cannot ad member since they are apart of the organisation'
     });
@@ -206,7 +206,7 @@ router.patch({
     const raw = org.permissions[req.body.memberID];
     const permissions = new Permissions(raw.allowed, raw.denied);
 
-    if (permissions.overlaps(req.body.permission)) return res.status(406).send({
+    if (permissions.overlaps(req.body.permission)) return res.status(406).json({
       statusCode: 406,
       message: `User already overlaps permission "${req.body.permission}"`
     });
@@ -238,12 +238,12 @@ router.patch({
   path: '/members/remove/permission',
   async run(req, res) {
     const org = await this.database.getOrganisation(req.body.orgID);
-    if (org === null) return res.status(404).send({
+    if (org === null) return res.status(404).json({
       statusCode: 404,
       message: `Organisation with ID "${req.body.orgID}" doesn't exist`
     });
 
-    if (org.members.includes(req.body.memberID)) return res.status(403).send({
+    if (org.members.includes(req.body.memberID)) return res.status(403).json({
       statusCode: 403,
       message: 'Cannot ad member since they are apart of the organisation'
     });
@@ -251,7 +251,7 @@ router.patch({
     const raw = org.permissions[req.body.memberID];
     const permissions = new Permissions(raw.allowed, raw.denied);
 
-    if (!permissions.overlaps(req.body.permission)) return res.status(406).send({
+    if (!permissions.overlaps(req.body.permission)) return res.status(406).json({
       statusCode: 406,
       message: `User doesn't overlap permission "${req.body.permission}"`
     });

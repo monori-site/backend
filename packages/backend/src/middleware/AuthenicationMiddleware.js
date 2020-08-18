@@ -29,10 +29,12 @@ module.exports = class AuthenicateMiddleware extends Middleware {
 
   /**
    * Checks if the user has administrator permissions
-   * @param {import('fastify').FastifyRequest} req The request
-   * @param {import('fastify').FastifyReply} res The response
+   * @param {import('express').Request} req The request
+   * @param {import('express').Response} res The response
    */
   async run(req, res) {
+    console.log(req.connection);
+
     // Check if we can use the IP address to fetch a session
     if (!req.connection.hasOwnProperty('remoteAddress')) return res.status(500).send({
       statusCode: 500,

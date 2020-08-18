@@ -33,12 +33,12 @@ const http = new HttpClient({ agent: `Monori (v${version}, https://github.com/au
 router.get({
   path: '/github',
   async run(req, res) {
-    if (await this.sessions.exists(req.connection.remoteAddress)) return res.status(403).send({
+    if (await this.sessions.exists(req.connection.remoteAddress)) return res.status(403).json({
       statusCode: 403,
       message: 'User has a session occuring, continue'
     });
   
-    if (!this.config.github.enabled) return res.status(500).send({
+    if (!this.config.github.enabled) return res.status(500).json({
       statusCode: 500,
       message: 'GitHub OAuth2 isn\'t enabled, if this keeps occuring: contact an administrator'
     });
@@ -54,12 +54,12 @@ router.get({
 router.get({
   path: '/github/callback',
   async run(req, res) {
-    if (!req.query.code || !req.query.state) return res.status(403).send({
+    if (!req.query.code || !req.query.state) return res.status(403).json({
       statusCode: 403,
       message: `${req.query.error} - ${req.query.error_description}`
     });
   
-    if (!states.includes(req.query.state)) return res.status(401).send({
+    if (!states.includes(req.query.state)) return res.status(401).json({
       statusCode: 401,
       message: `State "${req.query.state}" is invalid`
     });
@@ -82,7 +82,7 @@ router.get({
       });
   
       const user = userReq.json();
-      if (!(await this.sessions.exists(req.connection.remoteAddress))) return res.status(403).send({
+      if (!(await this.sessions.exists(req.connection.remoteAddress))) return res.status(403).json({
         statusCode: 403,
         message: 'Not logged in :('
       });
@@ -94,13 +94,13 @@ router.get({
         if (query.github === null || query.github !== String(user.id)) await this.database.updateUser(session.userID, { github: String(user.id) });
         return res.redirect('https://github.com'); 
       } else {
-        return res.status(401).send({
+        return res.status(401).json({
           statusCode: 401,
           message: 'User doesnt exist?'
         });
       }
     } catch(ex) {
-      return res.status(500).send({
+      return res.status(500).json({
         statusCode: 500,
         message: `[${ex.name}] ${ex.message}`
       });

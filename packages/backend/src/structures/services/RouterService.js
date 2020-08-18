@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+const e = require('express');
+
 /**
  * Represents a service-class of handling all routing
  */
@@ -41,19 +43,20 @@ module.exports = class RouterService {
    * @param {import('../Routing').Router} router The router
    */
   inject(router) {
-    for (const route of router.routes.values()) {
-      r.push(route);
-      this.server.app[route.method.toLowerCase()](route.path, async (req, res) => 
-        this.invoke(route, req, res)
-      );
+    const core = e.Router();
+    for (const [other, route] of router.routes) {
+      const [method, path] = other.split(':');
+      core[method](path, (req, res) => this.invoke.apply(this, [route, req, res]));
     }
+
+    this.server.app.use(router.prefix, core);
   }
 
   /**
    * Invokes the service
    * @param {import('../Routing').Route} route The route
-   * @param {import('fastify').FastifyRequest} req The request
-   * @param {import('fastify').FastifyReply} res The response
+   * @param {import('express').Request} req The request
+   * @param {import('express').Response} res The response
    */
   async invoke(route, req, res) {
     if (route.method !== req.method) return res.status(405).send({
@@ -66,7 +69,7 @@ module.exports = class RouterService {
 
     if (route.parameters.length) {
       const denied = route.parameters.some(([param, required]) =>
-        required && !req.params.hasOwnProperty(param)
+        required ? (req.params.hasOwnProperty(param) ? false : true) : false
       );
 
       if (denied.length) return res.status(400).send({
@@ -77,7 +80,7 @@ module.exports = class RouterService {
 
     if (route.queries.length) {
       const denied = route.queries.some(([param, required]) =>
-        required && !req.query.hasOwnProperty(param)
+        required ? (req.query.hasOwnProperty(param) ? false : true) : false
       );
 
       if (denied.length) return res.status(400).send({
@@ -88,7 +91,7 @@ module.exports = class RouterService {
 
     if (route.body.length) {
       const denied = route.queries.some(([param, required]) =>
-        required && !req.body.hasOwnProperty(param)
+        required ? (req.body.hasOwnProperty(param) ? false : true) : false
       );
 
       if (denied.length) return res.status(400).send({

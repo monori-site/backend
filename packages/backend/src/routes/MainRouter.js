@@ -21,9 +21,9 @@
  */
 
 const { version } = require('../../package.json');
-const { Router } = require('../structures');
+const { Router } = require('express');
 
-const router = new Router('/');
+const router = Router();
 
 // Why aren't we using arrow functions?
 //
@@ -32,27 +32,15 @@ const router = new Router('/');
 // if we wanna access the database, then we use `function`
 // instead of arrow functions, if you don't need to do anything
 // with the server, use arrow functions
-router.get({
+router.get('/', (_, res) => res.status(200).json({
+  statusCode: 200,
+  message: 'Visit the documentation at https://github.com/auguwu/Monori/tree/master/docs/API.md',
+  version: `v${version}`
+}));
+
+router.get('/favicon.ico', (_, res) => res.status(404).send('Cannot GET /favicon.ico'));
+
+module.exports = {
   path: '/',
-  run(_, res) {
-    // this looks ugly but i could care less lol
-    const endpoints = [];
-    this.routes.forEach(router => {
-      endpoints.push(...router.getEndpoints());
-    });
-    
-    return res.status(200).send({
-      statusCode: 200,
-      message: 'Visit the documentation at https://github.com/auguwu/Monori/tree/master/docs/API.md',
-      version: `v${version}`,
-      endpoints
-    });
-  }
-});
-
-router.get({
-  path: '/favicon.ico',
-  run: (_, res) => res.status(404).send('Cannot GET /favicon.ico')
-});
-
-module.exports = router;
+  core: router
+};

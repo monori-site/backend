@@ -25,23 +25,13 @@ const { decode } = require('../structures/hash');
 const router = new Router('/users');
 
 router.get({
-  path: '/',
-  async run(_, res) {
-    return res.status(406).send({
-      statusCode: 406,
-      message: 'Missing "id" parameter'
-    });
-  }
-});
-
-router.get({
   parameters: [
     ['id', true]
   ],
   path: '/:id',
   async run(req, res) {
     const user = await this.database.getUser('id', req.params.id);
-    if (user === null) return res.status(404).send({
+    if (user === null) return res.status(404).json({
       statusCode: 404,
       message: `User with ID "${req.params.id}" doesn't exist`
     });
@@ -54,7 +44,7 @@ router.get({
       this.database.getProject(project)  
     ));
 
-    return res.status(200).send({
+    return res.status(200).json({
       statusCode: 200,
       data: {
         organisations: organisations.map(org => ({
@@ -104,7 +94,7 @@ router.get({
       this.database.getProject(project)  
     ));
 
-    return res.status(200).send({
+    return res.status(200).json({
       statusCode: 200,
       data: {
         organisations: organisations.map(org => ({
@@ -149,13 +139,13 @@ router.put({
   path: '/',
   async run(req, res) {
     const user1 = await this.database.getUser('username', req.body.username);
-    if (user1 !== null) return res.status(400).send({
+    if (user1 !== null) return res.status(400).json({
       statusCode: 400,
       message: `Username "${req.body.username}" is already taken`
     });
 
     const email1 = await this.database.getUser('email', req.body.email);
-    if (email1 !== null) return res.status(400).send({
+    if (email1 !== null) return res.status(400).json({
       statusCode: 400,
       message: `Email "${req.body.email}" is already taken`
     });
@@ -163,7 +153,7 @@ router.put({
     const id = await this.database.createUser(req.body.username, req.body.password, req.body.email);
     await this.sessions.create(id, req.connection.remoteAddress);
 
-    return res.status(201).send({
+    return res.status(201).json({
       statusCode: 201,
       data: id
     });
@@ -178,18 +168,18 @@ router.post({
   path: '/login',
   async run(req, res) {
     const user = await this.database.getUser('username', req.body.username);
-    if (user === null) return res.status(400).send({
+    if (user === null) return res.status(400).json({
       statusCode: 400,
       message: `Username "${req.body.username}" doesn't exist`
     }); 
 
-    if (await this.sessions.exists(user.id)) return res.status(400).send({
+    if (await this.sessions.exists(user.id)) return res.status(400).json({
       statusCode: 400,
       message: 'User is already logged in'
     });
 
     const hash = decode(user.password, user.salt, { digest: 'md5' });
-    if (!hash) return res.status(403).send({
+    if (!hash) return res.status(403).json({
       statusCode: 403,
       message: 'Password is invalid'
     });
@@ -210,12 +200,12 @@ router.patch({
 
     try {
       const success = await this.database.updateUser(session.userID, req.body.data);
-      return res.status(200).send({
+      return res.status(200).json({
         statusCode: 200,
         data: { success }
       });
     } catch(ex) {
-      return res.status(500).send({
+      return res.status(500).json({
         statusCode: 500,
         message: `[${ex.name}] ${ex.message.slice(ex.message.indexOf(ex.name) + 1)}`
       });

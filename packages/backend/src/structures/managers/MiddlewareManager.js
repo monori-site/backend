@@ -77,6 +77,7 @@ module.exports = class MiddlewareManager extends Collection {
     }
 
     for (const file of files) {
+      if (file === 'internal') continue;
       const middleware = require(join(this.path, file));
 
       /** @type {import('../Middleware')} */
@@ -84,6 +85,7 @@ module.exports = class MiddlewareManager extends Collection {
       ware.init(this.server);
 
       this.set(ware.name, ware);
+      if (ware.injectable) this.server.app.use((req, res, next) => ware.run.apply(ware, [req, res, next]));
     }
   }
 };

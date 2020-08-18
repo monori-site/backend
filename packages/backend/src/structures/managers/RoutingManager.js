@@ -21,30 +21,19 @@
  */
 
 const { promises: fs } = require('fs');
-const { Collection } = require('@augu/immutable');
-const RouterService = require('../services/RouterService');
 const { Signale } = require('signale');
 const { getPath } = require('../../util');
 const { join } = require('path');
 
 /**
  * Represents a manager for handling routes
- * @extends {Collection<import('../Routing').Router>}
  */
-module.exports = class RoutingManager extends Collection {
+module.exports = class RoutingManager {
   /**
    * Creates a new [RoutingManager] instance
    * @param {import('../Server')} server The server instance
    */
   constructor(server) {
-    super();
-
-    /**
-     * Router service
-     * @type {RouterService}
-     */
-    this.service = new RouterService(server);
-
     /**
      * The server instance
      * @type {import('../Server')}
@@ -85,12 +74,10 @@ module.exports = class RoutingManager extends Collection {
 
     for (const file of files) {
       try {
-        /** @type {import('../Routing').Router} */
         const router = require(join(this.path, file));
-        if (router.routes.empty) continue;
-
-        this.set(router.prefix, router);
-        this.service.inject(router);
+        
+        this.server.app.use(router.path, router.core);
+        this.logger.info(`Loaded route ${router.path}`);
       } catch(ex) {
         this.logger.error(ex);
       }

@@ -24,12 +24,12 @@ const MiddlewareManager = require('./managers/MiddlewareManager');
 const AnalyticsManager = require('./managers/AnalyticsManager');
 const SessionManager = require('./managers/SessionManager');
 const RoutingManager = require('./managers/RoutingManager');
-const PluginManager = require('./managers/PluginManager');
 const RedisManager = require('./managers/RedisManager');
 const { Signale } = require('signale');
+const { version } = require('../../package.json');
 const JWTService = require('./services/JWTService');
 const Database = require('./Database');
-const fastify = require('fastify');
+const express = require('express');
 
 /**
  * Represents the bare-minimum API server, which handles everything
@@ -80,7 +80,7 @@ module.exports = class Server {
     this.analytics = new AnalyticsManager(this);
 
     /**
-     * Handles all middeware for Fastify (View [here](https://www.fastify.io/docs/latest/Hooks/#onrequest) for more information)
+     * Handles all middeware for Express
      * @type {MiddlewareManager}
      */
     this.middleware = new MiddlewareManager(this);
@@ -98,13 +98,7 @@ module.exports = class Server {
     this.database = new Database(this);
 
     /**
-     * Handles all of the plugins for Fastify (View [here](https://www.fastify.io/docs/latest/Plugins-Guide/) for more information)
-     * @type {PluginManager}
-     */
-    this.plugins = new PluginManager(this);
-
-    /**
-     * Handles all of the routing of Fastify (View [here](https://www.fastify.io/docs/latest/Routes/) for more information)
+     * Handles all of the routing of the backend API
      * @type {RoutingManager}
      */
     this.routes = new RoutingManager(this);
@@ -129,45 +123,22 @@ module.exports = class Server {
 
     /**
      * Actual Fastify instance
-     * @type {import('fastify').FastifyInstance}
+     * @type {import('express').Express}
      */
-    this.app = fastify();
+    this.app = express();
 
     this.logger.config({ displayBadge: true, displayTimestamp: true });
   }
 
   /**
-   * Adds the needed middleware for Fastify
+   * Adds the needed middleware for Express
    */
   addMiddleware() {
-    // Overrides the default JSON serializer
-    this.app.addContentTypeParser('application/json', { parseAs: 'buffer' }, (_, body, next) => {
-      try {
-        const data = JSON.parse(body.toString());
-        next(null, data);
-      } catch(ex) {
-        ex.statusCode = 500;
-        this.logger.fatal('Unable to parse payload from client', ex);
-
-        next(ex);
-      }
+    // Override the powered by header
+    this.app.use((_, res, next) => {
+      res.setHeader('X-Powered-By', `Monori v${version}; https://github.com/auguwu/Monori`);
+      next();
     });
-
-    // Overrides the default error handler
-    this.app.setErrorHandler((error, _, reply) => {
-      this.logger.fatal('Unable to process request', error);
-      reply.status(500).send({
-        statusCode: 500,
-        message: 'Unable to process due to a fatal error',
-        error: `[${error.name}] ${error.message}`
-      });
-    });
-
-    // Overrides the default 404 handler
-    this.app.setNotFoundHandler((req, res) => res.status(404).send({
-      statusCode: 404,
-      message: `Route "${req.raw.method.toUpperCase()} ${req.raw.url}" was not found`
-    }));
   }
 
   /**
@@ -177,27 +148,23 @@ module.exports = class Server {
     this.logger.info('Booting up server...');
 
     // Before we do anything, lets override the default behaviour of Fastify
-    this.addMiddleware();
     this.analytics.createTimer();
 
     // Now we can load everything!
+    await this.redis.connect();
     await this.routes.load();
-    await this.plugins.load();
     await this.middleware.load();
     await this.database.connect();
-    await this.redis.connect();
 
     // We loaded everything and connected to Redis and PostgreSQL, let's boot it up!
-    this.app.listen(this.config.port, async(error, address) => {
-      if (error) {
-        this.logger.fatal('Unable to connect to the server', error);
 
-        this.dispose();
-        process.exit(1);
-      } else {
-        this.logger.info(`Server has booted up at ${address}`);
-        await this.sessions.reapply();
-      }
+    /**
+     * The http service itself (shouldn't be accessable & used)
+     * @type {import('http').Server}
+     */
+    this._service = this.app.listen(this.config.port, async() => {
+      this.logger.info(`Server has booted up at http://localhost:${this.config.port}`);
+      await this.sessions.reapply();
     });
   }
 
@@ -205,11 +172,11 @@ module.exports = class Server {
    * Disposes this instance
    */
   dispose() {
-    this.app.close();
     this.redis.dispose();
+    this._service.close();
     this.database.dispose();
     this.analytics.stopTimer();
-
+    
     this.logger.warn('Server has been disposed successfully');
   }
 };

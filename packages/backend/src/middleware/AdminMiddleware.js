@@ -29,8 +29,8 @@ module.exports = class AdminMiddleware extends Middleware {
 
   /**
    * Checks if the user has administrator permissions
-   * @param {import('fastify').FastifyRequest} req The request
-   * @param {import('fastify').FastifyReply} res The response
+   * @param {import('express').Request} req The request
+   * @param {import('express').Response} res The response
    */
   async run(req, res) {
     const session = await this.server.sessions.get(req.connection.remoteAddress);

@@ -27,8 +27,15 @@ module.exports = class Middleware {
   /**
    * Creates a new [Middleware] instance
    * @param {string} name The middleware's name
+   * @param {boolean} [inject=false] If we should inject it into Express (requires `next` parameter)
    */
-  constructor(name) {
+  constructor(name, inject = false) {
+    /**
+     * If we should inject it into Express
+     * @type {boolean}
+     */
+    this.injectable = inject;
+
     /**
      * The middleware's name
      * @type {string}
@@ -52,10 +59,12 @@ module.exports = class Middleware {
 
   /**
    * Function to call this [Middleware] when a route is requested
-   * @param {import('fastify').FastifyRequest} req The request
-   * @param {import('fastify').FastifyReply} res The response
+   * @param {import('express').Request} req The request
+   * @param {import('express').Response} res The response
+   * @param {import('express').NextFunction} [next=undefined] Signal express that this middleware has completed it's cycle
    */
-  async run(req, res) {
-    throw new SyntaxError(`Midding override function in middleware "${this.name}": run(req, res)`);
+  async run(req, res, next = undefined) {
+    if (this.injectable && next === undefined) throw new TypeError('Missing "next" parameter');
+    throw new SyntaxError(`Midding override function in middleware "${this.name}": run(req, res, [next])`);
   }
 };

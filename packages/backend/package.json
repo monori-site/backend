@@ -1,7 +1,7 @@
 {
   "name": "@august/i18n-backend",
   "description": "👻✏️ Backend portion of i18n",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0",
   "main": "build/main.js",
   "license": "MIT",
   "author": "August <august@augu.dev>",
@@ -15,8 +15,7 @@
     "@augu/immutable": "0.4.0",
     "@augu/maru": "1.2.6",
     "@augu/orchid": "1.4.0",
-    "fastify": "3.2.0",
-    "fastify-plugin": "2.3.0",
+    "express": "4.17.1",
     "ioredis": "4.17.3",
     "jsonwebtoken": "8.5.1",
     "pbkdf2": "3.1.1",
