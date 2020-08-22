@@ -27,6 +27,6 @@
     "@augu/eslint-config": "1.7.0",
     "@types/jest": "26.0.10",
     "eslint": "7.7.0",
-    "jest": "26.4.1"
+    "jest": "26.4.2"
   }
 }
