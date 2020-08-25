@@ -1,9 +1,7 @@
-packages/**/node_modules
-packages/**/.cache
-packages/**/.env
 node_modules/
-old/
+build/
+*.env
 
-package-lock.json
-yarn.lock
+package-*.json
+*.lock
 *.log
