@@ -14,7 +14,7 @@
     "@augu/dotenv": "1.1.0",
     "@augu/immutable": "0.4.1",
     "@augu/maru": "1.2.6",
-    "@augu/orchid": "1.5.0",
+    "@augu/orchid": "1.6.0",
     "fastify": "3.3.0",
     "fastify-plugin": "2.3.1",
     "ioredis": "4.17.3",
