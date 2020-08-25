@@ -24,7 +24,7 @@
     "snowflakey": "0.2.0"
   },
   "devDependencies": {
-    "@augu/eslint-config": "1.7.0",
+    "@augu/eslint-config": "1.7.2",
     "@types/jest": "26.0.10",
     "eslint": "7.7.0",
     "jest": "26.4.2"
