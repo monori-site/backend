@@ -22,8 +22,29 @@
 
 import type { DatabaseConfig, User, Project, Organisation } from '../util/models';
 import { pipelines, Dialect, Connection } from '@augu/maru';
+import { randomBytes } from 'crypto';
 import { Stopwatch } from './Stopwatch';
 import { Logger } from './Logger';
+import Snowflake from '../util/Snowflake';
+import argon2 from 'argon2';
+
+interface UserPacket {
+  username: string;
+  password: string;
+  email: string;
+}
+
+interface UpdateUser {
+  organisation?: string;
+  description?: string;
+  contributor?: 'yes' | 'no';
+  translator?: 'yes' | 'no';
+  username?: string;
+  password?: string;
+  project?: string;
+  github?: string;
+  email?: string;
+}
 
 /**
  * Represents the [Database] class, which executes SQL queries from PostgreSQL and returns the value
@@ -112,5 +133,96 @@ export class Database {
         const time = stopwatch.end();
         this.logger.error(`Unable to disconnect; connection might bleed (~${time.toFixed(2)}ms)`, error);
       });
+  }
+
+  /**
+   * Gets a Organisation from the database
+   * @param column The column
+   */
+  get(table: 'organisations', column: [string, any]): Promise<Organisation | null>;
+
+  /**
+   * Gets a Project from the database
+   * @param column The column
+   */
+  get(table: 'projects', column: [string, any]): Promise<Project | null>;
+
+  /**
+   * Gets an User from the database
+   * @param column The column
+   */
+  get(table: 'users', column: [string, any]): Promise<User | null>;
+
+  /**
+   * Gets an object from the database
+   * @param table The table
+   * @param column The column
+   */
+  get<T>(table: 'users' | 'organisations' | 'projects', column: [string, any]): Promise<T | null> {
+    if (column.length < 1) throw new SyntaxError('Column must be an Array of [key, value]');
+    if (!this.online) throw new SyntaxError('We didn\'t establish a connection yet');
+
+    return this.connection!.query<T>(pipelines.Select(table, column));
+  }
+
+  /**
+   * Creates a User
+   * @param packet The user packet
+   * @returns The user's snowflake
+   */
+  async createUser(packet: UserPacket) {
+    const password = await argon2.hash(packet.password);
+    const salt = randomBytes(16).toString('hex');
+    const id = Snowflake.generate();
+
+    await this.connection!.query(pipelines.Insert<User>({
+      values: {
+        organisations: [],
+        description: '',
+        contributor: false,
+        translator: false,
+        created_at: new Date(), // eslint-disable-line camelcase
+        projects: [],
+        username: packet.username,
+        password,
+        avatar: '',
+        admin: false,
+        email: packet.email,
+        salt,
+        id
+      },
+      table: 'users'
+    }));
+
+    return id;
+  }
+
+  /**
+   * Update a user's content in the database
+   * @param id The user's ID
+   * @param data The packet
+   */
+  async updateUser(id: string, data: UpdateUser) {
+    const user = await this.get('users', ['id', id]);
+    const table: { [x: string]: any } = {};
+
+    if (user === null) return false;
+    if (data.hasOwnProperty('username') && user.username !== data.username) {
+      const u = await this.get('users', ['username', data.username]);
+      if (u === null) {
+        table.username = data.username;
+      } else {
+        throw new TypeError(`Username "${data.username}" is already taken`);
+      }
+    }
+    
+    if (data.hasOwnProperty('email') && user.email !== data.email) {
+      const u = await this.get('users', ['email', data.email]);
+      if (u === null) {
+        table.email = data.email;
+      } else {
+        throw new TypeError(`Email "${data.email}" is already taken`);
+      }
+    }
   }
 }
