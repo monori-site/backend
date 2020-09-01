@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+import { Months } from './Constants';
+
 /**
  * Static class to handle any repeating code
  */
@@ -76,5 +78,26 @@ export default class Util {
     const num = Number(ver);
 
     return num === 10 || num > 10;
+  }
+
+  /**
+   * Escapes the time variable for the [Logger]
+   * @param value The value
+   */
+  static escapeTime(value: number) {
+    return `0${value}`.slice(-2);
+  }
+
+  /**
+   * Gets the current date
+   */
+  static getDate() {
+    const now = new Date();
+
+    const hours   = this.escapeTime(now.getHours());
+    const minutes = this.escapeTime(now.getMinutes());
+    const seconds = this.escapeTime(now.getSeconds());
+
+    return `[${this.escapeTime(now.getDate())}/${this.escapeTime(now.getMonth() + 1)}/${now.getFullYear()} | ${hours}:${minutes}:${seconds}]`;
   }
 }

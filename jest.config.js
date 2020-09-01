@@ -1,5 +1,5 @@
 module.exports = {
-  name: 'i18n',
+  name: 'Monori',
   verbose: true,
   preset: 'ts-jest',
   testEnvironment: 'node',

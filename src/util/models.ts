@@ -22,6 +22,12 @@
 
 /* eslint-disable camelcase */
 
+/** The features to opt-in when using the Analytics API */
+export type AnalyticFeature = 'cluster' | 'database' | 'gc';
+
+/** The environment used in process.env.NODE_ENV */
+export type Environment = 'development' | 'production';
+
 /** The permission nodes */
 export type PermissionNodes = 'manage.org' | 'delete.org' | 'add.member' | 'remove.member' | 'publish' | 'edit'  | 'admin';
 
@@ -139,4 +145,152 @@ export interface Project {
 
   /** The project's ID */
   id: string;
+}
+
+/**
+ * Represents the environment config for [src/structures/Server.ts]
+ */
+export interface EnvConfig {
+  /** The active pool connections to have concurrently (default: 3) */
+  database_active_connections: number;
+
+  /** The client secret for GitHub OAuth2 */
+  github_client_secret?: string;
+
+  /** The callback URL to use for GitHub OAuth2 */
+  github_callback_url?: string;
+
+  /** The features to opt-in for Analytics */
+  analytics_features: AnalyticFeature[];
+
+  /** The database username */
+  database_username: string;
+
+  /** The database password */
+  database_password: string;
+
+  /** The client ID for GitHub OAuth2 */
+  github_client_id?: string;
+
+  /** Password for Redis, optional */
+  redis_password?: string;
+
+  /** If we should add GitHub OAuth2 */
+  github_enabled: boolean;
+
+  /** GitHub OAuth2 scopres */
+  github_scopes: string[];
+
+  /** The database name (default: 'monori') */
+  database_name: string;
+
+  /** The database port */
+  database_port: number;
+
+  /** The database host */
+  database_host: string;
+
+  /** The database ID for Redis (default: 7) */
+  redis_db_id?: number;
+
+  /** The frontend URL of Monori (see: https://github.com/monori-site/frontend) */
+  frontend_url: string;
+
+  /** Redis port (default: 6379) */
+  redis_port: number;
+
+  /** The host of Redis (default: '127.0.0.1') */
+  redis_host: string;
+
+  /** If we should enable Analytics */
+  analytics: boolean;
+
+  /** The environment of the Backend API */
+  node_env: Environment;
+
+  /** The port to listen to */
+  port: number;
+}
+
+/** The configuration for Server#config */
+export interface Config {
+  /** The environment */
+  environment: Environment;
+
+  /** URL for the Frontend portion */
+  frontendUrl: string;
+
+  /** Analytics config */
+  analytics: AnalyticsConfig;
+
+  /** Database config */
+  database: DatabaseConfig;
+
+  /** GitHub OAuth2 config */
+  github: GitHubConfig;
+
+  /** Redis config */
+  redis: RedisConfig;
+  
+  /** The port */
+  port: number;
+}
+
+export interface AnalyticsConfig {
+  /** Features to opt-in */
+  features: AnalyticFeature[];
+
+  /** If it's enabled */
+  enabled: boolean;
+}
+
+export interface DatabaseConfig {
+  /** Number of active connections to have */
+  activeConnections: number;
+
+  /** The password */
+  password: string;
+
+  /** The username */
+  username: string;
+
+  /** The host */
+  host: string;
+
+  /** The port */
+  port: number;
+
+  /** The database name (default: 'monori') */
+  name: string;
+}
+
+export interface GitHubConfig {
+  /** The client secret (can be `undefined` if it's not enabled) */
+  clientSecret?: string;
+
+  /** The callback URL (can be `undefined` if it's not enabled) */
+  callbackUrl?: string;
+
+  /** The client ID (can be `undefined` if it's not enabled) */
+  clientID?: string;
+
+  /** If it's enabled or not */
+  enabled: boolean;
+
+  /** List of scopes to use (can be `undefined` if it's not enabled) */
+  scopes?: string[];
+}
+
+export interface RedisConfig {
+  /** The password to authenicating to Redis -- optional but recommended to add! */
+  password?: string;
+
+  /** The host */
+  host: string;
+
+  /** The port */
+  port: number;
+
+  /** The database ID */
+  db: number;
 }

@@ -25,7 +25,7 @@ import { execSync } from 'child_process';
 /** Returns the analytics timer interval */
 export const Analytics = 1800000;
 
-/** Returns the epoch for creating Twitter snowflakes */
+/** Returns the epoch for creating Snowflakes */
 export const Epoch = 1593586800000; // July 1st, 2020
 
 /** Returns the version of the backend */
@@ -33,3 +33,19 @@ export const version: string = require('../../package.json').version;
 
 /** Returns the commit hash of this backend */
 export const commitHash = execSync('git rev-parse HEAD', { encoding: 'utf8' }).slice(0, 8).trim();
+
+/** Object of all the months avaliable */
+export const Months: { [x: number]: string } = {
+  0: 'Jan',
+  1: 'Feb',
+  2: 'Mar',
+  3: 'Apr',
+  4: 'May',
+  5: 'Jun',
+  6: 'Jul',
+  7: 'Aug',
+  8: 'Sept',
+  9: 'Oct',
+  10: 'Nov',
+  11: 'Dec'
+};
