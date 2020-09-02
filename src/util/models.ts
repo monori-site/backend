@@ -31,6 +31,15 @@ export type Environment = 'development' | 'production';
 /** The permission nodes */
 export type PermissionNodes = 'manage.org' | 'delete.org' | 'add.member' | 'remove.member' | 'publish' | 'edit'  | 'admin';
 
+/** Represents an Empty object */
+export type EmptyObject = {}; // eslint-disable-line
+
+/** Represents a Typed object */
+// eslint-disable-next-line
+export type TypedObject<K extends string | number, V = unknown> = {
+  [x in K]: V;
+};
+
 /**
  * Represents a User account
  */
@@ -89,6 +98,9 @@ export interface Organisation {
     }
   };
 
+  /** The organisation's description */
+  description: string;
+
   /** Date when the organisation was created at */
   created_at: Date;
 
@@ -125,7 +137,7 @@ export interface Project {
 
   /** The completed translations object; keyed as the translation code and valued as the percentage */
   completed: {
-    [x: string]: string;
+    [x: string]: number;
   };
 
   /** The project's description */

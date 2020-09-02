@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import type { DatabaseConfig, User, Project, Organisation } from '../util/models';
+import type { DatabaseConfig, User, Project, Organisation, TypedObject } from '../util/models';
 import { pipelines, Dialect, Connection } from '@augu/maru';
 import { randomBytes } from 'crypto';
 import { Stopwatch } from './Stopwatch';
@@ -34,6 +34,18 @@ interface UserPacket {
   email: string;
 }
 
+interface CreateProject {
+  description?: string;
+  owner: string;
+  name: string;
+}
+
+interface CreateOrganisation {
+  description?: string;
+  owner: string;
+  name: string;
+}
+
 interface UpdateUser {
   organisation?: string;
   description?: string;
@@ -44,6 +56,19 @@ interface UpdateUser {
   project?: string;
   github?: string;
   email?: string;
+}
+
+interface UpdateProject {
+  translations?: {
+    [x: string]: string;
+  };
+  completed?: {
+    [x: string]: number;
+  };
+  description?: string;
+  github?: string | null;
+  owner?: string;
+  name?: string;
 }
 
 /**
@@ -166,6 +191,34 @@ export class Database {
   }
 
   /**
+   * Deletes a Organisation from the database
+   * @param id The user's ID
+   */
+  delete(table: 'organisations', id: string): Promise<boolean>;
+
+  /**
+   * Deletes a Project from the database
+   * @param id The user's ID
+   */
+  delete(table: 'projects', id: string): Promise<boolean>;
+
+  /**
+   * Deletes a User from the database
+   * @param id The user's ID
+   */
+  delete(table: 'users', id: string): Promise<boolean>;
+
+  /**
+   * Deletes an object from the database
+   * @param id The ID of the object
+   */
+  delete(table: 'users' | 'organisations' | 'projects', id: string) {
+    return this.connection!.query(pipelines.Delete(table, ['id', id]))
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  /**
    * Creates a User
    * @param packet The user packet
    * @returns The user's snowflake
@@ -222,6 +275,134 @@ export class Database {
         table.email = data.email;
       } else {
         throw new TypeError(`Email "${data.email}" is already taken`);
+      }
+    }
+
+    if (data.hasOwnProperty('project') && !user.projects.includes(data.project!)) {
+      const projects = user.projects.concat([data.project!]);
+      table.projects = projects;
+    }
+
+    if (data.hasOwnProperty('organisation') && !user.organisations.includes(data.organisation!)) {
+      const orgs = user.organisations.concat([data.organisation!]);
+      table.organisations = orgs;
+    }
+
+    if (data.hasOwnProperty('contributor')) {
+      if (!['yes', 'no'].includes(data.contributor!)) throw new TypeError('Only accepting "yes" or "no"');
+      table.contributor = data.contributor;
+    }
+
+    if (data.hasOwnProperty('translator')) {
+      if (!['yes', 'no'].includes(data.translator!)) throw new TypeError('Only accepting "yes" or "no"');
+      table.translator = data.translator;
+    }
+
+    if (data.hasOwnProperty('description') && user.description !== data.description) {
+      table.description = data.description;
+    }
+
+    if (data.hasOwnProperty('github') && user.github !== data.github) {
+      table.github = data.github;
+    }
+
+    return this.connection!.query(pipelines.Update({
+      returning: Object.keys(table),
+      values: table,
+      query: ['id', id],
+      table: 'users',
+      type: 'set'
+    }))
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  /**
+   * Creates a Project instance
+   * @param packet The data packet to insert
+   */
+  async createProject(packet: CreateProject) {
+    const id = Snowflake.generate();
+    const [user, org] = await Promise.all([
+      this.get('users', ['id', packet.owner]),
+      this.get('organisations', ['id', packet.owner])
+    ]);
+
+    const type: 'org' | 'user' | null = 
+      user === null 
+        ? 'org' 
+        : org === null 
+          ? 'user' 
+          : null;
+
+    if (type === null) throw new TypeError(`Snowflake "${packet.owner}" didn't belong to a User or Organisation`);
+
+    await this.connection!.query(pipelines.Insert<Project>({
+      values: {
+        translations: {},
+        description: packet.description || '',
+        completed: {},
+        github: null,
+        owner: packet.owner,
+        type,
+        name: packet.name,
+        id
+      },
+      table: 'projects'
+    }));
+
+    return id;
+  }
+
+  /**
+   * Update a project's information
+   * @param id The project's ID
+   * @param data The data packet
+   */
+  async updateProject(id: string, data: UpdateProject) {
+    const project = await this.get('projects', ['id', id]);
+    const table: {
+      [x: string]: any
+    } = {};
+
+    if (project === null) return false;
+    if (data.hasOwnProperty('translations')) {
+      if (!Object.keys(data.translations!).length) throw new TypeError('Received "translations" packet but nothing found?');
+
+      const translations: TypedObject<string, string> = Object.assign({}, project.translations, data.translations!);
+      table['translations'] = translations;
+    }
+
+    if (data.hasOwnProperty('completed')) {
+      if (!Object.keys(data.completed!).length) throw new TypeError('Received "completed" packet but nothing found?');
+
+      const completed: TypedObject<string, number> = Object.assign({}, project.completed, data.completed!);
+      table['completed'] = completed;
+    }
+
+    if (data.hasOwnProperty('github') && project.github !== data.github) {
+      if (typeof data!.github !== 'string') throw new TypeError('Received "github" packet but isn\'t a string');
+      
+      let value: string | null = data!.github === '' ? null : data!.github;
+      table['github'] = value;
+    }
+
+    if (data.hasOwnProperty('owner') && project.owner !== data.owner) {
+      if (typeof data!.owner !== 'string') throw new TypeError('Received "owner" packet but isn\'t a string?');
+      if (data!.owner === '') throw new TypeError('"owner" in `data` shouldn\'t be empty');
+
+      table['owner'] = data.owner;
+
+      // Now we remove it
+      const user = await this.get('users', ['id', project.owner]);
+      const index = user!.projects.indexOf(project.id);
+      const projects = user!.projects; // keep a hard copy just in case
+
+      if (index !== -1) {
+        projects.splice(index, 1);
+        await this.updateUser(project.owner, {
+          projects
+        });
       }
     }
   }
