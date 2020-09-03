@@ -164,64 +164,64 @@ export interface Project {
  */
 export interface EnvConfig {
   /** The active pool connections to have concurrently (default: 3) */
-  database_active_connections: number;
+  DATABASE_ACTIVE_CONNECTIONS: number;
 
   /** The client secret for GitHub OAuth2 */
-  github_client_secret?: string;
+  GITHUB_CLIENT_SECRET?: string;
 
   /** The callback URL to use for GitHub OAuth2 */
-  github_callback_url?: string;
+  GITHUB_CALLBACK_URL?: string;
 
   /** The features to opt-in for Analytics */
-  analytics_features: AnalyticFeature[];
+  ANALYTICS_FEATURES: AnalyticFeature[];
 
   /** The database username */
-  database_username: string;
+  DATABASE_USERNAME: string;
 
   /** The database password */
-  database_password: string;
+  DATABASE_PASSWORD: string;
 
   /** The client ID for GitHub OAuth2 */
-  github_client_id?: string;
+  GITHUB_CLIENT_ID?: string;
 
   /** Password for Redis, optional */
-  redis_password?: string;
+  REDIS_PASSWORD?: string;
 
   /** If we should add GitHub OAuth2 */
-  github_enabled: boolean;
+  GITHUB_ENABLED: boolean;
 
   /** GitHub OAuth2 scopres */
-  github_scopes: string[];
+  GITHUB_SCOPES?: string[];
 
   /** The database name (default: 'monori') */
-  database_name: string;
+  DATABASE_NAME: string;
 
   /** The database port */
-  database_port: number;
+  DATABASE_PORT: number;
 
   /** The database host */
-  database_host: string;
+  DATABASE_HOST: string;
 
   /** The database ID for Redis (default: 7) */
-  redis_db_id?: number;
+  REDIS_DB_ID?: number;
 
   /** The frontend URL of Monori (see: https://github.com/monori-site/frontend) */
-  frontend_url: string;
+  FRONTEND_URL: string;
 
   /** Redis port (default: 6379) */
-  redis_port: number;
+  REDIS_PORT: number;
 
   /** The host of Redis (default: '127.0.0.1') */
-  redis_host: string;
+  REDIS_HOST: string;
 
   /** If we should enable Analytics */
-  analytics: boolean;
+  ANALYTICS: boolean;
 
   /** The environment of the Backend API */
-  node_env: Environment;
+  NODE_ENV: Environment;
 
   /** The port to listen to */
-  port: number;
+  PORT: number;
 }
 
 /** The configuration for Server#config */

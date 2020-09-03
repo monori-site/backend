@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-export * from './decorators';
 export * from './Stopwatch';
 export * from './Logger';
 export * from './Server';
