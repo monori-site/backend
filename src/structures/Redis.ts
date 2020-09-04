@@ -35,9 +35,6 @@ export default class Redis {
   /** Logger */
   private logger: Logger;
 
-  /** Revert function to remove the polyfilled data */
-  private _revert!: () => void;
-
   /** Gets the amount of calls */
   public calls: number;
 
@@ -79,8 +76,6 @@ export default class Redis {
     this.client.once('ready', () => {
       this.healthy = true;
       this.logger.info('Received READY signal; connection healthy');
-
-      this._revert = this.polyfill();
     });
 
     this.client.on('wait', () => {
@@ -110,41 +105,34 @@ export default class Redis {
       return;
     }
 
-    if (this._revert) this._revert();
     this.logger.warn('Disposing Redis instance...');
     this.client.disconnect();
     
     this.healthy = false; // we disposed it, so it's not healthy
   }
 
-  /**
-   * Polyfills `this` into the methods we should use
-   */
-  private polyfill() {
-    const _hexists = this.client.hexists;
-    const _hget = this.client.hget;
-    const _hset = this.client.hset;
+  hget(key: KeyType, field: string) {
+    ++this.calls;
+    return this.client.hget(key, field);
+  }
 
-    // i do hate my life yes yes
-    this.client.hexists = function hexists(this: Redis, key: KeyType, field: string) {
-      this.calls++;
-      return _hexists(key, field);
-    }.bind(this);
+  hset(key: KeyType, field: string, value: string) {
+    ++this.calls;
+    return this.client.hset(key, field, value);
+  }
 
-    this.client.hget = function hdel(this: Redis, key: KeyType, field: string) {
-      this.calls++;
-      return _hget(key, field);
-    }.bind(this);
+  hdel(key: KeyType, ...args: any[]) {
+    ++this.calls;
+    return this.client.hdel(key, ...args);
+  }
 
-    this.client.hset = function hset(this: Redis, key: KeyType, field: string, value: string) {
-      this.calls++;
-      return _hset(key, field, value);
-    }.bind(this);
+  hexists(key: KeyType, field: string) {
+    ++this.calls;
+    return this.client.hexists(key, field);
+  }
 
-    return () => {
-      this.client.hexists = _hexists;
-      this.client.hget    = _hget;
-      this.client.hset    = _hset;
-    };
+  hkeys(key: string) {
+    ++this.calls;
+    return this.client.hkeys(key);
   }
 }

@@ -20,6 +20,14 @@
  * SOFTWARE.
  */
 
+import type { Request, Response, NextFunction, Router } from 'express';
+
+export type Middleware = (req: Request, res: Response, next: NextFunction) => void;
+export interface Route {
+  router: Router;
+  path: string;
+}
+
 export * from './Stopwatch';
 export * from './Logger';
 export * from './Server';

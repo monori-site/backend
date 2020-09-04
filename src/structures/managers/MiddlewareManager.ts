@@ -21,8 +21,42 @@
  */
 
 import { promises as fs } from 'fs';
+import type { Server } from '..';
+import { Logger } from '../Logger';
+import { join } from 'path';
 import Util from '../../util';
 
 export default class MiddlewareManager {
+  private server: Server;
+  private logger: Logger;
+  private path: string;
 
+  constructor(server: Server) {
+    this.server = server;
+    this.logger = new Logger('Middleware');
+    this.path   = Util.getPath('middleware');
+  }
+
+  async load() {
+    const stats = await fs.lstat(this.path);
+    if (!stats.isDirectory()) {
+      this.logger.error(`Path "${this.path}" was not a directory, did you clone a wrong/broken commit?`);
+      return;
+    }
+
+    const files = await fs.readdir(this.path);
+    if (!files.length) {
+      this.logger.error(`Path "${this.path}" didn't include any files, did you clone a broken commit?`);
+      return;
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file === 'internal') continue;
+
+      const { default: func } = await import(join(this.path, file));
+      this.server.app.use(func);
+      this.logger.info(`Loaded middleware "${file.split('.').shift()!.replace('Middleware', '')}"`);
+    }
+  }
 }

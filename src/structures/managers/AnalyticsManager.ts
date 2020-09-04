@@ -21,6 +21,7 @@
  */
 
 import { Server, Logger } from '..';
+import { OPCodes } from '../../util/Constants';
 
 interface DatabaseStatistics {
   organisations: number;
@@ -97,9 +98,9 @@ export default class AnalyticsManager {
   }
 
   /**
-   * Resets the statistics
+   * Disposes this Analytics manager
    */
-  reset() {
+  dispose() {
     if (this._databaseStatsInterval) clearInterval(this._databaseStatsInterval);
     if (this._clusterStatsInterval) clearInterval(this._clusterStatsInterval);
 
@@ -121,7 +122,7 @@ export default class AnalyticsManager {
     if (this.server.config.analytics.features.includes('cluster')) {
       this.logger.info('Enabling cluster statistics...');
       this._clusterStatsInterval = setInterval(async() => {
-        const data = await this.server.ipc.broadcast(OPCodes.STATS);
+        const data = await this.server.ipc.broadcast({ op: OPCodes.Stats });
         for (const clusterID of Object.keys(data)) this.clusters[clusterID] = data[clusterID];
       }, 120e3);
     }

@@ -1,6 +1,3 @@
-import { Server } from 'http';
-// Extension to add "server" to app.locals
-
 import { Server as Monori } from '../structures/Server';
 
 declare module 'express' {
