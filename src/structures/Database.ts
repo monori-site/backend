@@ -209,7 +209,7 @@ export default class Database {
     if (column.length < 1) throw new SyntaxError('Column must be an Array of [key, value]');
     if (!this.online) throw new SyntaxError('We didn\'t establish a connection yet');
 
-    this.calls++;
+    ++this.calls;
     return this.connection!.query<T>(pipelines.Select(table, column));
   }
 
@@ -236,7 +236,7 @@ export default class Database {
    * @param id The ID of the object
    */
   delete(table: 'users' | 'organisations' | 'projects', id: string) {
-    this.calls++;
+    ++this.calls;
     return this.connection!.query(pipelines.Delete(table, ['id', id]))
       .then(() => true)
       .catch(() => false);
@@ -252,7 +252,7 @@ export default class Database {
     const salt = randomBytes(16).toString('hex');
     const id = Snowflake.generate();
 
-    this.calls++;
+    ++this.calls;
     await this.connection!.query(pipelines.Insert<User>({
       values: {
         organisations: [],
@@ -340,7 +340,7 @@ export default class Database {
       table.github = data.github;
     }
 
-    this.calls++;
+    ++this.calls;
     return this.connection!.query(pipelines.Update({
       values: table,
       query: ['id', id],
@@ -371,7 +371,7 @@ export default class Database {
 
     if (type === null) throw new TypeError(`Snowflake "${packet.owner}" didn't belong to a User or Organisation`);
 
-    this.calls++;
+    ++this.calls;
     await this.connection!.query(pipelines.Insert<Project>({
       values: {
         translations: {},
@@ -448,7 +448,7 @@ export default class Database {
       table.name = data.name;
     }
 
-    this.calls++;
+    ++this.calls;
     return this.connection!.query(pipelines.Update<Project>({
       values: table,
       query: ['id', project.id],
@@ -466,7 +466,7 @@ export default class Database {
   async createOrganisation(packet: CreateOrganisation) {
     const id = Snowflake.generate();
 
-    this.calls++;
+    ++this.calls;
     await this.connection!.query(pipelines.Insert<Organisation>({
       values: {
         permissions: { 
@@ -540,7 +540,7 @@ export default class Database {
       table.name = org.name;
     }
 
-    this.calls++;
+    ++this.calls;
     return this.connection!.query(pipelines.Update<Organisation>({
       values: table,
       query: ['id', id],
@@ -569,7 +569,7 @@ export default class Database {
     const permissions = org.permissions[memberID];
     permissions[node] = value;
 
-    this.calls++;
+    ++this.calls;
     return this.connection!.query(pipelines.Update<Organisation>({
       values: {
         permissions: {
@@ -610,7 +610,7 @@ export default class Database {
     };
     members.push(memberID);
 
-    this.calls++;
+    ++this.calls;
 
     // now we actually update the database Uwu
     return this.connection!.query(pipelines.Update<Organisation>({
@@ -645,7 +645,7 @@ export default class Database {
     const index = org.members.indexOf(memberID);
     if (index !== -1) org.members.splice(index, 1);
 
-    this.calls++;
+    ++this.calls;
 
     // now we actually update the database Uwu
     return this.connection!.query(pipelines.Update<Organisation>({
