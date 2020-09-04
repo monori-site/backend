@@ -61,3 +61,10 @@ export const Months: { [x: number]: string } = {
   10: 'Nov',
   11: 'Dec'
 };
+
+/** Enum of what OPCodes we can send back and forth */
+export enum OPCodes {
+  RestartAll = 'restart:all',
+  Restart    = 'restart',
+  Stats      = 'stats'
+}

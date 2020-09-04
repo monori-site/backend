@@ -22,6 +22,8 @@
 
 /* eslint-disable camelcase */
 
+import type { OPCodes } from './Constants';
+
 /** The features to opt-in when using the Analytics API */
 export type AnalyticFeature = 'cluster' | 'database' | 'gc';
 
@@ -305,4 +307,20 @@ export interface RedisConfig {
 
   /** The database ID */
   db: number;
+}
+
+/**
+ * Represents a "structure" of what an IPC request should look like
+ */
+export interface IPCRequest<T = unknown> {
+  op: OPCodes;
+  d?: T;
+}
+
+/**
+ * Represents a "structure" of what an IPC response should look like
+ */
+export interface IPCResponse<T = unknown> {
+  success: boolean;
+  d?: T;
 }
