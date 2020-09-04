@@ -20,34 +20,12 @@
  * SOFTWARE.
  */
 
-import { Middleware, Stopwatch } from '../structures';
-import onFinished from 'on-finished';
+import { Middleware } from '../structures';
 
-const mod: Middleware = (req, res, next) => {
+const pkg = require('../../package.json');
+const mod: Middleware = (_, res, next) => {
+  res.setHeader('X-Powered-By', `Monori v${pkg.version} (https://github.com/monori-site/backend)`);
   next();
-
-  const { method, originalUrl } = req;
-  const stopwatch = new Stopwatch();
-  stopwatch.start();
-
-  onFinished(res, (error, resp) => {
-    if (error) return;
-
-    const { statusCode } = resp;
-    const level = statusCode >= 500
-      ? 'error'
-      : statusCode >= 400
-        ? 'warn'
-        : statusCode >= 300
-          ? 'info'
-          : 'info';
-
-    const time = stopwatch.end();
-    const { server } = req.app.locals;
-    const message = `Request made to "${method} ${originalUrl}" (~${time.toFixed(2)}ms) | User-Agent: ${req.headers['user-agent'] || 'None Set'}`;
-
-    server.logger[level].apply(server.logger, [message]);
-  });
 };
 
 export default mod;

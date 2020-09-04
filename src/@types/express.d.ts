@@ -1,10 +1,17 @@
-import { Server as Monori } from '../structures/Server';
+import { Server } from '../structures/Server';
 
 declare module 'express' {
   interface Application {
     locals: {
       [x: string]: any;
-      server: Monori;
+      server: Server;
     };
+  }
+
+  interface Express {
+    locals: {
+      [x: string]: any;
+      server: Server;
+    }
   }
 }

@@ -175,7 +175,7 @@ export interface EnvConfig {
   GITHUB_CALLBACK_URL?: string;
 
   /** Amount of workers to spawn */
-  CLUSTER_WORKER_COUNT?: number;
+  CLUSTER_WORKER_COUNT: number;
 
   /** The features to opt-in for Analytics */
   ANALYTICS_FEATURES: AnalyticFeature[];
