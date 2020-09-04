@@ -61,7 +61,7 @@ export default class Worker extends EventEmitter {
     super();
 
     this.healthy = false;
-    this.logger  = new Logger(`Cluster #${id}`);
+    this.logger  = new Logger();
     this.ipc     = new WorkerIPC(server, id);
     this.id      = id;
   }
@@ -102,9 +102,11 @@ export default class Worker extends EventEmitter {
     });
 
     this.worker.once('exit', this.onExit.bind(this));
-    this.worker.once('online', () => {
+    this.worker.once('online', async() => {
       this.logger.info(`Worker #${this.id} is now online -- connection healthy`);
       this.healthy = true;
+
+      await this.ipc.connect();
     });
 
     this.worker.on('error', (error) => this.logger.error('Unhandled error has occured', error));

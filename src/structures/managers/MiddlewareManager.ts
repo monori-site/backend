@@ -33,7 +33,7 @@ export default class MiddlewareManager {
 
   constructor(server: Server) {
     this.server = server;
-    this.logger = new Logger('Middleware');
+    this.logger = new Logger();
     this.path   = Util.getPath('middleware');
   }
 
@@ -56,7 +56,6 @@ export default class MiddlewareManager {
 
       const { default: func } = await import(join(this.path, file));
       this.server.app.use(func);
-      this.logger.info(`Loaded middleware "${file.split('.').shift()!.replace('Middleware', '')}"`);
     }
   }
 }

@@ -33,8 +33,8 @@ export default class RoutingManager {
 
   constructor(server: Server) {
     this.server = server;
-    this.logger = new Logger('Routing');
-    this.path   = Util.getPath('routes');
+    this.logger = new Logger();
+    this.path   = Util.getPath('routers');
   }
 
   async load() {
@@ -54,13 +54,12 @@ export default class RoutingManager {
       const file = files[i];
       const { default: Route }: { default: IRoute } = await import(join(this.path, file));
 
-      if (Array.isArray(Route) || typeof Route !== 'object') {
+      if (typeof Route !== 'object') {
         this.logger.error(`Corrupt Install -- Path "${join(this.path, file)}" is not an instance of IRoute`);
         continue;
       }
 
       this.server.app.use(Route.path, Route.router);
-      this.logger.info(`Loaded route "${Route.path}"`);
     }
   }
 }

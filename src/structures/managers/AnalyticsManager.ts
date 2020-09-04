@@ -92,7 +92,7 @@ export default class AnalyticsManager {
       users: 0
     };
     this.clusters = {};
-    this.logger   = new Logger('Analytics');
+    this.logger   = new Logger();
     this.server   = server;
     this.gc       = [];
   }

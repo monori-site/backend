@@ -20,11 +20,13 @@
  * SOFTWARE.
  */
 
-import type { Route } from '../structures';
 import { Router } from 'express';
+import { worker } from 'cluster';
 
 const router = Router();
-router.get('/', (_, res) => res.status(200).send('gang'));
+router.get('/', (_, res) => res.status(200).json({
+  worker: `#${worker.id}`,
+  gang: true
+}));
 
-const mod: Route = { path: '/', router };
-export default mod;
+export default { path: '/', router };

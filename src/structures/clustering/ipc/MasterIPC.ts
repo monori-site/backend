@@ -58,7 +58,7 @@ export default class MasterIPC {
    */
   constructor(server: Monori) {
     this.server  = new Server('master');
-    this.logger  = new Logger('Master | IPC');
+    this.logger  = new Logger();
     this.healthy = false;
     this.service = server;
 
@@ -76,7 +76,6 @@ export default class MasterIPC {
         this.healthy = false;
       })
       .on('connect', () => {
-        this.logger.info('Connected to the IPC service -- connection is healthy to use');
         this.healthy = true;
       })
       .on('message', message => this.onMessage.apply(this, [message]))
@@ -97,7 +96,6 @@ export default class MasterIPC {
     switch (data.op) {
       case OPCodes.RestartAll: return this.restartAll(message);
       case OPCodes.Restart:    return this.restart(message);
-      case OPCodes.Ready:      return this.readyUp(message);
       default:
         this.logger.warn(`Invalid OPCode "${data.op}"; skipping...`);
         break;
@@ -170,42 +168,6 @@ export default class MasterIPC {
   }
 
   /**
-   * Marks a worker as "READY"
-   * @param msg The message
-   */
-  private ready(msg: NodeMessage) {
-    const data: IPCRequest<ReadyArgs> = msg.data;
-    if (!data.hasOwnProperty('d')) return msg.reply({
-      success: false,
-      d: {
-        message: '[MasterIPC | MissingDataException] No data was passed, so nothing was done.',
-        stack: null
-      }
-    });
-
-    if (!data.d!.hasOwnProperty('clusterID')) return msg.reply({
-      success: false,
-      d: {
-        message: '[MasterIPC | MissingClusterException] Missing `clusterID` in message data',
-        stack: null
-      }
-    });
-
-    if (!this.service.clusters.has(data.d!.clusterID)) return msg.reply({
-      success: false,
-      d: {
-        message: `[MasterIPC | UnknownClusterException] Cluster #${data.d!.clusterID} was not found`,
-        stack: null
-      }
-    });
-
-    const cluster = this.service.clusters.get(data.d!.clusterID)!;
-    cluster.emit('ready');
-
-    return msg.reply({ success: true });
-  }
-
-  /**
    * Broadcasts data to any additional workers
    * @param request The request
    * @template T The data return packet
@@ -229,9 +191,9 @@ export default class MasterIPC {
    * Connects the service
    */
   connect() {
-    this.logger.info(`Now connecting to the server with port ${this.server.config.clustering.ipcPort}...`);
-    this.server.listen(this.server.config.clustering.ipcPort)
-      .then((client) => this.logger.info(`Connected as ${client.name} on port ${this.server.config.cluster.ipcPort}`))
+    this.logger.info(`Now connecting to the server with port ${this.service.config.clustering.ipcPort}...`);
+    this.server.listen({ port: this.service.config.clustering.ipcPort, host: '127.0.0.1' })
+      .then((client) => this.logger.info(`Connected as ${client.name} on port ${this.service.config.clustering.ipcPort}`))
       .catch((error) => this.logger.error('Unable to create a new IPC service', error));
   }
 }

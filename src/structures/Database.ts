@@ -119,7 +119,7 @@ export default class Database {
       port: config.port
     });
 
-    this.logger = new Logger('Database');
+    this.logger = new Logger();
     this.calls  = -1;
   }
 

@@ -55,7 +55,7 @@ export default class SessionManager {
 
   constructor(server: Server) {
     this.timeouts = new Collection();
-    this.logger   = new Logger('Sessions');
+    this.logger   = new Logger();
     this.server   = server;
   }
 

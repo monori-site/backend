@@ -20,11 +20,12 @@
  * SOFTWARE.
  */
 
+import { isMaster, setupMaster } from 'cluster';
 import { Worker, MasterIPC } from '../clustering';
 import type { Server } from '..';
 import { Collection } from '@augu/immutable';
-import { isMaster } from 'cluster';
 import { Logger } from '../Logger';
+import Util from '../../util';
 
 export default class ClusteringManager extends Collection<Worker> {
   public clusterCount: number;
@@ -39,7 +40,7 @@ export default class ClusteringManager extends Collection<Worker> {
     this.clusterCount = server.config.clustering.clusterCount;
     this.server       = server;
     this.retries      = 0;
-    this.logger       = new Logger('Clustering');
+    this.logger       = new Logger();
     this.ipc          = new MasterIPC(server);
   }
 
@@ -50,9 +51,17 @@ export default class ClusteringManager extends Collection<Worker> {
     this.clusterCount = Math.floor(this.clusterCount);
     this.logger.info(`Spawning ${this.clusterCount} workers...`);
 
+    const args = this.server.config.analytics.features.includes('gc') ? ['--expose-gc'] : [];
     for (let i = 0; i < this.clusterCount; i++) {
       const worker = new Worker(this.server, i);
       this.set(i, worker);
+
+      setupMaster({
+        exec: Util.getPath('worker.js'),
+        // @ts-ignore
+        cwd: process.cwd(),
+        execArgv: args
+      });
 
       await worker.spawn();
     }
@@ -70,7 +79,7 @@ export default class ClusteringManager extends Collection<Worker> {
       await this.spawn();
     } else {
       this.logger.info('Process is worker, now booting backend service...');
-      await this.server.listen();
+      this.server.listen();
     }
   }
 
@@ -98,5 +107,12 @@ export default class ClusteringManager extends Collection<Worker> {
     } else {
       throw new TypeError(`Worker #${id} doesn't exist`);
     }
+  }
+
+  /**
+   * Kills all clusters
+   */
+  kill() {
+    for (const cluster of this.values()) cluster.kill();
   }
 }

@@ -44,9 +44,9 @@ export default class Redis {
    */
   constructor(config: RedisConfig) {
     this.healthy = false;
-    this.logger = new Logger('Redis');
+    this.logger = new Logger();
     this.client = new RedisClient({
-      lazyConnect: false,
+      lazyConnect: true,
       ...config
     });
     this.calls = -1;
@@ -56,8 +56,7 @@ export default class Redis {
    * Checks if Redis is online
    */
   get online() {
-    // todo: debug this xd
-    return this.client.status === 'connected';
+    return this.client.status === 'ready';
   }
 
   /**
@@ -75,7 +74,7 @@ export default class Redis {
 
     this.client.once('ready', () => {
       this.healthy = true;
-      this.logger.info('Received READY signal; connection healthy');
+      this.logger.info('Received READY signal from Redis; connection healthy');
     });
 
     this.client.on('wait', () => {
@@ -86,12 +85,10 @@ export default class Redis {
     this.client.connect()
       .then(() => {
         const time = stopwatch.end();
-
         this.logger.info(`Connected to Redis in ${time.toFixed(2)}ms`);
       })
       .catch((error) => {
         const time = stopwatch.end();
-
         this.logger.error(`Unable to connect to Redis (~${time.toFixed(2)}ms)`, error);
       });
   }

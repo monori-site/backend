@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import type { PermissionNodes } from './models';
+import type { PermissionNodes, AnalyticFeature } from './models';
 import { execSync } from 'child_process';
 
 /** Returns the analytics timer interval */
@@ -34,6 +34,9 @@ export const version: string = require('../../package.json').version;
 
 /** Returns the commit hash of this backend */
 export const commitHash = execSync('git rev-parse HEAD', { encoding: 'utf8' }).slice(0, 8).trim();
+
+/** List of features to opt in */
+export const Features: AnalyticFeature[] = ['cluster', 'database', 'gc'];
 
 /** List of permission nodes by Array */
 export const Nodes: PermissionNodes[] = [

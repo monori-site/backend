@@ -57,15 +57,15 @@ export class Server {
       environment: config.NODE_ENV,
       clustering: {
         clusterCount: config.CLUSTER_WORKER_COUNT || os.cpus().length,
-        retryLimit: config.CLUSTER_RETRY_LIMIT,
-        ipcPort: config.CLUSTER_IPC_PORT
+        retryLimit: config.CLUSTER_RETRY_LIMIT || 5,
+        ipcPort: config.CLUSTER_IPC_PORT || 4200
       },
       analytics: {
         features: config.ANALYTICS_FEATURES,
         enabled: config.ANALYTICS
       },
       database: {
-        activeConnections: config.DATABASE_ACTIVE_CONNECTIONS,
+        activeConnections: config.DATABASE_ACTIVE_CONNECTIONS || 3,
         username: config.DATABASE_USERNAME,
         password: config.DATABASE_PASSWORD,
         host: config.DATABASE_HOST,
@@ -95,7 +95,7 @@ export class Server {
     this.database   = new Database(this.config.database);
     this.routing    = new RoutingManager(this);
     this.healthy    = false;
-    this.logger     = new Logger('Server');
+    this.logger     = new Logger();
     this.redis      = new Redis(this.config.redis);
     this.ipc        = new MasterIPC(this);
     this.app        = <any> express(); // never do this but issue a pr if you know how to fix the below issue:
@@ -116,12 +116,13 @@ export class Server {
     await this.routing.load();
     this.database.connect();
     this.redis.connect();
-    this.ipc.connect();
 
     const time = stopwatch.end();
     this.logger.info(`Loaded basic components in ${time.toFixed(2)}ms, now launching clusters...`);
 
     const watch = new Stopwatch();
+    watch.start();
+
     await this.clusters.start()
       .then(() => {
         const time = watch.end();
@@ -139,6 +140,8 @@ export class Server {
   listen() {
     this._server = this.app.listen(this.config.port, () => {
       const address = this._server.address();
+      const cluster: typeof import('cluster') = require('cluster');
+
       if (address === null) {
         this.logger.info(`Now listening at http://localhost:${this.config.port}`);
         return;
@@ -152,12 +155,12 @@ export class Server {
         if (addr.address.indexOf(':') === -1) {
           host = `${addr.address}:${addr.port}`;
         } else {
-          host = `[${addr.address}]:${addr.port}`;
+          host = `localhost:${addr.port}`;
         }
       }
 
       host = isUnixSocket ? '' : `http://${host}`;
-      this.logger.info(`Now listening at ${host}`);
+      this.logger.info(`Now listening at ${host} | Worker #${cluster.worker.id}`);
     });
   }
 
@@ -169,8 +172,16 @@ export class Server {
 
     this.analytics.dispose();
     this.database.disconnect();
+    this.clusters.kill();
     this.redis.disconnect();
 
     this.logger.warn('Disposed all components');
+  }
+
+  /**
+   * Closes the server
+   */
+  close() {
+    this._server.close();
   }
 }

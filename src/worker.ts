@@ -24,21 +24,15 @@ import type { EnvConfig } from './util/models';
 import { Server, Logger } from './structures';
 import { existsSync } from 'fs';
 import { Features } from './util/Constants';
+import { worker } from 'cluster';
 import { parse } from '@augu/dotenv';
 import { join } from 'path';
 import Util from './util';
 import os from 'os';
 
 const logger = new Logger();
-if (!Util.isNode10()) {
-  logger.warn(`Your current version of Node.js (v${process.version}) is not an avaliable version to run Monori, please upgrade to Node.js 10 or higher.`);
-  process.exit(1);
-}
-
-if (!existsSync(join(__dirname, '..', '.env'))) {
-  logger.error('Missing .env directory in the root directory.');
-  process.exit(1);
-}
+if (!Util.isNode10()) process.exit(1);
+if (!existsSync(join(__dirname, '..', '.env'))) process.exit(1);
 
 const config = parse<EnvConfig>({
   populate: false,
@@ -130,19 +124,13 @@ const config = parse<EnvConfig>({
   }
 });
 
-if (config.NODE_ENV === 'development') logger.info('You are running an development version of Monori, expect bugs or crashes! Report them to the developer(s): https://github.com/monori-site/backend');
-
-logger.info('Loading up server...');
+logger.info(`Spawned as worker #${worker.id}, now connecting http server...`);
 const server = new Server(config);
-
-server
-  .load()
-  .then(() => logger.info('Loaded successfully'))
-  .catch((error) => logger.error('Unable to run server', error));
+server.listen();
 
 process.on('SIGINT', () => {
-  logger.warn('Disposing service...');
+  logger.warn(`Closed worker file | Worker #${worker.id}`);
 
-  server.dispose();
+  server.close();
   process.exit(0);
 });

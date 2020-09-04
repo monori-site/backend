@@ -25,19 +25,12 @@ import { inspect } from 'util';
 import Util from '../util';
 
 // Colors for the logger name and levels
-const NAME_COLOR = '#74458B';
 const DATE_COLOR = '#FFB9BE';
 const INFO_COLOR = '#4CD2FF';
 const WARN_COLOR = '#F4EABF';
 const ERROR_COLOR = '#C47362';
 const REQUEST_COLOR = '#78A1C0';
 const UNKNOWN_COLOR = '#88838D';
-
-const Padding: { [x: number]: string }= {
-  9: '   ~>    ',
-  7: '     ~>    ',
-  6: '      ~>    '
-};
 
 // eslint-disable-next-line
 type Message  = string | object | any[] | Error;
@@ -50,16 +43,11 @@ export class Logger {
   /** Hard-copy of colors, nothing special */
   public colors: typeof colors;
 
-  /** The name of the logger */
-  public name: string;
-
   /**
    * Creates a new [Logger] instance
-   * @param name The logger's name
    */
-  constructor(name: string) {
+  constructor() {
     this.colors = colors;
-    this.name   = name;
   }
 
   /**
@@ -73,7 +61,7 @@ export class Logger {
       else if (Array.isArray(message)) return `[${message.join(', ')} (${message.length} items)]`;
       else if (message instanceof Error) {
         const stack = [
-          `${message.name}: ${message.message.slice(message.message.indexOf(message.name + ': '))}`
+          `${message.name}: ${message.message.slice(message.message.indexOf(message.name + ':'))}`
         ];
 
         if (message.stack) {
@@ -118,9 +106,8 @@ export class Logger {
     }
 
     const message = this.format(...messages);
-    const name = hex(NAME_COLOR, `[${this.name}]`);
 
-    process.stdout.write(`${hex(DATE_COLOR, Util.getDate())} ${lvlText} ${name}${Padding[level.length + 2]}${message}\n`);
+    process.stdout.write(`${hex(DATE_COLOR, Util.getDate())} ${lvlText}    ${message}\n`);
   }
 
   /**

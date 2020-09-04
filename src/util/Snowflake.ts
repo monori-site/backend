@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import snowflakey from 'snowflakey';
+import * as snowflakey from 'snowflakey';
 import { Epoch } from './Constants';
 
 const Worker = new snowflakey.Worker({

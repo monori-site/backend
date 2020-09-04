@@ -55,7 +55,7 @@ export default class WorkerIPC {
   constructor(server: Monori, id: number) {
     this.service = server;
     this.healthy = false;
-    this.logger  = new Logger(`Worker #${id} | IPC`);
+    this.logger  = new Logger();
     this.node    = new Client(`worker.${id}`);
     this.id      = id;
 
@@ -74,8 +74,7 @@ export default class WorkerIPC {
       })
       .on('message', message => this.onMessage.apply(this, [message]))
       .on('error', error => this.logger.error('An unexpected error has occured', error))
-      .on('ready', client => {
-        this.logger.info(`Connected to node ${client.name} -- connection healthy`);
+      .on('ready', () => {
         this.healthy = true;
       });
   }
@@ -118,8 +117,10 @@ export default class WorkerIPC {
    * Creates a new connection to the IPC service
    */
   async connect() {
-    this.logger.info(`Now establishing a new connection at port ${this.service.config.clustering.ipcPort}`);
-    this.socket = await this.node.connectTo(this.service.config.clustering.ipcPort);
+    this.socket = await this.node.connectTo({
+      port: this.service.config.clustering.ipcPort,
+      host: '127.0.0.1'
+    });
   }
 
   /**
@@ -144,16 +145,5 @@ export default class WorkerIPC {
     const message = await this.clientSocket.send({ op: OPCodes.RestartAll }) as IPCResponse<any>;
 
     return message.success;
-  }
-
-  /**
-   * Sends a READY signal to a worker
-   */
-  async readyUp(id: number) {
-    this.logger.info(`Sending READY signal to worker #${id}`);
-    await this.clientSocket.send({
-      op: OPCodes.Ready,
-      d: { clusterID: id }
-    });
   }
 }
