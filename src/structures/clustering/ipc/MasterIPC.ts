@@ -62,13 +62,6 @@ export default class MasterIPC {
     this.healthy = false;
     this.service = server;
 
-    if (isMaster) {
-      this.logger.info(`Now connecting to the server with port ${server.config.clustering.ipc.master}...`);
-      this.server.listen(server.config.clustering.ipc.master)
-        .then((client) => this.logger.info(`Connected as ${client.name} on port ${server.config.cluster.ipc.master}`))
-        .catch((error) => this.logger.error('Unable to create a new IPC service', error));
-    }
-
     this._addEvents();
   }
 
@@ -230,5 +223,15 @@ export default class MasterIPC {
     } else {
       return data.map(res => res.d!);
     }
+  }
+
+  /**
+   * Connects the service
+   */
+  connect() {
+    this.logger.info(`Now connecting to the server with port ${this.server.config.clustering.ipcPort}...`);
+    this.server.listen(this.server.config.clustering.ipcPort)
+      .then((client) => this.logger.info(`Connected as ${client.name} on port ${this.server.config.cluster.ipcPort}`))
+      .catch((error) => this.logger.error('Unable to create a new IPC service', error));
   }
 }

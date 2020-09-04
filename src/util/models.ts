@@ -174,6 +174,9 @@ export interface EnvConfig {
   /** The callback URL to use for GitHub OAuth2 */
   GITHUB_CALLBACK_URL?: string;
 
+  /** Amount of workers to spawn */
+  CLUSTER_WORKER_COUNT?: number;
+
   /** The features to opt-in for Analytics */
   ANALYTICS_FEATURES: AnalyticFeature[];
 
@@ -183,11 +186,17 @@ export interface EnvConfig {
   /** The database password */
   DATABASE_PASSWORD: string;
 
+  /** Retry limit before closing the service */
+  CLUSTER_RETRY_LIMIT: number;
+
   /** The client ID for GitHub OAuth2 */
   GITHUB_CLIENT_ID?: string;
 
   /** Password for Redis, optional */
   REDIS_PASSWORD?: string;
+
+  /** IPC port */
+  CLUSTER_IPC_PORT: number;
 
   /** If we should add GitHub OAuth2 */
   GITHUB_ENABLED: boolean;
@@ -233,6 +242,9 @@ export interface Config {
 
   /** URL for the Frontend portion */
   frontendUrl: string;
+
+  /** Configuration for clustering */
+  clustering: ClusterConfig;
 
   /** Analytics config */
   analytics: AnalyticsConfig;
@@ -307,6 +319,17 @@ export interface RedisConfig {
 
   /** The database ID */
   db: number;
+}
+
+export interface ClusterConfig {
+  /** Amount of workers to spawn */
+  clusterCount: number;
+
+  /** Retry limit */
+  retryLimit: number;
+
+  /** The IPC port */
+  ipcPort: number;
 }
 
 /**
