@@ -22,6 +22,7 @@
 
 import type { EnvConfig } from './util/models';
 import { Server, Logger } from './structures';
+import type { Worker } from './structures/clustering';
 import { existsSync } from 'fs';
 import { Features } from './util/Constants';
 import { parse } from '@augu/dotenv';
@@ -149,4 +150,19 @@ process.on('SIGINT', () => {
 
   server.dispose();
   process.exit(0);
+});
+
+process.on('message', message => {
+  let payload!: any;
+  try {
+    payload = JSON.parse(message);
+  } catch(ex) {
+    logger.error('Unable to serialise data', payload);
+  }
+
+  if (!payload.hasOwnProperty('id')) return;
+  const worker = server.clusters.workers.get(message.id);
+  message.nonce = Util.generateNonce();
+
+  if (worker) worker.handleMessage(message);
 });

@@ -137,4 +137,19 @@ export default class Util {
 
     return humanized.join(', ');
   }
+
+  /**
+   * Generates a nonce UUID
+   */
+  static generateNonce(len = 2) {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let text = '';
+    len *= 2;
+
+    for (let i = 0; i < len; i++) {
+      text += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return text;
+  }
 }
