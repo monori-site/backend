@@ -100,4 +100,41 @@ export default class Util {
 
     return `[${this.escapeTime(now.getDate())}/${this.escapeTime(now.getMonth() + 1)}/${now.getFullYear()} | ${hours}:${minutes}:${seconds}]`;
   }
+
+  /**
+   * Formats a number to add an `s` if the index is over 0
+   * @param item The item to push
+   */
+  static format(index: number) {
+    return index > 1 ? 's' : '';
+  }
+  
+  /**
+   * Returns a humanized date
+   * @param ms The amount of milliseconds to convert
+   */
+  static humanize(ms: number) {
+    const weeks = Math.floor(ms / 1000 / 60 / 60 / 24 / 7);
+    ms -= weeks * 1000 * 60 * 60 * 24 * 7;
+  
+    const days = Math.floor(ms / 1000 / 60 / 60 / 24);
+    ms -= days * 1000 * 60 * 60 * 24;
+  
+    const hours = Math.floor(ms / 1000 / 60 / 60);
+    ms -= hours * 1000 * 60 * 60;
+  
+    const mins = Math.floor(ms / 1000 / 60);
+    ms -= mins * 1000 * 60;
+  
+    const sec = Math.floor(ms / 1000);
+    const humanized: string[] = [];
+
+    if (weeks > 0) humanized.push(`${weeks} week${this.format(weeks)}`);
+    if (days > 0) humanized.push(`${days} day${this.format(days)}`);
+    if (hours > 0) humanized.push(`${hours} hour${this.format(hours)}`);
+    if (mins > 0) humanized.push(`${mins} minute${this.format(mins)}`);
+    if (sec > 0) humanized.push(`${sec} seconds`);
+
+    return humanized.join(', ');
+  }
 }

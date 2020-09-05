@@ -20,13 +20,37 @@
  * SOFTWARE.
  */
 
+import type { Server } from '../structures';
+import { OPCodes } from '../util/Constants';
 import { Router } from 'express';
-import { worker } from 'cluster';
+
+interface WorkerStats {
+  heap: string;
+  rss: string;
+  cpu: { system: string; user: string; }
+  id: number;
+}
 
 const router = Router();
 router.get('/', (_, res) => res.status(200).json({
-  worker: `#${worker.id}`,
-  gang: true
+  worker: `#${process.env.CLUSTER_ID}`,
+  gang: true,
+  env: process.env.NODE_ENV
 }));
 
-export default { path: '/', router };
+router.get('/health', async (req, res) => {
+  const server: Server = req.app.locals.server;
+
+  return res.status(200).json({
+    database: server.database.online,
+    workers: server.clusters.workers.map(worker => ({
+      healthy: worker.healthy,
+      online: worker.online,
+      id: `#${worker.id}`
+    })),
+    redis: server.redis.online,
+    gc: server.config.analytics.enabled ? server.analytics.gc : null
+  });
+});
+
+export default { path: '', router };

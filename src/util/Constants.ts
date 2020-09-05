@@ -69,5 +69,6 @@ export const Months: { [x: number]: string } = {
 export enum OPCodes {
   RestartAll = 'restart:all',
   Restart    = 'restart',
+  Fetch      = 'fetch',
   Stats      = 'stats'
 }

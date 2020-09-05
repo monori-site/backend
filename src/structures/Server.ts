@@ -105,45 +105,56 @@ export class Server {
     ///     Property 'server' is missing in type 'Record<string, any>' but required in type '{ [x: string]: any; server: Server; }'.ts(2322)
   }
 
-  async load() {
-    this.logger.info('Now loading basic components...');
+  async load(log = false) {
+    if (log) this.logger.info('Now loading basic components...');
 
     const stopwatch = new Stopwatch();
     stopwatch.start();
 
-    await this.middleware.load();
-    await this.analytics.start();
-    await this.routing.load();
-    this.database.connect();
-    this.redis.connect();
+    await this.analytics.start(log);
+    this.database.connect(log);
+    this.redis.connect(log);
 
     const time = stopwatch.end();
-    this.logger.info(`Loaded basic components in ${time.toFixed(2)}ms, now launching clusters...`);
+    this.logger.info(`Loaded basic components in ${time.toFixed(2)}ms, now launching workers...`);
 
     const watch = new Stopwatch();
     watch.start();
 
-    await this.clusters.start()
+    this.clusters.start(log)
       .then(() => {
         const time = watch.end();
-        this.logger.info(`Completed clustering in ${time.toFixed(2)}ms`);
+        if (log) this.logger.info(`Completed clustering in ${time.toFixed(2)}ms`);
       })
       .catch((error) => {
         const time = watch.end();
-        this.logger.error(`Unable to complete clustering in ${time.toFixed(2)}ms`, error);
+        if (log) this.logger.error(`Unable to complete clustering in ${time.toFixed(2)}ms`, error);
       });
   }
 
   /**
    * Listens to the server
    */
-  listen() {
+  async listen(log = false) {
+    const cluster: typeof import('cluster') = require('cluster');
+    this.logger.info('Now loading basic components...');
+
+    const stopwatch = new Stopwatch();
+    stopwatch.start();
+
+    await this.middleware.load(log);
+    await this.analytics.start(log);
+    await this.routing.load(log);
+    this.database.connect(log);
+    this.redis.connect(log);
+    this.app.locals.server = this;
+
+    const time = stopwatch.end();
+    this.logger.info(`Loaded basic components in ${time.toFixed(2)}ms, now launching server for worker #${cluster.worker.id}`);
     this._server = this.app.listen(this.config.port, () => {
       const address = this._server.address();
-      const cluster: typeof import('cluster') = require('cluster');
-
       if (address === null) {
-        this.logger.info(`Now listening at http://localhost:${this.config.port}`);
+        this.logger.info(`Worker #${process.env.CLUSTER_ID} | Now listening at http://localhost:${this.config.port}`);
         return;
       }
 
@@ -160,20 +171,20 @@ export class Server {
       }
 
       host = isUnixSocket ? '' : `http://${host}`;
-      this.logger.info(`Now listening at ${host} | Worker #${cluster.worker.id}`);
+      this.logger.info(`Worker #${process.env.CLUSTER_ID} | Now listening at ${host}`);
     });
   }
 
   /**
    * Disposes all components
    */
-  dispose() {
+  dispose(log = false) {
     this.logger.warn('Now disposing all components...');
 
     this.analytics.dispose();
-    this.database.disconnect();
+    this.database.disconnect(log);
     this.clusters.kill();
-    this.redis.disconnect();
+    this.redis.disconnect(log);
 
     this.logger.warn('Disposed all components');
   }

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import { fork, Worker as Cluster } from 'cluster';
+import { fork, Worker as Cluster, workers } from 'cluster';
 import { EventEmitter } from 'events';
 import type { Server } from '..';
 import { Logger } from '../Logger';
@@ -57,13 +57,25 @@ export default class Worker extends EventEmitter {
    * @param server Backend service
    * @param id The worker's ID
    */
-  constructor(server: Server, id: number) {
+  constructor(private server: Server, id: number) {
     super();
 
     this.healthy = false;
     this.logger  = new Logger();
     this.ipc     = new WorkerIPC(server, id);
     this.id      = id;
+  }
+
+  /**
+   * Getter to check if the worker is online
+   */
+  get online() {
+    if (this.worker === undefined) return false;
+
+    const worker: Cluster | undefined = workers[this.worker.id];
+    if (worker === undefined) return false;
+
+    return worker.isConnected();
   }
 
   /**
@@ -95,21 +107,29 @@ export default class Worker extends EventEmitter {
   /**
    * Spawns a new worker
    */
-  async spawn() {
-    this.logger.info(`Initialising worker #${this.id}...`);
-    this.worker = fork({
-      CLUSTER_ID: this.id
+  spawn() {
+    return new Promise((resolve) => {
+      this.logger.info(`Initialising worker #${this.id}...`);
+      this.worker = fork({
+        CLUSTER_ID: this.id,
+        NODE_ENV: this.server.config.environment
+      });
+
+      this.worker.once('exit', this.onExit.bind(this));
+      this.worker.once('online', async() => {
+        this.logger.info(`Worker #${this.id} | Worker is now online -- connection healthy`);
+        this.healthy = true;
+  
+        await this.ipc.connect();
+        const worker = workers[this.worker!.id]!;
+        worker.ipc = this.ipc;
+        worker.id  = this.id;
+
+        resolve();
+      });
+  
+      this.worker.on('error', (error) => this.logger.error(`Worker #${this.id} | Unhandled error has occured`, error));
     });
-
-    this.worker.once('exit', this.onExit.bind(this));
-    this.worker.once('online', async() => {
-      this.logger.info(`Worker #${this.id} is now online -- connection healthy`);
-      this.healthy = true;
-
-      await this.ipc.connect();
-    });
-
-    this.worker.on('error', (error) => this.logger.error('Unhandled error has occured', error));
   }
 
   /**
@@ -120,7 +140,7 @@ export default class Worker extends EventEmitter {
   private async onExit(code: number, signal?: string) {
     this.healthy = false;
     
-    this.logger.warn(`Worker #${this.id} has exited with code ${code}${signal ? ` with signal ${signal}` : ''}, re-spawning...`);
+    this.logger.warn(`Worker #${this.id} | Exited with code ${code}${signal ? ` with signal ${signal}` : ''}, re-spawning...`);
     await this.respawn();
   }
 }

@@ -124,12 +124,11 @@ const config = parse<EnvConfig>({
   }
 });
 
-logger.info(`Spawned as worker #${worker.id}, now connecting http server...`);
 const server = new Server(config);
-server.listen();
+server.listen(false);
 
 process.on('SIGINT', () => {
-  logger.warn(`Closed worker file | Worker #${worker.id}`);
+  logger.warn(`Worker #${worker.id} | Closed worker process`);
 
   server.close();
   process.exit(0);

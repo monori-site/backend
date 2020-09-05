@@ -37,16 +37,16 @@ export default class MiddlewareManager {
     this.path   = Util.getPath('middleware');
   }
 
-  async load() {
+  async load(log = false) {
     const stats = await fs.lstat(this.path);
     if (!stats.isDirectory()) {
-      this.logger.error(`Path "${this.path}" was not a directory, did you clone a wrong/broken commit?`);
+      if (log) this.logger.error(`Path "${this.path}" was not a directory, did you clone a wrong/broken commit?`);
       return;
     }
 
     const files = await fs.readdir(this.path);
     if (!files.length) {
-      this.logger.error(`Path "${this.path}" didn't include any files, did you clone a broken commit?`);
+      if (log) this.logger.error(`Path "${this.path}" didn't include any files, did you clone a broken commit?`);
       return;
     }
 

@@ -22,6 +22,7 @@
 
 import { Server, Logger } from '..';
 import { OPCodes } from '../../util/Constants';
+import Util from '../../util';
 
 interface DatabaseStatistics {
   organisations: number;
@@ -43,7 +44,7 @@ interface ClusterStatistics {
 interface GCStacktrace {
   startedAt: Date;
   duration: string;
-  computed: string;
+  type: string;
   heap: string;
   rss: string;
 }
@@ -113,14 +114,14 @@ export default class AnalyticsManager {
   /**
    * Starts the manager
    */
-  async start() {
+  async start(log = false) {
     if (!this.server.config.analytics.enabled) {
-      this.logger.warn('Analytics is not enabled, continuing...');
+      if (log) this.logger.warn('Analytics is not enabled, continuing...');
       return;
     }
 
     if (this.server.config.analytics.features.includes('cluster')) {
-      this.logger.info('Enabling cluster statistics...');
+      if (log) this.logger.info('Enabling cluster statistics...');
       this._clusterStatsInterval = setInterval(async() => {
         const data = await this.server.ipc.broadcast({ op: OPCodes.Stats });
         for (const clusterID of Object.keys(data)) this.clusters[clusterID] = data[clusterID];
@@ -128,17 +129,17 @@ export default class AnalyticsManager {
     }
 
     if (this.server.config.analytics.features.includes('database')) {
-      this.logger.info('Enabling database statistics...');
+      if (log) this.logger.info('Enabling database statistics...');
       this._databaseStatsInterval = setInterval(async() => {
-        console.log('lol db stats goes brrr');
+        if (log) console.log('lol db stats goes brrr');
       }, 120e3);
     }
 
     if (this.server.config.analytics.features.includes('gc')) {
-      this.logger.info('Enabling garbage collector statistics...');
+      if (log) this.logger.info('Enabling garbage collector statistics...');
       this._gcStatsInterval = setInterval(async() => {
         if (!global.gc) {
-          this.logger.warn('`global.gc` is not exposed...');
+          if (log) this.logger.warn('`global.gc` is not exposed...');
           clearInterval(this._gcStatsInterval!);
           return;
         }
@@ -146,21 +147,35 @@ export default class AnalyticsManager {
         try {
           require('gc-profiler');
         } catch {
-          this.logger.warn('`gc-profiler` is not installed...');
+          if (log) this.logger.warn('`gc-profiler` is not installed...');
           clearInterval(this._gcStatsInterval!);
           return;
         }
 
         const profiler: typeof import('gc-profiler') = require('gc-profiler');
+        const memory = process.memoryUsage();
+        const startedAt = new Date();
+
         profiler.once('gc', (stats) => {
-          this.logger.info('Received garbage collector stats');
-          console.log(stats);
+          const mem = process.memoryUsage();
+          const rss = Util.formatSize(memory.rss - mem.rss);
+          const heap = Util.formatSize(memory.heapUsed - mem.heapUsed);
+
+          this.gc.push({
+            startedAt,
+            duration: Util.humanize(Math.floor(stats.duration / 1000)),
+            type: stats.type,
+            heap,
+            rss
+          });
+
+          if (log) this.logger.info(`Recieved garbage collector stats; now at ${this.gc.length} item${Util.format(this.gc.length)}!`);
         });
 
         global.gc();
       }, 120e3);
     }
 
-    this.logger.info(`Started the Analytics manager with ${this.server.config.analytics.features.join(', ')} features running concurrently`);
+    if (log) this.logger.info('Started the analytics manager with the following features enabled:', this.server.config.analytics.features);
   }
 }

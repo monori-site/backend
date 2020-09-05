@@ -136,7 +136,7 @@ logger.info('Loading up server...');
 const server = new Server(config);
 
 server
-  .load()
+  .load(true)
   .then(() => logger.info('Loaded successfully'))
   .catch((error) => logger.error('Unable to run server', error));
 

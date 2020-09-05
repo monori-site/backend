@@ -96,6 +96,7 @@ export default class MasterIPC {
     switch (data.op) {
       case OPCodes.RestartAll: return this.restartAll(message);
       case OPCodes.Restart:    return this.restart(message);
+      case OPCodes.Fetch:      return this.fetch(message);
       default:
         this.logger.warn(`Invalid OPCode "${data.op}"; skipping...`);
         break;
@@ -145,7 +146,7 @@ export default class MasterIPC {
       }
     });
 
-    if (!this.service.clusters.has(data.d!.clusterID)) return msg.reply({
+    if (!this.service.clusters.workers.has(data.d!.clusterID)) return msg.reply({
       success: false,
       d: {
         message: `[MasterIPC | UnknownClusterException] Cluster #${data.d!.clusterID} was not found`,
@@ -165,6 +166,21 @@ export default class MasterIPC {
         }
       });
     }
+  }
+
+  /**
+   * Fetches a list of workers
+   * @param msg The message
+   */
+  fetch(msg: NodeMessage) {
+    return msg.reply({
+      success: true,
+      d: this.service.clusters.workers.map(worker => ({
+        healthy: worker.healthy,
+        online: worker.online,
+        id: worker.id
+      }))
+    });
   }
 
   /**

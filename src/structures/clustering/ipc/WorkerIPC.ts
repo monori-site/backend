@@ -25,9 +25,9 @@ import type { Server as Monori } from '../..';
 import type { IPCRequest, IPCResponse } from '../../../util/models';
 import { OPCodes } from '../../../util/Constants';
 import { Logger } from '../../Logger';
+import Util from '../../../util';
 
 interface WorkerStats {
-  computed: string;
   heap: string;
   rss: string;
   cpu: { system: string; user: string; }
@@ -74,7 +74,8 @@ export default class WorkerIPC {
       })
       .on('message', message => this.onMessage.apply(this, [message]))
       .on('error', error => this.logger.error('An unexpected error has occured', error))
-      .on('ready', () => {
+      .on('ready', (client) => {
+        this.logger.info(`Worker IPC #${this.id} | Connected with ${client.name}`);
         this.healthy = true;
       });
   }
@@ -90,10 +91,12 @@ export default class WorkerIPC {
         const memory = process.memoryUsage();
         const cpu = process.cpuUsage();
         const data: WorkerStats = {
-          computed: '',
-          heap: '',
-          rss: '',
-          cpu: { system: '', user: '' },
+          heap: Util.formatSize(memory.heapUsed),
+          rss: Util.formatSize(memory.rss),
+          cpu: { 
+            system: `${cpu.system.toFixed(2)}%`, 
+            user: `${cpu.user.toFixed(2)}%`
+          },
           id: this.id
         };
 
@@ -145,5 +148,17 @@ export default class WorkerIPC {
     const message = await this.clientSocket.send({ op: OPCodes.RestartAll }) as IPCResponse<any>;
 
     return message.success;
+  }
+
+  /**
+   * Broadcasts to the server
+   * @param op The OPCode
+   * @param d The data
+   */
+  async broadcast<T = unknown>(op: OPCodes, d?: T) {
+    const res: IPCResponse<T> = await this.clientSocket.send({ op, d }, { receptive: false, timeout: 10000 }) as any;
+    if (!res.success) throw new Error(res.d as any);
+
+    return d;
   }
 }

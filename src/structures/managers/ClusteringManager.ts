@@ -20,24 +20,24 @@
  * SOFTWARE.
  */
 
-import { isMaster, setupMaster } from 'cluster';
 import { Worker, MasterIPC } from '../clustering';
 import type { Server } from '..';
+import { setupMaster } from 'cluster';
 import { Collection } from '@augu/immutable';
 import { Logger } from '../Logger';
 import Util from '../../util';
 
-export default class ClusteringManager extends Collection<Worker> {
+export default class ClusteringManager {
   public clusterCount: number;
+  public workers: Collection<Worker>;
   public retries: number;
   private server: Server;
   private logger: Logger;
   private ipc: MasterIPC;
 
   constructor(server: Server) {
-    super();
-
     this.clusterCount = server.config.clustering.clusterCount;
+    this.workers      = new Collection();
     this.server       = server;
     this.retries      = 0;
     this.logger       = new Logger();
@@ -47,51 +47,39 @@ export default class ClusteringManager extends Collection<Worker> {
   /**
    * Starts spawning the workers
    */
-  async start() {
+  async start(log = false) {
+    this.ipc.connect();
     this.clusterCount = Math.floor(this.clusterCount);
     this.logger.info(`Spawning ${this.clusterCount} workers...`);
 
     const args = this.server.config.analytics.features.includes('gc') ? ['--expose-gc'] : [];
+    setupMaster({
+      exec: Util.getPath('worker.js'),
+      // @ts-ignore
+      cwd: process.cwd(),
+      execArgv: args
+    });
+
     for (let i = 0; i < this.clusterCount; i++) {
       const worker = new Worker(this.server, i);
-      this.set(i, worker);
 
-      setupMaster({
-        exec: Util.getPath('worker.js'),
-        // @ts-ignore
-        cwd: process.cwd(),
-        execArgv: args
-      });
-
-      await worker.spawn();
+      if (log) this.logger.info(`Worker #${i} | Spawning instance...`);
+      await worker.spawn()
+        .then(() => {
+          if (log) this.logger.info(`Worker #${i} | Spawned successfully`);
+          this.workers.set(i, worker);
+        });
     }
 
-    this.logger.info('Loaded all workers! Now connecting IPC...');
-    this.ipc.connect();
-  }
-
-  /**
-   * Spawns all workers
-   */
-  async spawn() {
-    if (isMaster) {
-      this.logger.info('Process is master, queueing new workers....');
-      await this.spawn();
-    } else {
-      this.logger.info('Process is worker, now booting backend service...');
-      this.server.listen();
-    }
+    if (log) this.logger.info('Loaded all workers!');
   }
 
   /**
    * Restarts all workers
    */
   async restartAll() {
-    this.logger.info(`Restarting ${this.size} workers...`);
-    for (let i = 0; i < this.size; i++) {
-      const worker = this.get(i)!;
-      await worker.respawn();
-    }
+    this.logger.info(`Restarting ${this.workers.size} workers...`);
+    for (const worker of this.workers.values()) await worker.respawn();
   }
 
   /**
@@ -99,8 +87,8 @@ export default class ClusteringManager extends Collection<Worker> {
    * @param id The worker
    */
   async restart(id: number) {
-    if (this.has(id)) {
-      const worker = this.get(id)!;
+    if (this.workers.has(id)) {
+      const worker = this.workers.get(id)!;
       if (!worker.healthy) this.logger.warn(`Worker #${worker.id}'s connection is unhealthy, restarting anyway`);
 
       await worker.respawn();
@@ -113,6 +101,6 @@ export default class ClusteringManager extends Collection<Worker> {
    * Kills all clusters
    */
   kill() {
-    for (const cluster of this.values()) cluster.kill();
+    for (const cluster of this.workers.values()) cluster.kill();
   }
 }
