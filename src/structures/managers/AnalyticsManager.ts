@@ -123,8 +123,7 @@ export default class AnalyticsManager {
     if (this.server.config.analytics.features.includes('cluster')) {
       if (log) this.logger.info('Enabling cluster statistics...');
       this._clusterStatsInterval = setInterval(async() => {
-        const data = await this.server.ipc.broadcast({ op: OPCodes.Stats });
-        for (const clusterID of Object.keys(data)) this.clusters[clusterID] = data[clusterID];
+        if (log) console.log('lol cluster stats goes brrr');
       }, 120e3);
     }
 

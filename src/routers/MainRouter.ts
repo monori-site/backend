@@ -40,6 +40,9 @@ router.get('/', (_, res) => res.status(200).json({
 
 router.get('/health', async (req, res) => {
   const server: Server = req.app.locals.server;
+  process.send!({
+    
+  });
 
   return res.status(200).json({
     database: server.database.online,

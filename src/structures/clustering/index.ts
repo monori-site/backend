@@ -20,6 +20,4 @@
  * SOFTWARE.
  */
 
-export { default as MasterIPC } from './ipc/MasterIPC';
-export { default as WorkerIPC } from './ipc/WorkerIPC';
 export { default as Worker } from './Worker';

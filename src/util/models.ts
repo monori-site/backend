@@ -22,7 +22,7 @@
 
 /* eslint-disable camelcase */
 
-import type { OPCodes } from './Constants';
+import type { OPCodes, WorkerOPCodes } from './Constants';
 
 /** The features to opt-in when using the Analytics API */
 export type AnalyticFeature = 'cluster' | 'database' | 'gc';
@@ -189,6 +189,9 @@ export interface EnvConfig {
   /** Retry limit before closing the service */
   CLUSTER_RETRY_LIMIT: number;
 
+  /** Timeout before we halt the cluster's process */
+  CLUSTER_TIMEOUT: number;
+
   /** The client ID for GitHub OAuth2 */
   GITHUB_CLIENT_ID?: string;
 
@@ -328,22 +331,44 @@ export interface ClusterConfig {
   /** Retry limit */
   retryLimit: number;
 
-  /** The IPC port */
-  ipcPort: number;
+  /** Timeout before we halt the worker process */
+  timeout: number;
 }
 
 /**
- * Represents a "structure" of what an IPC request should look like
+ * Represents a "structure" of a responsive message
  */
-export interface IPCRequest<T = unknown> {
-  op: OPCodes;
+export interface ResponsiveMessage<T = unknown> {
+  /**
+   * Resolves this responsive message with the data provided, maybe?
+   * @param value The value to send back
+   */
+  resolve(value?: T | PromiseLike<T>): void;
+
+  /**
+   * Rejects this responsive message with an Error provided, maybe?
+   * @param value The value to send back
+   */
+  reject(value?: Error): void;
+
+  /**
+   * The nonce to use to validate messages
+   */
+  nonce: string;
+
+  /**
+   * The OPCode to fetch data from
+   */
+  op: WorkerOPCodes;
+
+  /**
+   * The data supplied, maybe?
+   */
   d?: T;
 }
 
-/**
- * Represents a "structure" of what an IPC response should look like
- */
-export interface IPCResponse<T = unknown> {
-  success: boolean;
-  d?: T;
+export interface WorkerStatistics {
+  healthy: boolean;
+  online: boolean;
+  id: number;
 }

@@ -72,3 +72,11 @@ export enum OPCodes {
   Fetch      = 'fetch',
   Stats      = 'stats'
 }
+
+/** Enum of what OPCodes (worker -> master; non-IPC logical) to send */
+export enum WorkerOPCodes {
+  RestartAll = 'restart:all',
+  Restart    = 'restart',
+  Fetch      = 'fetch',
+  Stats      = 'stats'
+}

@@ -30,7 +30,6 @@ import RoutingManager from './managers/RoutingManager';
 import SessionManager from './managers/SessionManager';
 import { Stopwatch } from './Stopwatch';
 import { Logger } from './Logger';
-import MasterIPC from './clustering/ipc/MasterIPC';
 import Database from './Database';
 import express from 'express';
 import Redis from './Redis';
@@ -48,7 +47,6 @@ export class Server {
   public healthy: boolean;
   public config: Config;
   public redis: Redis;
-  public ipc: MasterIPC;
   public app: express.Application;
 
   constructor(config: EnvConfig) {
@@ -58,7 +56,7 @@ export class Server {
       clustering: {
         clusterCount: config.CLUSTER_WORKER_COUNT || os.cpus().length,
         retryLimit: config.CLUSTER_RETRY_LIMIT || 5,
-        ipcPort: config.CLUSTER_IPC_PORT || 4200
+        timeout: config.CLUSTER_TIMEOUT
       },
       analytics: {
         features: config.ANALYTICS_FEATURES,
@@ -97,8 +95,8 @@ export class Server {
     this.healthy    = false;
     this.logger     = new Logger();
     this.redis      = new Redis(this.config.redis);
-    this.ipc        = new MasterIPC(this);
-    this.app        = <any> express(); // never do this but issue a pr if you know how to fix the below issue:
+    this.app        = <any> express(); 
+    // never do this but issue a pr if you know how to fix the below issue:
 
     /// Type 'Express' is not assignable to type 'Application'.
     ///   Types of property 'locals' are incompatible.
@@ -147,8 +145,8 @@ export class Server {
     await this.routing.load(log);
     this.database.connect(log);
     this.redis.connect(log);
+    
     this.app.locals.server = this;
-
     const time = stopwatch.end();
     this.logger.info(`Loaded basic components in ${time.toFixed(2)}ms, now launching server for worker #${cluster.worker.id}`);
     this._server = this.app.listen(this.config.port, () => {
@@ -194,5 +192,15 @@ export class Server {
    */
   close() {
     this._server.close();
+  }
+
+  /**
+   * Handles any worker messages
+   * @param message The message ID
+   * @param id The worker ID
+   */
+  handleWorkerMessage(message: any, id: number) {
+    const worker = this.clusters.workers.get(id)!;
+    return worker.handleMessage(message);
   }
 }

@@ -39,6 +39,10 @@ const config = parse<EnvConfig>({
   delimiter: ',',
   file: join(__dirname, '..', '.env'),
   schema: {
+    CLUSTER_TIMEOUT: {
+      default: 30000,
+      type: 'int'
+    },
     DATABASE_ACTIVE_CONNECTIONS: {
       default: 3,
       type: 'int'
@@ -132,4 +136,14 @@ process.on('SIGINT', () => {
 
   server.close();
   process.exit(0);
+});
+
+process.on('message', (message) => {
+  const id = Number(process.env.CLUSTER_ID);
+  if (isNaN(id)) {
+    logger.error(`Worker #${worker.id} | Unable to fetch worker ID`);
+    return;
+  }
+
+  return server.handleWorkerMessage(message, id);
 });

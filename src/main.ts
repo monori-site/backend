@@ -80,6 +80,10 @@ const config = parse<EnvConfig>({
       default: undefined,
       type: 'string'
     },
+    CLUSTER_TIMEOUT: {
+      default: 30000,
+      type: 'int'
+    },
     FRONTEND_URL: {
       default: 'https://localhost:3000',
       type: 'string'
