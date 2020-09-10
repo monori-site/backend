@@ -62,47 +62,47 @@ export default class Redis {
   /**
    * Connects to Redis
    */
-  async connect(log: boolean) {
+  async connect() {
     if (this.online) {
       this.logger.warn('Redis connection already exists, continuing...');
       return;
     }
 
     const stopwatch = new Stopwatch();
-    if (log) this.logger.info('Connecting to Redis...');
+    this.logger.info('Connecting to Redis...');
     stopwatch.start();
 
     this.client.once('ready', () => {
       this.healthy = true;
-      if (log) this.logger.info('Received READY signal from Redis; connection healthy');
+      this.logger.info('Received READY signal from Redis; connection healthy');
     });
 
     this.client.on('wait', () => {
       this.healthy = false;
-      if (log) this.logger.warn('Received WAIT signal; connection unhealthy');
+      this.logger.warn('Received WAIT signal; connection unhealthy');
     });
 
     this.client.connect()
       .then(() => {
         const time = stopwatch.end();
-        if (log) this.logger.info(`Connected to Redis! (~${time.toFixed(2)}ms)`);
+        this.logger.info(`Connected to Redis! (~${time.toFixed(2)}ms)`);
       })
       .catch((error) => {
         const time = stopwatch.end();
-        if (log) this.logger.error(`Unable to connect to Redis (~${time.toFixed(2)}ms)`, error);
+        this.logger.error(`Unable to connect to Redis (~${time.toFixed(2)}ms)`, error);
       });
   }
 
   /**
    * Disconnects from Redis
    */
-  disconnect(log: boolean) {
+  disconnect() {
     if (!this.online) {
       this.logger.warn('No connection exists, continuing...');
       return;
     }
 
-    if (log) this.logger.warn('Disposing Redis instance...');
+    this.logger.warn('Disposing Redis instance...');
     this.client.disconnect();
     
     this.healthy = false; // we disposed it, so it's not healthy

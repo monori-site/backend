@@ -21,7 +21,6 @@
  */
 
 import { Server, Logger } from '..';
-import { OPCodes } from '../../util/Constants';
 import Util from '../../util';
 
 interface DatabaseStatistics {

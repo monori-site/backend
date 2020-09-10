@@ -26,8 +26,7 @@
     "ioredis": "4.17.3",
     "leeks.js": "0.0.9",
     "on-finished": "2.3.0",
-    "snowflakey": "0.2.0",
-    "veza": "1.1.0"
+    "snowflakey": "0.2.0"
   },
   "devDependencies": {
     "@augu/eslint-config": "1.7.2",

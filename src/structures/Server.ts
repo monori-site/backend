@@ -24,7 +24,6 @@ import type { Server as HttpServer } from 'http';
 import type { EnvConfig, Config } from '../util/models';
 import type { AddressInfo } from 'net';
 import MiddlewareManager from './managers/MiddlewareManager';
-import ClusteringManager from './managers/ClusteringManager';
 import AnalyticsManager from './managers/AnalyticsManager';
 import RoutingManager from './managers/RoutingManager';
 import SessionManager from './managers/SessionManager';
@@ -39,7 +38,6 @@ export class Server {
   public middleware: MiddlewareManager;
   public analytics: AnalyticsManager;
   private _server!: HttpServer;
-  public clusters: ClusteringManager;
   public sessions: SessionManager;
   public database: Database;
   public routing: RoutingManager;
@@ -53,11 +51,6 @@ export class Server {
     this.config = {
       frontendUrl: config.FRONTEND_URL,
       environment: config.NODE_ENV,
-      clustering: {
-        clusterCount: config.CLUSTER_WORKER_COUNT || os.cpus().length,
-        retryLimit: config.CLUSTER_RETRY_LIMIT || 5,
-        timeout: config.CLUSTER_TIMEOUT
-      },
       analytics: {
         features: config.ANALYTICS_FEATURES,
         enabled: config.ANALYTICS
@@ -88,14 +81,13 @@ export class Server {
 
     this.middleware = new MiddlewareManager(this);
     this.analytics  = new AnalyticsManager(this);
-    this.clusters   = new ClusteringManager(this);
     this.sessions   = new SessionManager(this);
     this.database   = new Database(this.config.database);
     this.routing    = new RoutingManager(this);
     this.healthy    = false;
     this.logger     = new Logger();
     this.redis      = new Redis(this.config.redis);
-    this.app        = <any> express(); 
+    this.app        = <any> express();
     // never do this but issue a pr if you know how to fix the below issue:
 
     /// Type 'Express' is not assignable to type 'Application'.
@@ -104,55 +96,32 @@ export class Server {
   }
 
   async load(log = false) {
+    const cluster: typeof import('cluster') = require('cluster');
     if (log) this.logger.info('Now loading basic components...');
 
     const stopwatch = new Stopwatch();
     stopwatch.start();
 
-    await this.analytics.start(log);
-    this.database.connect(log);
-    this.redis.connect(log);
+    await this.analytics.start();
+    await this.middleware.load();
+    await this.analytics.start();
+    await this.routing.load();
+    this.database.connect();
+    this.redis.connect();
 
     const time = stopwatch.end();
-    this.logger.info(`Loaded basic components in ${time.toFixed(2)}ms, now launching workers...`);
+    this.logger.info(`Loaded basic components in ${time.toFixed(2)}ms, now booting service...`);
 
     const watch = new Stopwatch();
     watch.start();
 
-    this.clusters.start(log)
-      .then(() => {
-        const time = watch.end();
-        if (log) this.logger.info(`Completed clustering in ${time.toFixed(2)}ms`);
-      })
-      .catch((error) => {
-        const time = watch.end();
-        if (log) this.logger.error(`Unable to complete clustering in ${time.toFixed(2)}ms`, error);
-      });
-  }
-
-  /**
-   * Listens to the server
-   */
-  async listen(log = false) {
-    const cluster: typeof import('cluster') = require('cluster');
-    this.logger.info('Now loading basic components...');
-
-    const stopwatch = new Stopwatch();
-    stopwatch.start();
-
-    await this.middleware.load(log);
-    await this.analytics.start(log);
-    await this.routing.load(log);
-    this.database.connect(log);
-    this.redis.connect(log);
-    
-    this.app.locals.server = this;
-    const time = stopwatch.end();
-    this.logger.info(`Loaded basic components in ${time.toFixed(2)}ms, now launching server for worker #${cluster.worker.id}`);
     this._server = this.app.listen(this.config.port, () => {
+      this.app.locals.server = this;
+
+      const time = watch.end();
       const address = this._server.address();
       if (address === null) {
-        this.logger.info(`Worker #${process.env.CLUSTER_ID} | Now listening at http://localhost:${this.config.port}`);
+        this.logger.info(`Now listening at http://localhost:${this.config.port} (~${time.toFixed(2)}ms)`);
         return;
       }
 
@@ -164,43 +133,26 @@ export class Server {
         if (addr.address.indexOf(':') === -1) {
           host = `${addr.address}:${addr.port}`;
         } else {
-          host = `localhost:${addr.port}`;
+          host = `127.0.0.1:${addr.port}`;
         }
       }
 
       host = isUnixSocket ? '' : `http://${host}`;
-      this.logger.info(`Worker #${process.env.CLUSTER_ID} | Now listening at ${host}`);
+      this.logger.info(`Now listening at ${host} (~${time.toFixed(2)}ms)`);
     });
   }
 
   /**
    * Disposes all components
    */
-  dispose(log = false) {
+  dispose() {
     this.logger.warn('Now disposing all components...');
 
     this.analytics.dispose();
-    this.database.disconnect(log);
-    this.clusters.kill();
-    this.redis.disconnect(log);
+    this.database.disconnect();
+    this.redis.disconnect();
+    this._server.close();
 
     this.logger.warn('Disposed all components');
-  }
-
-  /**
-   * Closes the server
-   */
-  close() {
-    this._server.close();
-  }
-
-  /**
-   * Handles any worker messages
-   * @param message The message ID
-   * @param id The worker ID
-   */
-  handleWorkerMessage(message: any, id: number) {
-    const worker = this.clusters.workers.get(id)!;
-    return worker.handleMessage(message);
   }
 }

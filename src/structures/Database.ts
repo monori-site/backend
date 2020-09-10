@@ -134,13 +134,13 @@ export default class Database {
   /**
    * Connects to the database
    */
-  connect(log = false) {
+  connect() {
     if (this.online) {
       this.logger.warn('Connection already exists, ignoring...');
       return;
     }
 
-    if (log) this.logger.info('Connecting to PostgreSQL...');
+    this.logger.info('Connecting to PostgreSQL...');
     const stopwatch = new Stopwatch();
     const connection = this.dialect.createConnection();
 
@@ -150,12 +150,12 @@ export default class Database {
       .then(() => {
         const time = stopwatch.end();
 
-        if (log) this.logger.info(`Connected to PostgreSQL! (~${time.toFixed(2)}ms)`);
+        this.logger.info(`Connected to PostgreSQL! (~${time.toFixed(2)}ms)`);
         this.connection = connection;
       }).catch((error) => {
         const time = stopwatch.end();
 
-        if (log) this.logger.error(`Unable to connect to PostgreSQL (~${time.toFixed(2)}ms)`, error);
+        this.logger.error(`Unable to connect to PostgreSQL (~${time.toFixed(2)}ms)`, error);
         process.emit('SIGINT' as any);
       });
   }
@@ -163,7 +163,7 @@ export default class Database {
   /**
    * Disconnects from PostgreSQL
    */
-  disconnect(log = false) {
+  disconnect() {
     if (!this.online) {
       this.logger.warn('Connection is non-existent; continuing...');
       return;
@@ -175,10 +175,10 @@ export default class Database {
     this.dialect.destroy()
       .then(() => {
         const time = stopwatch.end();
-        if (log) this.logger.info(`Disconnected connection in ${time.toFixed(2)}ms`);
+        this.logger.info(`Disconnected connection in ${time.toFixed(2)}ms`);
       }).catch(error => {
         const time = stopwatch.end();
-        if (log) this.logger.error(`Unable to disconnect; connection might bleed (~${time.toFixed(2)}ms)`, error);
+        this.logger.error(`Unable to disconnect; connection might bleed (~${time.toFixed(2)}ms)`, error);
       });
   }
 

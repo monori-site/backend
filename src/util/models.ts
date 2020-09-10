@@ -22,8 +22,6 @@
 
 /* eslint-disable camelcase */
 
-import type { OPCodes, WorkerOPCodes } from './Constants';
-
 /** The features to opt-in when using the Analytics API */
 export type AnalyticFeature = 'cluster' | 'database' | 'gc';
 
@@ -174,9 +172,6 @@ export interface EnvConfig {
   /** The callback URL to use for GitHub OAuth2 */
   GITHUB_CALLBACK_URL?: string;
 
-  /** Amount of workers to spawn */
-  CLUSTER_WORKER_COUNT: number;
-
   /** The features to opt-in for Analytics */
   ANALYTICS_FEATURES: AnalyticFeature[];
 
@@ -186,20 +181,11 @@ export interface EnvConfig {
   /** The database password */
   DATABASE_PASSWORD: string;
 
-  /** Retry limit before closing the service */
-  CLUSTER_RETRY_LIMIT: number;
-
-  /** Timeout before we halt the cluster's process */
-  CLUSTER_TIMEOUT: number;
-
   /** The client ID for GitHub OAuth2 */
   GITHUB_CLIENT_ID?: string;
 
   /** Password for Redis, optional */
   REDIS_PASSWORD?: string;
-
-  /** IPC port */
-  CLUSTER_IPC_PORT: number;
 
   /** If we should add GitHub OAuth2 */
   GITHUB_ENABLED: boolean;
@@ -245,9 +231,6 @@ export interface Config {
 
   /** URL for the Frontend portion */
   frontendUrl: string;
-
-  /** Configuration for clustering */
-  clustering: ClusterConfig;
 
   /** Analytics config */
   analytics: AnalyticsConfig;
@@ -322,53 +305,4 @@ export interface RedisConfig {
 
   /** The database ID */
   db: number;
-}
-
-export interface ClusterConfig {
-  /** Amount of workers to spawn */
-  clusterCount: number;
-
-  /** Retry limit */
-  retryLimit: number;
-
-  /** Timeout before we halt the worker process */
-  timeout: number;
-}
-
-/**
- * Represents a "structure" of a responsive message
- */
-export interface ResponsiveMessage<T = unknown> {
-  /**
-   * Resolves this responsive message with the data provided, maybe?
-   * @param value The value to send back
-   */
-  resolve(value?: T | PromiseLike<T>): void;
-
-  /**
-   * Rejects this responsive message with an Error provided, maybe?
-   * @param value The value to send back
-   */
-  reject(value?: Error): void;
-
-  /**
-   * The nonce to use to validate messages
-   */
-  nonce: string;
-
-  /**
-   * The OPCode to fetch data from
-   */
-  op: WorkerOPCodes;
-
-  /**
-   * The data supplied, maybe?
-   */
-  d?: T;
-}
-
-export interface WorkerStatistics {
-  healthy: boolean;
-  online: boolean;
-  id: number;
 }

@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-import { colors, hex } from 'leeks.js';
 import { inspect } from 'util';
+import { hex } from 'leeks.js';
 import Util from '../util';
 
 // Colors for the logger name and levels
@@ -40,16 +40,6 @@ type LogLevel = 'request' | 'error' | 'warn' | 'info';
  * Represents a [Logger], which prints out information in the console
  */
 export class Logger {
-  /** Hard-copy of colors, nothing special */
-  public colors: typeof colors;
-
-  /**
-   * Creates a new [Logger] instance
-   */
-  constructor() {
-    this.colors = colors;
-  }
-
   /**
    * Private function to convert an Array of messages to a String
    * @param messages The messages to pass-by

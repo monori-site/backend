@@ -22,7 +22,6 @@
 
 import type { EnvConfig } from './util/models';
 import { Server, Logger } from './structures';
-import type { Worker } from './structures/clustering';
 import { existsSync } from 'fs';
 import { Features } from './util/Constants';
 import { parse } from '@augu/dotenv';
@@ -58,18 +57,10 @@ const config = parse<EnvConfig>({
       default: undefined,
       type: 'string'
     },
-    CLUSTER_WORKER_COUNT: {
-      default: os.cpus().length,
-      type: 'int'
-    },
     ANALYTICS_FEATURES: {
       default: [],
       oneOf: Features,
       type: 'array'
-    },
-    CLUSTER_RETRY_LIMIT: {
-      default: 5,
-      type: 'int'
     },
     REDIS_PASSWORD: {
       default: undefined,
@@ -81,17 +72,9 @@ const config = parse<EnvConfig>({
       default: undefined,
       type: 'string'
     },
-    CLUSTER_TIMEOUT: {
-      default: 30000,
-      type: 'int'
-    },
     FRONTEND_URL: {
       default: 'https://localhost:3000',
       type: 'string'
-    },
-    CLUSTER_IPC_PORT: {
-      default: 9934,
-      type: 'int'
     },
     GITHUB_ENABLED: {
       default: false,
@@ -136,13 +119,15 @@ const config = parse<EnvConfig>({
 });
 
 if (config.NODE_ENV === 'development') logger.info('You are running an development version of Monori, expect bugs or crashes! Report them to the developer(s): https://github.com/monori-site/backend');
-
 logger.info('Loading up server...');
+
 const server = new Server(config);
 
 server
-  .load(true)
-  .then(() => logger.info('Loaded successfully'))
+  .load()
+  .then(() => {
+    logger.info('Launched successfully');
+  })
   .catch((error) => logger.error('Unable to run server', error));
 
 process.on('SIGINT', () => {
@@ -150,19 +135,4 @@ process.on('SIGINT', () => {
 
   server.dispose();
   process.exit(0);
-});
-
-process.on('message', message => {
-  let payload!: any;
-  try {
-    payload = JSON.parse(message);
-  } catch(ex) {
-    logger.error('Unable to serialise data', payload);
-  }
-
-  if (!payload.hasOwnProperty('id')) return;
-  const worker = server.clusters.workers.get(message.id);
-  message.nonce = Util.generateNonce();
-
-  if (worker) worker.handleMessage(message);
 });

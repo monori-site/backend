@@ -37,7 +37,7 @@ const mod: Middleware = (req, res, next) => {
     const { statusCode } = resp;
     const time = stopwatch.end();
     
-    const message = `Request made to "${method} ${originalUrl}" with status code ${statusCode} (~${time.toFixed(2)}ms) | User-Agent: ${req.headers['user-agent'] || 'None Set'}`;
+    const message = `Request made to "${method} ${originalUrl}" with status code ${statusCode} (~${time.toFixed(2)}ms)`;
     server.logger.request.apply(server.logger, [message]);
   });
 };
