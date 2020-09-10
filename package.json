@@ -29,7 +29,7 @@
     "snowflakey": "0.2.0"
   },
   "devDependencies": {
-    "@augu/eslint-config": "1.7.2",
+    "@augu/eslint-config": "1.8.2",
     "@types/argon2": "0.15.0",
     "@types/express": "4.17.7",
     "@types/ioredis": "4.17.3",
