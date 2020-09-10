@@ -20,26 +20,5 @@
  * SOFTWARE.
  */
 
-import type { Server } from '../structures';
-import { Router } from 'express';
-
-const router = Router();
-router.get('/', (_, res) => res.status(200).json({
-  message: 'Welcome to the Monori API, read the docs for more information.',
-  version: `v${require('../../package.json').version}`,
-  docs: 'https://github.com/monori-site/backend/blob/master/docs/API.md'
-}));
-
-router.get('/health', (req, res) => {
-  const server: Server = req.app.locals.server;
-
-  return res.status(200).json({
-    database: server.database.online,
-    redis: server.redis.online,
-    gc: server.config.analytics.enabled && server.config.analytics.features.includes('gc') ? server.analytics.gc : null
-  });
-});
-
-router.get('/favicon.ico', (_, res) => res.status(404).send('Cannot GET /favicon.ico'));
-
-export default { path: '', router };
+export { default as authenicated } from './AuthenicatedMiddleware';
+export { default as admin } from './AdminMiddleware';

@@ -21,8 +21,9 @@
  */
 
 import type { Request, Response, NextFunction, Router } from 'express';
+import * as middleware from './validation';
 
-export type Middleware = (req: Request, res: Response, next: NextFunction) => void;
+export type Middleware = (req: Request, res: Response, next: NextFunction) => void | Promise<any>;
 export interface Route {
   router: Router;
   path: string;
@@ -31,3 +32,4 @@ export interface Route {
 export * from './Stopwatch';
 export * from './Logger';
 export * from './Server';
+export { middleware };

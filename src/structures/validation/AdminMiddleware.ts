@@ -20,26 +20,39 @@
  * SOFTWARE.
  */
 
-import type { Server } from '../structures';
-import { Router } from 'express';
+import type { Middleware, Server } from '..';
 
-const router = Router();
-router.get('/', (_, res) => res.status(200).json({
-  message: 'Welcome to the Monori API, read the docs for more information.',
-  version: `v${require('../../package.json').version}`,
-  docs: 'https://github.com/monori-site/backend/blob/master/docs/API.md'
-}));
+const mod: Middleware = async (req, res, next) => {
+  try {
+    const server: Server = req.app.locals.server;
+    if (!(await server.sessions.has(req.connection.remoteAddress || 'local'))) return res.status(401).json({
+      message: 'User isn\'t logged in'
+    });
+  
+    const session = await server.sessions.get(req.connection.remoteAddress || 'local');
+    if (session === null) return res.status(401).json({
+      message: 'User isn\'t logged in'
+    });
 
-router.get('/health', (req, res) => {
-  const server: Server = req.app.locals.server;
+    const user = await server.database.get('users', ['id', session.user]);
+    if (user === null) return res.status(403).json({
+      message: `Session is made but user "${session.user}" doesn't exist?`
+    });
 
-  return res.status(200).json({
-    database: server.database.online,
-    redis: server.redis.online,
-    gc: server.config.analytics.enabled && server.config.analytics.features.includes('gc') ? server.analytics.gc : null
-  });
-});
+    if (!user.admin) return res.status(403).json({
+      message: 'User is not an administrator'
+    });
 
-router.get('/favicon.ico', (_, res) => res.status(404).send('Cannot GET /favicon.ico'));
+    return next();
+  } catch(ex) {
+    return res.status(500).json({
+      message: 'Internal server error -- report this to administrators',
+      error: {
+        message: `[${ex.name}] ${ex.message}`,
+        stack: ex.stack ? ex.stack : null
+      }
+    });
+  }
+};
 
-export default { path: '', router };
+export default mod;

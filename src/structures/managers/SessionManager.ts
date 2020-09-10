@@ -121,6 +121,10 @@ export default class SessionManager {
     }
   }
 
+  has(ip: string) {
+    return this.server.redis.hexists('sessions', ip);
+  }
+
   private createTimeout(session: Session, amount: number) {
     const timeout = setTimeout(() => {
       this.server.redis.hexists('sessions', session.ip)
