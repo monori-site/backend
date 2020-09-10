@@ -32,7 +32,7 @@
     "@augu/eslint-config": "1.7.2",
     "@types/argon2": "0.15.0",
     "@types/express": "4.17.7",
-    "@types/ioredis": "4.17.3",
+    "@types/ioredis": "4.17.4",
     "@types/jest": "26.0.12",
     "@types/node": "14.6.4",
     "@types/on-finished": "2.3.1",
