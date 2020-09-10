@@ -113,31 +113,31 @@ export default class AnalyticsManager {
   /**
    * Starts the manager
    */
-  async start(log = false) {
+  async start() {
     if (!this.server.config.analytics.enabled) {
-      if (log) this.logger.warn('Analytics is not enabled, continuing...');
+      this.logger.warn('Analytics is not enabled, continuing...');
       return;
     }
 
     if (this.server.config.analytics.features.includes('cluster')) {
-      if (log) this.logger.info('Enabling cluster statistics...');
+      this.logger.info('Enabling cluster statistics...');
       this._clusterStatsInterval = setInterval(async() => {
-        if (log) console.log('lol cluster stats goes brrr');
+        console.log('lol cluster stats goes brrr');
       }, 120e3);
     }
 
     if (this.server.config.analytics.features.includes('database')) {
-      if (log) this.logger.info('Enabling database statistics...');
+      this.logger.info('Enabling database statistics...');
       this._databaseStatsInterval = setInterval(async() => {
-        if (log) console.log('lol db stats goes brrr');
+        console.log('lol db stats goes brrr');
       }, 120e3);
     }
 
     if (this.server.config.analytics.features.includes('gc')) {
-      if (log) this.logger.info('Enabling garbage collector statistics...');
+      this.logger.info('Enabling garbage collector statistics...');
       this._gcStatsInterval = setInterval(async() => {
         if (!global.gc) {
-          if (log) this.logger.warn('`global.gc` is not exposed...');
+          this.logger.warn('`global.gc` is not exposed...');
           clearInterval(this._gcStatsInterval!);
           return;
         }
@@ -145,7 +145,7 @@ export default class AnalyticsManager {
         try {
           require('gc-profiler');
         } catch {
-          if (log) this.logger.warn('`gc-profiler` is not installed...');
+          this.logger.warn('`gc-profiler` is not installed...');
           clearInterval(this._gcStatsInterval!);
           return;
         }
@@ -167,13 +167,13 @@ export default class AnalyticsManager {
             rss
           });
 
-          if (log) this.logger.info(`Recieved garbage collector stats; now at ${this.gc.length} item${Util.format(this.gc.length)}!`);
+          this.logger.info(`Recieved garbage collector stats; now at ${this.gc.length} item${Util.format(this.gc.length)}!`);
         });
 
         global.gc();
       }, 120e3);
     }
 
-    if (log) this.logger.info('Started the analytics manager with the following features enabled:', this.server.config.analytics.features);
+    this.logger.info('Started the analytics manager with the following features enabled:', this.server.config.analytics.features);
   }
 }

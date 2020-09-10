@@ -25,8 +25,9 @@ import { Router } from 'express';
 
 const router = Router();
 router.get('/', (_, res) => res.status(200).json({
-  gang: true,
-  env: process.env.NODE_ENV
+  message: 'Welcome to the Monori API, read the docs for more information.',
+  version: `v${require('../../package.json').version}`,
+  docs: 'https://github.com/monori-site/backend/blob/master/docs/API.md'
 }));
 
 router.get('/health', async (req, res) => {
@@ -38,5 +39,7 @@ router.get('/health', async (req, res) => {
     gc: server.config.analytics.enabled ? server.analytics.gc : null
   });
 });
+
+router.get('/favicon.ico', (_, res) => res.status(404).send('Cannot GET /favicon.ico'));
 
 export default { path: '', router };

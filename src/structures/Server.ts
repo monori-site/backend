@@ -95,16 +95,14 @@ export class Server {
     ///     Property 'server' is missing in type 'Record<string, any>' but required in type '{ [x: string]: any; server: Server; }'.ts(2322)
   }
 
-  async load(log = false) {
-    const cluster: typeof import('cluster') = require('cluster');
-    if (log) this.logger.info('Now loading basic components...');
+  async load() {
+    this.logger.info('Now loading basic components...');
 
     const stopwatch = new Stopwatch();
     stopwatch.start();
 
     await this.analytics.start();
     await this.middleware.load();
-    await this.analytics.start();
     await this.routing.load();
     this.database.connect();
     this.redis.connect();
@@ -115,13 +113,15 @@ export class Server {
     const watch = new Stopwatch();
     watch.start();
 
-    this._server = this.app.listen(this.config.port, () => {
+    this._server = this.app.listen(this.config.port, async() => {
       this.app.locals.server = this;
 
       const time = watch.end();
       const address = this._server.address();
       if (address === null) {
         this.logger.info(`Now listening at http://localhost:${this.config.port} (~${time.toFixed(2)}ms)`);
+
+        await this.sessions.reapply();
         return;
       }
 
@@ -139,6 +139,7 @@ export class Server {
 
       host = isUnixSocket ? '' : `http://${host}`;
       this.logger.info(`Now listening at ${host} (~${time.toFixed(2)}ms)`);
+      await this.sessions.reapply();
     });
   }
 

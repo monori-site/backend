@@ -37,16 +37,16 @@ export default class RoutingManager {
     this.path   = Util.getPath('routers');
   }
 
-  async load(log = false) {
+  async load() {
     const stats = await fs.lstat(this.path);
     if (!stats.isDirectory()) {
-      if (log) this.logger.error(`Path "${this.path}" was not a directory, did you clone a wrong/broken commit?`);
+      this.logger.error(`Path "${this.path}" was not a directory, did you clone a wrong/broken commit?`);
       return;
     }
 
     const files = await fs.readdir(this.path);
     if (!files.length) {
-      if (log) this.logger.error(`Path "${this.path}" didn't include any files, did you clone a broken commit?`);
+      this.logger.error(`Path "${this.path}" didn't include any files, did you clone a broken commit?`);
       return;
     }
 
@@ -55,7 +55,7 @@ export default class RoutingManager {
       const { default: route }: { default: IRoute } = await import(join(this.path, file));
 
       if (typeof route !== 'object') {
-        if (log) this.logger.error(`Corrupt Install -- Path "${join(this.path, file)}" is not an instance of IRoute`);
+        this.logger.error(`Corrupt Install -- Path "${join(this.path, file)}" is not an instance of IRoute`);
         continue;
       }
 
