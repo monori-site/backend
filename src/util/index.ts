@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2020 August
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,8 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-import { Months } from './Constants';
 
 /**
  * Static class to handle any repeating code
@@ -50,7 +48,7 @@ export default class Util {
   /**
    * Joins the current directory with any other appending directories
    * @param paths The paths to conjoin
-   * @returns The paths conjoined 
+   * @returns The paths conjoined
    */
   static getPath(...paths: string[]) {
     return `${process.cwd()}${Util.sep}${paths.join(Util.sep)}`;
@@ -108,7 +106,7 @@ export default class Util {
   static format(index: number) {
     return index > 1 ? 's' : '';
   }
-  
+
   /**
    * Returns a humanized date
    * @param ms The amount of milliseconds to convert
@@ -116,16 +114,16 @@ export default class Util {
   static humanize(ms: number) {
     const weeks = Math.floor(ms / 1000 / 60 / 60 / 24 / 7);
     ms -= weeks * 1000 * 60 * 60 * 24 * 7;
-  
+
     const days = Math.floor(ms / 1000 / 60 / 60 / 24);
     ms -= days * 1000 * 60 * 60 * 24;
-  
+
     const hours = Math.floor(ms / 1000 / 60 / 60);
     ms -= hours * 1000 * 60 * 60;
-  
+
     const mins = Math.floor(ms / 1000 / 60);
     ms -= mins * 1000 * 60;
-  
+
     const sec = Math.floor(ms / 1000);
     const humanized: string[] = [];
 

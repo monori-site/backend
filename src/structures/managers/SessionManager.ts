@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2020 August
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,14 +37,14 @@ interface Session {
 
 /**
  * Handles all concurrent user sessions, basically a "handler" for it.
- * 
+ *
  * All it does, is when you execute route `POST /users/login`,
  * and authenicate successfully, it'll return the user details and a Session object
- * 
+ *
  * Note that we are using the Hash Store provided by Redis (allows us to use `hset`, `hdel`, etc),
  * anyway the key of the session is the user's IP address for easy fetching from Redis and the value contains
  * the session data (when it started, the ID of the session, the user's ID, and the expire details)
- * 
+ *
  * All sessions expire in around 1 week, all sessions will continue if the API resets itself
  * from exiting the process, so it'll still handle sessions but in a shorter time-frame
  */

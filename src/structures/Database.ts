@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2020 August
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -128,7 +128,7 @@ export default class Database {
    */
   get online() {
     if (this.connection === undefined) return false;
-    else return this.connection.connected; 
+    return this.connection.connected;
   }
 
   /**
@@ -152,7 +152,7 @@ export default class Database {
 
         this.logger.info(`Connected to PostgreSQL! (~${time.toFixed(2)}ms)`);
         this.connection = connection;
-      }).catch((error) => {
+      }).catch((error: string | object | any[] | Error) => {
         const time = stopwatch.end();
 
         this.logger.error(`Unable to connect to PostgreSQL (~${time.toFixed(2)}ms)`, error);
@@ -176,7 +176,7 @@ export default class Database {
       .then(() => {
         const time = stopwatch.end();
         this.logger.info(`Disconnected connection in ${time.toFixed(2)}ms`);
-      }).catch(error => {
+      }).catch((error: string | object | any[] | Error) => {
         const time = stopwatch.end();
         this.logger.error(`Unable to disconnect; connection might bleed (~${time.toFixed(2)}ms)`, error);
       });
@@ -293,7 +293,7 @@ export default class Database {
         throw new TypeError(`Username "${data.username}" is already taken`);
       }
     }
-    
+
     if (data.hasOwnProperty('email') && user.email !== data.email) {
       const u = await this.get('users', ['email', data.email]);
       if (u === null) {
@@ -362,11 +362,11 @@ export default class Database {
       this.get('organisations', ['id', packet.owner])
     ]);
 
-    const type: 'org' | 'user' | null = 
-      user === null 
+    const type: 'org' | 'user' | null =
+      user === null
         ? 'org' 
-        : org === null 
-          ? 'user' 
+        : org === null
+          ? 'user'
           : null;
 
     if (type === null) throw new TypeError(`Snowflake "${packet.owner}" didn't belong to a User or Organisation`);
@@ -417,7 +417,7 @@ export default class Database {
 
     if (data.hasOwnProperty('github') && project.github !== data.github) {
       if (typeof data!.github !== 'string') throw new TypeError('Received "github" packet but isn\'t a string');
-      
+
       let value: string | null = data!.github === '' ? null : data!.github;
       table['github'] = value;
     }
@@ -469,7 +469,7 @@ export default class Database {
     ++this.calls;
     await this.connection!.query(pipelines.Insert<Organisation>({
       values: {
-        permissions: { 
+        permissions: {
           [packet.owner]: {
             'remove.member': 'true',
             'manage.org': 'true',
@@ -565,7 +565,7 @@ export default class Database {
     const org = await this.get('organisations', ['id', orgID]);
     if (org === null) throw new TypeError(`Organisation "${orgID}" doesn't exist`);
     if (!org.members.includes(memberID)) throw new TypeError(`Member "${memberID}" is not apart of this organisation`);
-    
+
     const permissions = org.permissions[memberID];
     permissions[node] = value;
 
@@ -593,7 +593,7 @@ export default class Database {
     const org = await this.get('organisations', ['id', orgID]);
     if (org === null) throw new TypeError(`Organisation "${orgID}" doesn't exist`);
     if (org.members.includes(memberID)) throw new TypeError(`Member "${memberID}" is already apart of this organisation`);
-    
+
     // create a "hard-copy" for editing purposes
     const permissions = org.permissions;
     const members = org.members;
@@ -635,7 +635,7 @@ export default class Database {
     const org = await this.get('organisations', ['id', orgID]);
     if (org === null) throw new TypeError(`Organisation "${orgID}" doesn't exist`);
     if (!org.members.includes(memberID)) throw new TypeError(`Member "${memberID}" is not apart of this organisation`);
-    
+
     // create a "hard-copy" for editing purposes
     const permissions = org.permissions;
     const members = org.members;
