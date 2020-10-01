@@ -12,5 +12,5 @@
 ### Steps
 :sparkles: ***coming soon?...*** :sparkles:
 
-## Licensing
+## License
 **@monori/backend** is released under the MIT License, read [here](/LICENSE) for more information.
