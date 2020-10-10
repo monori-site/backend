@@ -20,7 +20,7 @@
     "@augu/dotenv": "1.2.0",
     "@augu/immutable": "0.5.0",
     "@augu/maru": "1.2.6",
-    "@augu/orchid": "1.6.5",
+    "@augu/orchid": "1.6.6",
     "argon2": "0.27.0",
     "express": "4.17.1",
     "ioredis": "4.17.3",
