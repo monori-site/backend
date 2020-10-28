@@ -23,7 +23,7 @@
     "@augu/orchid": "1.8.0",
     "argon2": "0.27.0",
     "express": "4.17.1",
-    "ioredis": "4.19.0",
+    "ioredis": "4.19.1",
     "leeks.js": "0.0.9",
     "on-finished": "2.3.0",
     "snowflakey": "0.2.0"
