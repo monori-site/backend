@@ -5,7 +5,7 @@
 
 ## Process
 ### Requirements
-- Node.js v10 or higher
+- Java 11
 - PostgreSQL
 - Redis
 
