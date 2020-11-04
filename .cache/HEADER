@@ -19,11 +19,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.floofy.monori
-
-object Bootstrap {
-    @JvmStatic
-    fun main(args: Array<String>) {
-        println("ur gay lmao")
-    }
-}
