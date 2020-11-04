@@ -30,6 +30,6 @@ data class Config(
     //val database: DatabaseConfig,
     val workers: Int = 40,
     //val mongo: MongoConfig,
-    //val redis: RedisConfig,
+    val redis: RedisConfig,
     val port: Int
 )

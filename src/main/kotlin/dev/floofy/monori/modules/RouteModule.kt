@@ -27,5 +27,5 @@ import org.koin.dsl.module
 import org.koin.dsl.bind
 
 val routeModule = module {
-    single { MainRoute() } bind Route::class
+    single { MainRoute(get()) } bind Route::class
 }

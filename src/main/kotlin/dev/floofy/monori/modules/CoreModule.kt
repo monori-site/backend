@@ -22,48 +22,17 @@
 package dev.floofy.monori.modules
 
 import dev.floofy.monori.data.Config
-import io.vertx.core.Vertx
-import io.vertx.core.VertxOptions
-import io.vertx.core.json.JsonObject
-import io.vertx.ext.healthchecks.HealthCheckHandler
-import io.vertx.ext.healthchecks.Status
 import org.koin.dsl.module
 import redis.clients.jedis.Jedis
 
-val serviceModule = module {
+val coreModule = module {
     single {
         val config: Config = get()
-        val opts = VertxOptions()
-            .setWorkerPoolSize(config.workers)
+        val redis = Jedis(config.redis.host, config.redis.port)
 
-        Vertx.vertx(opts)
-    }
+        if (config.redis.password != null) redis.auth(config.redis.password)
+        redis.select(config.redis.db)
 
-    single {
-        val vertx: Vertx = get()
-        val redis: Jedis = get()
-
-        val health = HealthCheckHandler.create(vertx)
-
-        // Service
-        health.register("service", 5000) {
-            it.complete(Status.OK())
-        }
-
-        // Redis
-        health.register("redis") {
-            try {
-                redis.ping()
-                it.complete(Status.OK())
-            } catch(ex: Exception) {
-                it.complete(Status.KO())
-            }
-        }
-
-        // MongoDB
-
-        // PostgreSQL
-
-        health
+        redis
     }
 }

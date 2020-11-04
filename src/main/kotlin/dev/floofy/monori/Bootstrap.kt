@@ -36,7 +36,7 @@ object Bootstrap {
 
         startKoin {
             environmentProperties()
-            modules(configModule, managerModule, routeModule, serviceModule)
+            modules(configModule, managerModule, routeModule, serviceModule, coreModule)
         }
 
         val service = Monori()

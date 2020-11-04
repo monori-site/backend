@@ -25,15 +25,18 @@ import dev.floofy.monori.routing.Route
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
+import redis.clients.jedis.Jedis
 
-class MainRoute: Route(HttpMethod.GET, "/") {
+class MainRoute(private val redis: Jedis): Route(HttpMethod.GET, "/") {
     override fun run(ctx: RoutingContext) {
         val res = ctx.response()
+        val r = redis.get("e")
 
         return res.setStatusCode(200).end(
             JsonObject().apply {
                 put("hello", "world")
                 put("docs", "https://github.com/monori-site/docs")
+                put("redis", r == "f")
             }.toString()
         )
     }

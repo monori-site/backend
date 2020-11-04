@@ -31,6 +31,7 @@ import io.vertx.ext.healthchecks.HealthCheckHandler
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.slf4j.*
+import redis.clients.jedis.Jedis
 
 class Monori: KoinComponent {
     private val health: HealthCheckHandler by inject()
@@ -38,6 +39,7 @@ class Monori: KoinComponent {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     private val server: Vertx by inject()
     private val sentry: SentryManager by inject()
+    private val redis: Jedis by inject()
 
     fun start() {
         // Set the thread to "Monori-MainThread"
@@ -84,7 +86,7 @@ class Monori: KoinComponent {
         sentry.install()
 
         // Loads all databases
-        // redis.connect()
+        redis.connect()
         // mongo.connect()
         // db.connect()
 
@@ -94,11 +96,12 @@ class Monori: KoinComponent {
 
         http.listen(config.port)
         logger.info("Monori is now binded at http://localhost:${config.port}!")
+
+        redis.set("e", "f")
     }
 
     fun destroy() {
-        logger.warn("Service is being destroyed.")
-
+        redis.disconnect()
         server.close()
     }
 }
