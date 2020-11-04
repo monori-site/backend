@@ -45,10 +45,17 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation("org.jetbrains.exposed:exposed-core:0.24.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
+    implementation("org.jetbrains.exposed:exposed-dao:0.24.1")
+    implementation("org.mongodb:mongodb-driver-sync:4.1.1")
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("com.charleskorn.kaml:kaml:0.25.0")
+    implementation("org.postgresql:postgresql:42.2.18")
+    implementation("com.charleskorn.kaml:kaml:0.26.0")
     implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("redis.clients:jedis:3.3.0")
     implementation("io.vertx:vertx-core:3.9.4")
+    implementation("io.vertx:vertx-web:3.9.4")
     implementation("org.koin:koin-core:2.1.6")
     implementation("io.sentry:sentry:3.1.1")
     implementation(kotlin("stdlib"))
@@ -59,8 +66,8 @@ val metadata = task<Copy>("metadata") {
         include("**/metadata.properties")
 
         val tokens = mapOf(
-                "app.version" to ver.string(),
-                "app.commit" to ver.commit()
+                "version" to ver.string(),
+                "commit" to ver.commit()
         )
 
         filter<ReplaceTokens>(mapOf("tokens" to tokens))
