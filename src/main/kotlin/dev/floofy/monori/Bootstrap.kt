@@ -19,12 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package dev.floofy.monori
 
+import dev.floofy.monori.extensions.createThread
+import dev.floofy.monori.modules.*
+import org.koin.core.context.startKoin
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+
 object Bootstrap {
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
     @JvmStatic
     fun main(args: Array<String>) {
-        println("ur gay lmao")
+        logger.info("Bootstrapping...")
+
+        startKoin {
+            environmentProperties()
+            modules(configModule, managerModule, routeModule, serviceModule)
+        }
+
+        val service = Monori()
+        service.start()
+
+        Runtime.getRuntime().addShutdownHook(createThread("Monori-ShutdownThread") {
+            logger.warn("Shutdown occured, now disposing...")
+            service.destroy()
+        })
     }
 }

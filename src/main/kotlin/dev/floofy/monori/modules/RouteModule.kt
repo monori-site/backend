@@ -19,21 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.floofy.monori.data
+package dev.floofy.monori.modules
 
-import kotlinx.serialization.Serializable
+import dev.floofy.monori.routing.Route
+import dev.floofy.monori.routes.*
+import org.koin.dsl.module
+import org.koin.dsl.bind
 
-@Serializable
-data class MongoConfig(
-    val database: String = "i18n",
-    val auth: MongoAuthSource? = null,
-    val host: String,
-    val port: Int
-)
-
-@Serializable
-data class MongoAuthSource(
-    val password: String,
-    val username: String,
-    val dbSource: String = "admin"
-)
+val routeModule = module {
+    single { MainRoute() } bind Route::class
+}

@@ -19,21 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.floofy.monori.data
+package dev.floofy.monori.routes
 
-import kotlinx.serialization.Serializable
+import dev.floofy.monori.routing.Route
+import io.vertx.core.http.HttpMethod
+import io.vertx.core.json.JsonObject
+import io.vertx.ext.web.RoutingContext
 
-@Serializable
-data class MongoConfig(
-    val database: String = "i18n",
-    val auth: MongoAuthSource? = null,
-    val host: String,
-    val port: Int
-)
+class MainRoute: Route(HttpMethod.GET, "/") {
+    override fun run(ctx: RoutingContext) {
+        val res = ctx.response()
 
-@Serializable
-data class MongoAuthSource(
-    val password: String,
-    val username: String,
-    val dbSource: String = "admin"
-)
+        return res.setStatusCode(200).end(
+            JsonObject().apply {
+                put("hello", "world")
+                put("foo", "bar")
+            }.toString()
+        )
+    }
+}
