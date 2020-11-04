@@ -27,11 +27,13 @@ import dev.floofy.monori.managers.SentryManager
 import dev.floofy.monori.routing.Route
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
+import io.vertx.ext.healthchecks.HealthCheckHandler
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.slf4j.*
 
 class Monori: KoinComponent {
+    private val health: HealthCheckHandler by inject()
     private val config: Config by inject()
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     private val server: Vertx by inject()
@@ -47,6 +49,11 @@ class Monori: KoinComponent {
         // to inject to this global router
         val router = Router.router(server)
         val routes = getKoin().getAll<Route>()
+
+        // Inject the health checker
+        router
+            .route("/health")
+            .handler(health)
 
         // Now we load all routes to the global router
         logger.info("Found ${routes.size} routes available")

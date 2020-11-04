@@ -22,7 +22,7 @@
         </encoder>
     </appender>
 
-    <logger name="dev.floofy.monori" level="debug" additivity="false">
+    <logger name="dev.floofy.monori" level="info" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 

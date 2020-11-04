@@ -24,6 +24,9 @@ package dev.floofy.monori.modules
 import dev.floofy.monori.data.Config
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
+import io.vertx.core.json.JsonObject
+import io.vertx.ext.healthchecks.HealthCheckHandler
+import io.vertx.ext.healthchecks.Status
 import org.koin.dsl.module
 
 val serviceModule = module {
@@ -33,5 +36,25 @@ val serviceModule = module {
             .setWorkerPoolSize(config.workers)
 
         Vertx.vertx(opts)
+    }
+
+    single {
+        val vertx: Vertx = get()
+        val health = HealthCheckHandler.create(vertx)
+
+        // Service
+        health.register("service", 5000) {
+            it.complete(Status.OK(JsonObject().apply {
+                put("service", true)
+            }))
+        }
+
+        // Redis
+
+        // MongoDB
+
+        // PostgreSQL
+
+        health
     }
 }

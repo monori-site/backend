@@ -50,6 +50,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:0.24.1")
     implementation("org.mongodb:mongodb-driver-sync:4.1.1")
     implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("io.vertx:vertx-health-check:3.9.4")
     implementation("org.postgresql:postgresql:42.2.18")
     implementation("com.charleskorn.kaml:kaml:0.26.0")
     implementation("org.slf4j:slf4j-api:1.7.30")

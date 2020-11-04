@@ -33,7 +33,7 @@ class MainRoute: Route(HttpMethod.GET, "/") {
         return res.setStatusCode(200).end(
             JsonObject().apply {
                 put("hello", "world")
-                put("foo", "bar")
+                put("docs", "https://github.com/monori-site/docs")
             }.toString()
         )
     }
