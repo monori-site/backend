@@ -19,23 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.floofy.monori.routes
+package dev.floofy.monori.extensions
 
-import dev.floofy.monori.extensions.*
-import dev.floofy.monori.routing.Route
-import io.vertx.core.http.HttpMethod
+import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.json.JsonObject
-import io.vertx.ext.web.RoutingContext
 
-class MainRoute: Route(HttpMethod.GET, "/") {
-    override fun run(ctx: RoutingContext) {
-        val res = ctx.response()
-
-        return res.setStatusCode(200).end(
-            JsonObject().apply {
-                put("hello", "world")
-                put("docs", "https://github.com/monori-site/docs")
-            }
-        )
-    }
-}
+/**
+ * Extension to pass in [JsonObject] as a parameter and converted
+ * to a string from [HttpServerResponse].
+ */
+fun HttpServerResponse.end(json: JsonObject): Unit = this.end(json.toString())

@@ -21,11 +21,14 @@
  */
 package dev.floofy.monori.modules
 
+import dev.floofy.monori.routes.raw.*
 import dev.floofy.monori.routing.Route
 import dev.floofy.monori.routes.*
 import org.koin.dsl.module
 import org.koin.dsl.bind
 
 val routeModule = module {
+    single { GetSessionRoute(get()) } bind Route::class
+    single { SessionsRoute() } bind Route::class
     single { MainRoute() } bind Route::class
 }

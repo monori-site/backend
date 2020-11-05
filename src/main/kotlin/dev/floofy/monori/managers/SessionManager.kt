@@ -1,3 +1,24 @@
+/**
+ * Copyright (c) 2020 August
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package dev.floofy.monori.managers
 
 import dev.floofy.monori.data.redis.Session
@@ -31,7 +52,6 @@ enum class Device {
  * this is based on O(N) time complexity; where the larger
  * increase of requests -- the longer it'll have to
  * implement.
- *
  *
  * We also use hashing to store the data and using [kotlinx.serialization]
  * to serialize it to a [Session] data object.
@@ -67,6 +87,9 @@ class SessionManager(private val redis: Jedis) {
      * @returns A session object or <code>null</code> if not found
      */
     fun get(id: String): Session? {
+        // It's not connected, let's just throw `null`
+        if (!redis.isConnected) return null
+
         val sess = redis.hget("sessions", "session:$id") ?: return null
         return Json.decodeFromString(Session.serializer(), sess)
     }
@@ -83,6 +106,9 @@ class SessionManager(private val redis: Jedis) {
         device: Device,
         ip: String?
     ) {
+        // Let's not do anything if Redis isn't connected
+        if (!redis.isConnected) return
+
         val block = Session(
             startedAt=System.currentTimeMillis(),
             device=device,
@@ -119,10 +145,13 @@ class SessionManager(private val redis: Jedis) {
     fun destroy() {
         logger.warn("Called to clear all sessions and tasks...")
 
+        val allSessions = sessions.size
+        val allTasks = tasks.size
+
         sessions.clear()
         tasks.forEach { it.cancel() }
         tasks.clear()
 
-        logger.info("All sessions and tasks are cleared.")
+        logger.info("Cleared $allSessions sessions and $allTasks tasks")
     }
 }

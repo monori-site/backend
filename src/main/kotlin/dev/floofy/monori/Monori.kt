@@ -23,6 +23,7 @@ package dev.floofy.monori
 
 import io.vertx.ext.web.Router
 import dev.floofy.monori.data.Config
+import dev.floofy.monori.extensions.end
 import dev.floofy.monori.managers.SentryManager
 import dev.floofy.monori.managers.SessionManager
 import dev.floofy.monori.routing.Route
@@ -35,7 +36,7 @@ import org.slf4j.*
 import redis.clients.jedis.Jedis
 
 class Monori: KoinComponent {
-    //private val sessions: SessionManager by inject()
+    private val sessions: SessionManager by inject()
     private val health: HealthCheckHandler by inject()
     private val config: Config by inject()
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -46,10 +47,9 @@ class Monori: KoinComponent {
     fun start() {
         // Set the thread to "Monori-MainThread"
         Thread.currentThread().name = "Monori-MainThread"
-        logger.info("Initialising backend service...")
 
         // The global router to use, then we'll use
-        // instances of dev.floofy.monori.routing.Router
+        // instances of dev.floofy.monori.routing.Route
         // to inject to this global router
         val router = Router.router(server)
         val routes = getKoin().getAll<Route>()
@@ -60,9 +60,9 @@ class Monori: KoinComponent {
             .handler(health)
 
         // Now we load all routes to the global router
-        logger.info("Found ${routes.size} routes available")
+        logger.info("Found ${routes.size} routes available to dynamically load.")
         routes.forEach { route ->
-            logger.info("Found \"${route.method.name} ${route.path}\" to load.")
+            logger.info("Found route \"${route.method.name} ${route.path}\"")
             router
                 .route(route.method, route.path)
                 .failureHandler { ctx ->
@@ -78,8 +78,10 @@ class Monori: KoinComponent {
                     }
 
                     sentry.report(throwable)
-                    res.setStatusCode(statusCode).end(obj.toString())
+                    res.setStatusCode(statusCode).end(obj)
                 }.blockingHandler({ ctx ->
+                    // I could just add HttpServerRequest and HttpServerResponse
+                    // here but let's just throw in the whole context for some reason
                     route.run(ctx)
                 }, false)
         }
@@ -95,14 +97,15 @@ class Monori: KoinComponent {
         // Loads up the HTTP service
         val http = server.createHttpServer()
         http.requestHandler(router)
-
         http.listen(config.port)
+
         logger.info("Monori is now binded at http://localhost:${config.port}!")
 
         // sessions.reapply()
     }
 
     fun destroy() {
+        sessions.destroy()
         redis.disconnect()
         server.close()
     }

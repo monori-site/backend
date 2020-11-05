@@ -52,12 +52,8 @@ val serviceModule = module {
 
         // Redis
         health.register("redis") {
-            try {
-                redis.ping()
-                it.complete(Status.OK())
-            } catch(ex: Exception) {
-                it.complete(Status.KO())
-            }
+            val res = redis.ping()
+            it.complete(if (res == null) Status.KO() else Status.OK())
         }
 
         // MongoDB

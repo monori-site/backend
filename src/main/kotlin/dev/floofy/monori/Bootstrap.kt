@@ -32,8 +32,6 @@ object Bootstrap {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        logger.info("Bootstrapping...")
-
         startKoin {
             environmentProperties()
             modules(configModule, managerModule, routeModule, serviceModule, coreModule)
