@@ -24,6 +24,7 @@ package dev.floofy.monori
 import io.vertx.ext.web.Router
 import dev.floofy.monori.data.Config
 import dev.floofy.monori.managers.SentryManager
+import dev.floofy.monori.managers.SessionManager
 import dev.floofy.monori.routing.Route
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
@@ -34,6 +35,7 @@ import org.slf4j.*
 import redis.clients.jedis.Jedis
 
 class Monori: KoinComponent {
+    //private val sessions: SessionManager by inject()
     private val health: HealthCheckHandler by inject()
     private val config: Config by inject()
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -97,7 +99,7 @@ class Monori: KoinComponent {
         http.listen(config.port)
         logger.info("Monori is now binded at http://localhost:${config.port}!")
 
-        redis.set("e", "f")
+        // sessions.reapply()
     }
 
     fun destroy() {

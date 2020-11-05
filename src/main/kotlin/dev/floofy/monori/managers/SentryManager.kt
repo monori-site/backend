@@ -23,7 +23,6 @@ package dev.floofy.monori.managers
 
 import dev.floofy.monori.data.Application
 import dev.floofy.monori.data.Config
-import dev.floofy.monori.data.Environment
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 import io.sentry.Sentry
