@@ -154,3 +154,6 @@ config.yml
 
 # eh who cares but i dont want to be seen on github bc idk
 src/main/resources/app.properties
+
+# old project structure, i hate it :)
+src/main/dev/floofy/monori_old/*

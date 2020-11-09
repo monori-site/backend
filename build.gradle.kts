@@ -35,7 +35,7 @@ plugins {
 
 val ver = Version(1, 0, 0)
 
-group = "dev.floofy"
+group = "dev.floofy.monori"
 version = ver.string()
 
 repositories {
@@ -87,6 +87,16 @@ spotless {
         trimTrailingWhitespace()
         licenseHeaderFile("${rootProject.projectDir}/.cache/HEADER")
         endWithNewline()
+
+        // We can't use the .editorconfig file, so we'll have to specify it here
+        // issue: https://github.com/diffplug/spotless/issues/142
+        ktlint()
+            .userData(mapOf(
+                "no-consecutive-blank-lines" to "true",
+                "no-unit-return" to "true",
+                "disabled_rules" to "no-wildcard-imports,colon-spacing",
+                "indent_size" to "4"
+            ))
     }
 }
 
