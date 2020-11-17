@@ -21,7 +21,7 @@
 - Docker (optional)
 - Sentry (optional)
 - Java 11
-- PostgreSQL
+- PostgreSQL (or using a supported database above)
 - Redis
 
 ### Process (Locally)
