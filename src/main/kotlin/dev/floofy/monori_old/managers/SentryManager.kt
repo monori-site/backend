@@ -19,13 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old.managers
 
 import dev.floofy.monori_old.data.Application
 import dev.floofy.monori_old.data.Config
-import org.slf4j.LoggerFactory
-import org.slf4j.Logger
 import io.sentry.Sentry
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Represents a manager for handing Sentry errors within Monori,

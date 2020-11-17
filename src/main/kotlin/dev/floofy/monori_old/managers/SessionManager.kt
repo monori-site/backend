@@ -19,17 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old.managers
 
 import dev.floofy.monori_old.data.redis.Session
+import java.util.*
+import kotlin.concurrent.schedule
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import redis.clients.jedis.Jedis
 import org.slf4j.*
-import java.util.*
-import kotlin.concurrent.schedule
+import redis.clients.jedis.Jedis
 
 /**
  * Represents a device that the user is running on
@@ -113,10 +114,10 @@ class SessionManager(private val redis: Jedis) {
         if (!redis.isConnected) return
 
         val block = Session(
-            startedAt=System.currentTimeMillis(),
-            device=device,
-            userId=userID,
-            id="session:${ip ?: "local"}"
+            startedAt = System.currentTimeMillis(),
+            device = device,
+            userId = userID,
+            id = "session:${ip ?: "local"}"
         )
 
         val task = Timer().schedule(604800000L) {

@@ -19,14 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old.modules
 
-import dev.floofy.monori_old.routing.Route
 import dev.floofy.monori_old.routes.*
 import dev.floofy.monori_old.routes.sessions.GetSessionRoute
 import dev.floofy.monori_old.routes.sessions.SessionsRoute
-import org.koin.dsl.module
+import dev.floofy.monori_old.routing.Route
 import org.koin.dsl.bind
+import org.koin.dsl.module
 
 val routeModule = module {
     single { GetSessionRoute(get()) } bind Route::class

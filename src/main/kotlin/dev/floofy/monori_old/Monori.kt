@@ -19,9 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old
 
-import io.vertx.ext.web.Router
 import dev.floofy.monori_old.data.Config
 import dev.floofy.monori_old.extensions.end
 import dev.floofy.monori_old.managers.SentryManager
@@ -30,6 +30,7 @@ import dev.floofy.monori_old.routing.Route
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.healthchecks.HealthCheckHandler
+import io.vertx.ext.web.Router
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.slf4j.*

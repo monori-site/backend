@@ -19,13 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old
 
 import dev.floofy.monori_old.extensions.createThread
 import dev.floofy.monori_old.modules.*
 import org.koin.core.context.startKoin
-import org.slf4j.LoggerFactory
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 object Bootstrap {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)

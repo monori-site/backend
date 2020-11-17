@@ -19,10 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old.modules
 
-import dev.floofy.monori_old.managers.SessionManager
 import dev.floofy.monori_old.managers.SentryManager
+import dev.floofy.monori_old.managers.SessionManager
 import org.koin.dsl.module
 
 val managerModule = module {

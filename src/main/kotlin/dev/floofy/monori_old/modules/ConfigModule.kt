@@ -19,15 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old.modules
 
 import com.charleskorn.kaml.Yaml
 import dev.floofy.monori_old.data.Application
 import dev.floofy.monori_old.data.Config
 import dev.floofy.monori_old.extensions.loadProperties
-import org.koin.dsl.module
-
 import java.io.File
+import org.koin.dsl.module
 
 val configModule = module {
     single {

@@ -19,10 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old.extensions
 
-import java.util.Properties
 import java.io.InputStream
+import java.util.Properties
 
 /**
  * Inline function to load a properties file using an [InputStream]

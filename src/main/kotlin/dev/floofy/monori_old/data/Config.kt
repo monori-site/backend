@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package dev.floofy.monori_old.data
 
 import kotlinx.serialization.Serializable
@@ -27,9 +28,9 @@ import kotlinx.serialization.Serializable
 data class Config(
     val environment: Environment = Environment.Development,
     val sentryDSN: String? = null,
-    //val database: DatabaseConfig,
+    // val database: DatabaseConfig,
     val workers: Int = 40,
-    //val mongo: MongoConfig,
+    // val mongo: MongoConfig,
     val redis: RedisConfig,
     val port: Int
 )
