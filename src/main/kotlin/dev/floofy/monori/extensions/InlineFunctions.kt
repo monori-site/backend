@@ -43,6 +43,13 @@ fun <T> asyncTransaction(pool: ExecutorService, block: Transaction.() -> T) = As
 fun createThread(name: String, block: () -> Unit): Thread = Thread(block, name)
 
 /**
+ * Inline function to create a daemonized [java.lang.Thread] instance
+ * @param name The name of the thread
+ * @param block The body to run when called
+ */
+fun createDaemonThread(name: String, block: Runnable): Thread = Thread(block, name).apply { isDaemon = true }
+
+/**
  * Inline function to use a [java.io.InputStream] to create a new [java.util.Properties] class
  * @param stream The input stream
  */
