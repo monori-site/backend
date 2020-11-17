@@ -59,7 +59,7 @@ dependencies {
     implementation("io.vertx:vertx-core:3.9.4")
     implementation("io.vertx:vertx-web:3.9.4")
     implementation("org.koin:koin-core:2.1.6")
-    implementation("io.sentry:sentry:3.1.1")
+    implementation("io.sentry:sentry:3.1.3")
     implementation(kotlin("stdlib"))
 }
 
