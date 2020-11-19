@@ -23,25 +23,34 @@
 package dev.floofy.monori.core
 
 import io.vertx.core.http.HttpMethod
-import io.vertx.core.http.HttpServerRequest
-import io.vertx.core.http.HttpServerResponse
 
 /**
  * Represents a endpoint to use
  * @param path The path to use, append <code>/</code> to make it into a route
  * @param method The HTTP method to use, this is dependant on the CORS module
  * @param version The version number it uses, this is good for versioning the service
+ * @param queryParams List of query parameters for validation
+ * @param body List of body-keys for validation
+ * @param requireSession If we require a [Session] object to exist
  */
 abstract class Endpoint(
     val path: String,
     val method: HttpMethod,
-    val version: Int = 1
+    val version: Int = 1,
+
+    // [name, required]
+    val queryParams: Map<String, Boolean> = mapOf(),
+
+    // [name, required]
+    val body: Map<String, Boolean> = mapOf(),
+
+    // If it requires a [Session] object present
+    val requireSession: Boolean = false
 ) {
 
     /**
      * Runs this [Endpoint] and returns a value
-     * @param req The request from the routing context
-     * @param res The response from the routing context
+     * @param ctx The endpoint context from the request handler
      */
-    abstract suspend fun run(req: HttpServerRequest, res: HttpServerResponse)
+    abstract suspend fun run(ctx: EndpointContext)
 }

@@ -22,6 +22,7 @@
 
 package dev.floofy.monori.core
 
+import dev.floofy.monori.data.Config
 import io.sentry.Sentry as SentryCore
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,9 +33,10 @@ import org.slf4j.LoggerFactory
  * @param version The version of the backend service
  */
 class Sentry(
-    private val config: Any,
+    private val config: Config,
     private val version: String
 ) {
+
     /**
      * The logger for this [Sentry] instance
      */
@@ -44,13 +46,13 @@ class Sentry(
      * If it's enabled or not, it'll sliently not be used
      * if not enabled.
      */
-    val isEnabled: Boolean = false
+    val enabled: Boolean = config.sentryDSN != null
 
     /**
      * Installs this [Sentry] instance and populate taas
      */
     fun install() {
-        if (!isEnabled) {
+        if (!enabled) {
             logger.warn("Sentry DSN not populated! This is optional but recommended.")
             return
         }
@@ -60,14 +62,14 @@ class Sentry(
         SentryCore.init {
             it.environment = "development"
             it.release = version
-            it.dsn = "some dsn"
+            it.dsn = config.sentryDSN
         }
 
         // configure tags
         SentryCore.configureScope { scope ->
             scope.setTag("project.version.kotlin", KotlinVersion.CURRENT.toString())
             scope.setTag("project.version.java", System.getProperty("java.version") ?: "Unknown")
-            scope.setTag("project.environment", "development")
+            scope.setTag("project.environment", config.environment.toString())
             scope.setTag("project.version", version)
         }
 
@@ -75,7 +77,7 @@ class Sentry(
     }
 
     fun report(error: Throwable) {
-        if (!isEnabled) return
+        if (!enabled) return
 
         SentryCore.captureException(error)
     }
