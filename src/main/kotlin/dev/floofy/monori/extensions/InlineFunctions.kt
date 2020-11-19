@@ -22,7 +22,7 @@
 
 package dev.floofy.monori.extensions
 
-import dev.floofy.monori.core.AsyncTransaction
+import dev.floofy.monori.database.AsyncTransaction
 import java.io.InputStream
 import java.util.*
 import java.util.concurrent.ExecutorService
