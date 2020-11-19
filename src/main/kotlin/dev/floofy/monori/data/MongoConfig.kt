@@ -21,3 +21,30 @@
  */
 
 package dev.floofy.monori.data
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class MongoConfig(
+    // Used for user-based authentication
+    // Default: `null`
+    @SerialName("auth")
+    val auth: AuthSource? = null
+)
+
+@Serializable
+data class AuthSource(
+    // Username for the auth source
+    @SerialName("username")
+    val username: String,
+
+    // Password for the auth source
+    @SerialName("password")
+    val password: String,
+
+    // Database source for the auth source
+    // Default: "admin"
+    @SerialName("source")
+    val source: String = "admin"
+)

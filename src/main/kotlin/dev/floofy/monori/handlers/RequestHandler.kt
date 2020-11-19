@@ -2,7 +2,8 @@ package dev.floofy.monori.handlers
 
 import dev.floofy.monori.extensions.createDaemonThread
 import io.vertx.ext.web.RoutingContext
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.GlobalScope
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -27,7 +28,9 @@ class RequestHandler {
     }
 
     fun handle(ctx: RoutingContext) {
+        GlobalScope.launch {
 
+        }
     }
 
 }

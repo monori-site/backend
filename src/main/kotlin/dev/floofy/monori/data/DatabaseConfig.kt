@@ -21,3 +21,34 @@
  */
 
 package dev.floofy.monori.data
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class DatabaseConfig(
+    // The password for user-based authentication
+    @SerialName("password")
+    val password: String,
+
+    // The username for user-based authentication
+    @SerialName("username")
+    val username: String,
+
+    // The database name (must be from sql/create_tables.sql)
+    // Default: "monori"
+    @SerialName("database")
+    val database: String = "monori",
+
+    // Driver to use when connecting to the database
+    @SerialName("driver")
+    val driver: String = "postgres",
+
+    // The host when connecting
+    @SerialName("host")
+    val host: String,
+
+    // The port to connect to
+    @SerialName("port")
+    val port: Int
+)

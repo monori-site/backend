@@ -43,5 +43,5 @@ abstract class Endpoint(
      * @param req The request from the routing context
      * @param res The response from the routing context
      */
-    abstract fun run(req: HttpServerRequest, res: HttpServerResponse)
+    abstract suspend fun run(req: HttpServerRequest, res: HttpServerResponse)
 }

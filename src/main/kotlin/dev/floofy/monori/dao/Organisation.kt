@@ -21,3 +21,12 @@
  */
 
 package dev.floofy.monori.dao
+
+import dev.floofy.monori.dao.tables.OrganisationTable
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+
+class Organisation(id: EntityID<Int>): IntEntity(id) {
+    companion object: IntEntityClass<Organisation>(OrganisationTable)
+}

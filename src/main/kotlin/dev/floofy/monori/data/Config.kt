@@ -21,3 +21,30 @@
  */
 
 package dev.floofy.monori.data
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Config(
+    // Default API version for versioning routes
+    @SerialName("default_version")
+    val defaultVersion: Int = 1,
+
+    // Environment of the service
+    // determined by logging and Sentry
+    @SerialName("environment")
+    val environment: Environment,
+
+    // Sentry DSN URI for linking Sentry
+    @SerialName("sentry_dsn")
+    val sentryDSN: String?,
+
+    // Worker thread cache pool size for Vertx
+    @SerialName("worker_threads")
+    val workers: Int = 40,
+
+    // port to listen to
+    @SerialName("port")
+    val port: Int = 3621
+)
