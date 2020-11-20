@@ -1,16 +1,39 @@
 package dev.floofy.monori.database.exposed
 
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnType
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.*
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
-fun Table.date(name: String, type: ColumnType): Column<Date>
-    = registerColumn(name, DateColumnType(type))
+private fun convertInstantToString(value: Instant): String {
+    val formatter = DateTimeFormatter
+        .ofLocalizedDateTime(FormatStyle.SHORT)
+        .withLocale(Locale.ROOT)
 
-class DateColumnType(private val type: ColumnType): ColumnType() {
-    override fun sqlType(): String = buildString {
-        append(type.sqlType())
-        append(" DATE")
+    return formatter.format(value)
+}
+
+/**
+ * Registers a column as a [java.time.Instant] value
+ */
+fun Table.date(name: String): Column<Instant>
+    = registerColumn(name, DateColumnType())
+
+class DateColumnType: ColumnType() {
+    override fun sqlType(): String = "DATE"
+
+    override fun valueToDB(value: Any?): Any? {
+        if (value is String) return value
+        if (value is Instant) return convertInstantToString(value)
+
+        return super.valueToDB(value)
+    }
+
+    override fun nonNullValueToString(value: Any): String {
+        if (value is String) return value
+        if (value is Instant) return convertInstantToString(value)
+
+        return super.nonNullValueToString(value)
     }
 }
