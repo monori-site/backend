@@ -35,7 +35,7 @@ plugins {
 
 val ver = Version(1, 0, 0)
 
-group = "dev.floofy.monori"
+group = "dev.floofy.arisu"
 version = ver.string()
 
 repositories {
@@ -45,13 +45,11 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0")
     implementation("org.jetbrains.exposed:exposed-core:0.24.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.24.1")
     implementation("org.mongodb:mongodb-driver-sync:4.1.1")
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("io.vertx:vertx-health-check:3.9.4")
     implementation("org.postgresql:postgresql:42.2.18")
     implementation("com.charleskorn.kaml:kaml:0.26.0")
     implementation("org.slf4j:slf4j-api:1.7.30")
@@ -59,7 +57,7 @@ dependencies {
     implementation("io.vertx:vertx-core:3.9.4")
     implementation("io.vertx:vertx-web:3.9.4")
     implementation("org.koin:koin-core:2.1.6")
-    implementation("io.sentry:sentry:3.1.3")
+    implementation("io.sentry:sentry:3.2.0")
     implementation(kotlin("stdlib"))
 }
 
@@ -68,8 +66,8 @@ val metadata = task<Copy>("metadata") {
         include("**/metadata.properties")
 
         val tokens = mapOf(
-                "version" to ver.string(),
-                "commit" to ver.commit()
+            "version" to ver.string(),
+            "commit" to ver.commit()
         )
 
         filter<ReplaceTokens>(mapOf("tokens" to tokens))
@@ -102,7 +100,7 @@ spotless {
 }
 
 application {
-    mainClassName = "dev.floofy.monori.Bootstrap"
+    mainClassName = "dev.floofy.arisu.Bootstrap"
 }
 
 tasks {
@@ -115,12 +113,12 @@ tasks {
     named<ShadowJar>("shadowJar") {
         mergeServiceFiles()
         archiveClassifier.set(null as String?)
-        archiveBaseName.set("Monori")
+        archiveBaseName.set("arisu")
 
         manifest {
             attributes(mapOf(
-                    "Manifest-Version" to "1.0.0",
-                    "Main-Class" to "dev.floofy.monori.Bootstrap"
+                "Manifest-Version" to "1.0.0",
+                "Main-Class" to "dev.floofy.arisu.Bootstrap"
             ))
         }
     }
