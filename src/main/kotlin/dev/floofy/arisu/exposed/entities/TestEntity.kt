@@ -20,11 +20,15 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.exposed.entities
 
-import dev.floofy.arisu.services.postgresql.PostgresService
-import org.koin.dsl.module
+import dev.floofy.arisu.exposed.tables.TestTable
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
 
-val servicesModule = module {
-    single { PostgresService(get()) }
+class TestEntity(id: EntityID<Int>): IntEntity(id) {
+    companion object: IntEntityClass<TestEntity>(TestTable)
+
+    var name by TestTable.name
 }

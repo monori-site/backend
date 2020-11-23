@@ -38,7 +38,7 @@ object Bootstrap {
 
         startKoin {
             environmentProperties()
-            modules(arisuModule, endpointsModule, componentsModule)
+            modules(arisuModule, endpointsModule, componentsModule, servicesModule)
         }
 
         val app = Arisu()

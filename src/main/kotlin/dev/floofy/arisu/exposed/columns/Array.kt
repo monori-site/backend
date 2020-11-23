@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.exposed
+package dev.floofy.arisu.exposed.columns
 
 /**
  * Modified version of https://github.com/LorittaBot/Loritta/blob/development/loritta-discord/src/main/java/com/mrpowergamerbr/loritta/utils/exposed/array.kt

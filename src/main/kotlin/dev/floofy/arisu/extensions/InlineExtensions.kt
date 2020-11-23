@@ -22,9 +22,19 @@
 
 package dev.floofy.arisu.extensions
 
+import java.text.SimpleDateFormat
+import java.util.*
+
 /**
  * Inline function to create a new [java.lang.Thread] instance
  * @param name The name of the thread
  * @param block The body to run
  */
 fun createThread(name: String, block: () -> Unit): Thread = Thread(block, name)
+
+/**
+ * Function to format a [Date] to a serialised `DATE` object
+ * @param date The date to serialise
+ */
+fun formatDate(date: Date = Date()) =
+    SimpleDateFormat("yyyy-MM-dd").format(date)

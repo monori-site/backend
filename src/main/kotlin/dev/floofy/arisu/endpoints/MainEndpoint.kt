@@ -23,11 +23,56 @@
 package dev.floofy.arisu.endpoints
 
 import dev.floofy.arisu.components.Endpoint
+import dev.floofy.arisu.exposed.entities.TestEntity
+import dev.floofy.arisu.exposed.tables.TestTable
+import dev.floofy.arisu.extensions.*
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
+import io.vertx.core.json.JsonObject
+import java.util.*
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class MainEndpoint: Endpoint("/", HttpMethod.GET) {
     override fun run(req: HttpServerRequest, res: HttpServerResponse) =
-            res.setStatusCode(200).end("Hello, world!")
+        res.setStatusCode(400).end(JsonObject().apply {
+            put("message", "welcome!!! :D")
+        })
+}
+
+class CreateTestEndpoint: Endpoint("/put/:name", HttpMethod.GET) {
+    override fun run(req: HttpServerRequest, res: HttpServerResponse) {
+        val nameParam = req.getParam("name")
+
+        transaction {
+            val entity = TestEntity.new {
+                name = nameParam
+            }
+
+            val result = TestEntity[entity.id]
+
+            return@transaction res.setStatusCode(200).end(JsonObject().apply {
+                put("name", result.name)
+                put("id", result.id.toString())
+            })
+        }
+    }
+}
+
+class RetriveEntityEndpoint: Endpoint("/retrive/:name", HttpMethod.GET) {
+    override fun run(req: HttpServerRequest, res: HttpServerResponse) {
+        val nameParam = req.getParam("name")
+
+        transaction {
+            val entity = TestEntity.find { TestTable.name eq nameParam }.singleOrNull()
+                ?: return@transaction res.setStatusCode(500).end(JsonObject().apply {
+                    put("message", "Unable to find entity \"$nameParam\"")
+                })
+
+            return@transaction res.setStatusCode(200).end(JsonObject().apply {
+                put("name", entity.name)
+                put("id", entity.id.toString())
+            })
+        }
+    }
 }

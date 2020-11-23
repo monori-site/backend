@@ -20,42 +20,28 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.exposed
+package dev.floofy.arisu.data
 
-import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.*
-import org.jetbrains.exposed.sql.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-private fun convertInstantToString(value: Instant): String {
-    val formatter = DateTimeFormatter
-        .ofLocalizedDateTime(FormatStyle.SHORT)
-        .withLocale(Locale.ROOT)
+@Serializable
+data class DatabaseConfig(
+    @SerialName("password")
+    val password: String,
 
-    return formatter.format(value)
-}
+    @SerialName("username")
+    val username: String,
 
-/**
- * Registers a column as a [java.time.Instant] value
- */
-fun Table.date(name: String): Column<Instant> =
-        registerColumn(name, DateColumnType())
+    @SerialName("database")
+    val database: String,
 
-class DateColumnType: ColumnType() {
-    override fun sqlType(): String = "DATE"
+    @SerialName("schema")
+    val schema: String? = "public",
 
-    override fun valueToDB(value: Any?): Any? {
-        if (value is String) return value
-        if (value is Instant) return convertInstantToString(value)
+    @SerialName("host")
+    val host: String = "localhost",
 
-        return super.valueToDB(value)
-    }
-
-    override fun nonNullValueToString(value: Any): String {
-        if (value is String) return value
-        if (value is Instant) return convertInstantToString(value)
-
-        return super.nonNullValueToString(value)
-    }
-}
+    @SerialName("port")
+    val port: Int = 5432
+)

@@ -27,8 +27,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Configuration(
-    // @SerialName("postgresql")
-    // val postgresql: PostgresConfiguration
+    @SerialName("database")
+    val database: DatabaseConfig,
 
     // The DSN to digest for Sentry errors
     @SerialName("sentry_dsn")

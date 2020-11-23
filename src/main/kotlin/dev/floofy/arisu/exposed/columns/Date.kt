@@ -20,11 +20,28 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.exposed.columns
 
-import dev.floofy.arisu.services.postgresql.PostgresService
-import org.koin.dsl.module
+import org.jetbrains.exposed.sql.*
 
-val servicesModule = module {
-    single { PostgresService(get()) }
+/**
+ * Registers a column as a [java.time.Instant] value
+ */
+fun Table.date(name: String): Column<String> =
+        registerColumn(name, DateColumnType())
+
+class DateColumnType: ColumnType() {
+    override fun sqlType(): String = "DATE"
+
+    override fun valueToDB(value: Any?): Any? {
+        if (value is String) return value
+
+        return super.valueToDB(value)
+    }
+
+    override fun nonNullValueToString(value: Any): String {
+        if (value is String) return value
+
+        return super.nonNullValueToString(value)
+    }
 }

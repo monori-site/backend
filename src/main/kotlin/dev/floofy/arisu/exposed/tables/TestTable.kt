@@ -20,11 +20,10 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.exposed.tables
 
-import dev.floofy.arisu.services.postgresql.PostgresService
-import org.koin.dsl.module
+import org.jetbrains.exposed.dao.id.IntIdTable
 
-val servicesModule = module {
-    single { PostgresService(get()) }
+object TestTable: IntIdTable("testing") {
+    val name = varchar("name", 2000).uniqueIndex()
 }
