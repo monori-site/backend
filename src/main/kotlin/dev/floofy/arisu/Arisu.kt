@@ -43,7 +43,7 @@ class Arisu: KoinComponent {
      */
     fun init() {
         // Set the current thread name
-        Thread.currentThread().name = "Arisu-MainStartupThread"
+        Thread.currentThread().name = "Arisu-MainThread"
 
         logger.info("Initialising Arisu...")
         val router = Router.router(vertx)

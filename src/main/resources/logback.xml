@@ -7,7 +7,7 @@
     </appender>
 
     <appender name="FILE-OUT" class="ch.qos.logback.core.FileAppender">
-        <file>./logs/Monori.out.log</file>
+        <file>./logs/Arisu.out.log</file>
         <append>false</append>
         <encoder>
             <pattern>[%thread] [%logger{36}] [%level] -> %msg%n</pattern>
@@ -15,14 +15,14 @@
     </appender>
 
     <appender name="FILE-ERR" class="ch.qos.logback.core.FileAppender">
-        <file>./logs/Monori.error.log</file>
+        <file>./logs/Arisu.error.log</file>
         <append>false</append>
         <encoder>
             <pattern>[%thread] [%logger{36}] [%level] -> %msg%n</pattern>
         </encoder>
     </appender>
 
-    <logger name="dev.floofy.monori_old" level="info" additivity="false">
+    <logger name="dev.floofy.arisu" level="debug" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 

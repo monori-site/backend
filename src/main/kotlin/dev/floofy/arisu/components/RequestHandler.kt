@@ -68,7 +68,8 @@ class RequestHandler {
     }
 
     fun handle(ctx: RoutingContext, endpoint: Endpoint) {
-        logger.info("Received a request on \"${endpoint.method} ${endpoint.path}\"!")
+        Thread.currentThread().name = "Arisu-RequestThread"
+        logger.debug("Received a request on \"${endpoint.method} ${endpoint.path}\"!")
 
         val request = ctx.request()
         val response = ctx.response()

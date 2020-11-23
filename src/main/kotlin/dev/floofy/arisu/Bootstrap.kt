@@ -21,3 +21,32 @@
  */
 
 package dev.floofy.arisu
+
+import dev.floofy.arisu.extensions.createThread
+import dev.floofy.arisu.modules.*
+import org.koin.core.context.startKoin
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+object Bootstrap {
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        Thread.currentThread().name = "Arisu-BootstrapThread"
+        logger.info("Bootstrapping...")
+
+        startKoin {
+            environmentProperties()
+            modules(arisuModule, endpointsModule, componentsModule)
+        }
+
+        val app = Arisu()
+        app.init()
+
+        Runtime.getRuntime().addShutdownHook(createThread("Arisu-ShutdownThread") {
+            logger.warn("Received shutdown, disposing.")
+            app.destroy()
+        })
+    }
+}
