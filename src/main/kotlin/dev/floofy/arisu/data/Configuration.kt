@@ -20,4 +20,25 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.data
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Configuration(
+    // @SerialName("postgresql")
+    // val postgresql: PostgresConfiguration
+
+    // The DSN to digest for Sentry errors
+    @SerialName("sentry_dsn")
+    val sentryDSN: String? = null,
+
+    // Amount of threads to give to Vert.x for handling requests
+    @SerialName("thread_count")
+    val threads: Int = 30,
+
+    // Default port to listen to
+    @SerialName("port")
+    val port: Int = 3621
+)

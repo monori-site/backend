@@ -45,12 +45,13 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation("org.litote.kmongo:kmongo-serialization:4.2.1")
     implementation("org.jetbrains.exposed:exposed-core:0.24.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.24.1")
-    implementation("org.mongodb:mongodb-driver-sync:4.1.1")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.postgresql:postgresql:42.2.18")
+    implementation("org.litote.kmongo:kmongo-id:4.2.1")
     implementation("com.charleskorn.kaml:kaml:0.26.0")
     implementation("org.slf4j:slf4j-api:1.7.30")
     implementation("redis.clients:jedis:3.3.0")
@@ -113,7 +114,7 @@ tasks {
     named<ShadowJar>("shadowJar") {
         mergeServiceFiles()
         archiveClassifier.set(null as String?)
-        archiveBaseName.set("arisu")
+        archiveBaseName.set("Arisu")
 
         manifest {
             attributes(mapOf(
@@ -135,7 +136,7 @@ class Version(
     private val minor: Int,
     private val revision: Int
 ) {
-    fun string(): String = "$major.$minor.$revision"
+    fun string(): String = "$major.$minor${if (revision == 0) "" else ".$revision"}"
     fun commit(): String = exec("git rev-parse HEAD")
 }
 

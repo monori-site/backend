@@ -20,4 +20,13 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.modules
+
+import dev.floofy.arisu.components.Endpoint
+import dev.floofy.arisu.endpoints.*
+import org.koin.dsl.bind
+import org.koin.dsl.module
+
+val endpointsModule = module {
+    single { MainEndpoint() } bind Endpoint::class
+}

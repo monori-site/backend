@@ -20,4 +20,14 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.endpoints
+
+import dev.floofy.arisu.components.Endpoint
+import io.vertx.core.http.HttpMethod
+import io.vertx.core.http.HttpServerRequest
+import io.vertx.core.http.HttpServerResponse
+
+class MainEndpoint: Endpoint("/", HttpMethod.GET) {
+    override fun run(req: HttpServerRequest, res: HttpServerResponse) =
+            res.setStatusCode(200).end("Hello, world!")
+}

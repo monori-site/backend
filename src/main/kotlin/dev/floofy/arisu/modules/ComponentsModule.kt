@@ -20,4 +20,11 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.modules
+
+import dev.floofy.arisu.components.RequestHandler
+import org.koin.dsl.module
+
+val componentsModule = module {
+    single { RequestHandler() }
+}

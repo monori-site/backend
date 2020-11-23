@@ -20,4 +20,11 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.extensions
+
+/**
+ * Inline function to create a new [java.lang.Thread] instance
+ * @param name The name of the thread
+ * @param block The body to run
+ */
+fun createThread(name: String, block: () -> Unit): Thread = Thread(block, name)

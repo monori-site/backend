@@ -20,4 +20,26 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.modules
+
+import com.charleskorn.kaml.Yaml
+import dev.floofy.arisu.data.Configuration
+import io.vertx.core.Vertx
+import io.vertx.core.VertxOptions
+import java.io.File
+import org.koin.dsl.module
+
+val arisuModule = module {
+    single {
+        val file = File("config.yml")
+        Yaml.default.decodeFromString(Configuration.serializer(), file.readText())
+    }
+
+    single {
+        val config: Configuration = get()
+        val options = VertxOptions()
+            .setWorkerPoolSize(config.threads)
+
+        Vertx.vertx(options)
+    }
+}

@@ -20,4 +20,26 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.components
+
+import io.vertx.core.http.HttpMethod
+import io.vertx.core.http.HttpServerRequest
+import io.vertx.core.http.HttpServerResponse
+
+/**
+ * Represents an endpoint for Arisu to run when a given [path] is specified
+ * @param version The version endpoint for keyed versioning, default is the default version
+ * @param method The HTTP method to use whilst running the path
+ * @param path The path to run the endpoint on
+ */
+abstract class Endpoint(
+    val path: String,
+    val method: HttpMethod,
+    val version: Int = 1
+) {
+
+    /**
+     * Runs this endpoint
+     */
+    abstract fun run(req: HttpServerRequest, res: HttpServerResponse)
+}

@@ -1,5 +1,5 @@
-# Monori · Self-hosting
-Since Monori is open-source and free to use, we have a page on how to self-host it if you're into that kind of stuff.
+# Arisu · Self-hosting
+Since Arisu is open-source and free to use, we have a page on how to self-host it if you're into that kind of stuff.
 
 ## Pre-requisites
 If you are gonna use the official Docker images, best recommended skipping to that section!
