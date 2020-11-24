@@ -30,6 +30,9 @@ data class Configuration(
     @SerialName("database")
     val database: DatabaseConfig,
 
+    @SerialName("mongodb")
+    val mongodb: MongoConfig,
+
     // The DSN to digest for Sentry errors
     @SerialName("sentry_dsn")
     val sentryDSN: String? = null,

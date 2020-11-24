@@ -20,13 +20,34 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.data
 
-import dev.floofy.arisu.services.mongodb.MongoService
-import dev.floofy.arisu.services.postgresql.PostgresService
-import org.koin.dsl.module
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-val servicesModule = module {
-    single { PostgresService(get()) }
-    single { MongoService(get()) }
-}
+@Serializable
+data class MongoConfig(
+    @SerialName("database")
+    val database: String = "arisu",
+
+    @SerialName("auth")
+    val auth: AuthSource? = null,
+
+    @SerialName("port")
+    val port: Int = 27017,
+
+    @SerialName("host")
+    val host: String = "localhost"
+)
+
+@Serializable
+data class AuthSource(
+    @SerialName("password")
+    val password: String,
+
+    @SerialName("username")
+    val username: String,
+
+    @SerialName("source")
+    val source: String = "admin"
+)

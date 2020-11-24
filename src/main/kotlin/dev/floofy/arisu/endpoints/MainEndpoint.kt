@@ -23,15 +23,16 @@
 package dev.floofy.arisu.endpoints
 
 import dev.floofy.arisu.components.Endpoint
-import dev.floofy.arisu.exposed.entities.TestEntity
-import dev.floofy.arisu.exposed.tables.TestTable
 import dev.floofy.arisu.extensions.*
+import dev.floofy.arisu.services.mongodb.MongoService
+import dev.floofy.arisu.services.mongodb.documents.TestDocument
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.json.JsonObject
 import java.util.*
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.litote.kmongo.eq
+import org.litote.kmongo.findOne
 
 class MainEndpoint: Endpoint("/", HttpMethod.GET) {
     override fun run(req: HttpServerRequest, res: HttpServerResponse) =
@@ -40,42 +41,31 @@ class MainEndpoint: Endpoint("/", HttpMethod.GET) {
         })
 }
 
-class CreateTestEndpoint: Endpoint("/put/:name", HttpMethod.GET) {
+class CreateTestEndpoint(private val mongo: MongoService): Endpoint("/put/:name", HttpMethod.GET) {
     override fun run(req: HttpServerRequest, res: HttpServerResponse) {
         val nameParam = req.getParam("name")
+        val collection = mongo.test()
 
-        transaction {
-            val entity = TestEntity.new {
-                createdAt = getISOString()
+        collection.insertOne(
+            TestDocument(
+                createdAt = getISOString(),
                 name = nameParam
-            }
+            )
+        )
 
-            val result = TestEntity[entity.id]
-
-            return@transaction res.setStatusCode(200).end(JsonObject().apply {
-                put("created_at", result.createdAt)
-                put("name", result.name)
-                put("id", result.id.toString())
-            })
-        }
+        res.setStatusCode(200).end("E")
     }
 }
 
-class RetriveEntityEndpoint: Endpoint("/retrive/:name", HttpMethod.GET) {
+class RetriveEntityEndpoint(private val mongo: MongoService): Endpoint("/retrive/:name", HttpMethod.GET) {
     override fun run(req: HttpServerRequest, res: HttpServerResponse) {
         val nameParam = req.getParam("name")
+        val collection = mongo.test()
 
-        transaction {
-            val entity = TestEntity.find { TestTable.name eq nameParam }.singleOrNull()
-                ?: return@transaction res.setStatusCode(500).end(JsonObject().apply {
-                    put("message", "Unable to find entity \"$nameParam\"")
-                })
+        val found = collection.findOne(TestDocument::name eq nameParam)
+            ?: return res.setStatusCode(500).end("can\'t find $nameParam")
 
-            return@transaction res.setStatusCode(200).end(JsonObject().apply {
-                put("created_at", entity.createdAt)
-                put("name", entity.name)
-                put("id", entity.id.toString())
-            })
-        }
+        println(found)
+        res.setStatusCode(200).end("E")
     }
 }

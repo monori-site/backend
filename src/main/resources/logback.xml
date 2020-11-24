@@ -26,6 +26,10 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
+    <logger name="com.mongodb" level="debug" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE-OUT"/>

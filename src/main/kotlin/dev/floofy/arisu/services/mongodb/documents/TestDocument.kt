@@ -20,13 +20,12 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.services.mongodb.documents
 
-import dev.floofy.arisu.services.mongodb.MongoService
-import dev.floofy.arisu.services.postgresql.PostgresService
-import org.koin.dsl.module
+import kotlinx.serialization.Serializable
 
-val servicesModule = module {
-    single { PostgresService(get()) }
-    single { MongoService(get()) }
-}
+@Serializable
+data class TestDocument(
+    val createdAt: String,
+    val name: String
+)

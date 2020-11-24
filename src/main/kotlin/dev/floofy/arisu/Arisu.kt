@@ -25,6 +25,7 @@ package dev.floofy.arisu
 import dev.floofy.arisu.components.Endpoint
 import dev.floofy.arisu.components.RequestHandler
 import dev.floofy.arisu.data.Configuration
+import dev.floofy.arisu.services.mongodb.MongoService
 import dev.floofy.arisu.services.postgresql.PostgresService
 import io.vertx.core.Vertx
 import io.vertx.ext.web.Router
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory
 class Arisu: KoinComponent {
     private val requestHandler: RequestHandler by inject()
     private val database: PostgresService by inject()
+    private val mongo: MongoService by inject()
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     private val config: Configuration by inject()
     private val vertx: Vertx by inject()
@@ -66,7 +68,7 @@ class Arisu: KoinComponent {
         logger.info("All routing has been setup, now loading components...")
 
         database.connect()
-        // mongodb.connect()
+        mongo.init()
         // sentry.install()
         // redis.connect()
 
@@ -85,11 +87,9 @@ class Arisu: KoinComponent {
      * Destroys this [Arisu] instance
      */
     fun destroy() {
-        logger.info("Destroying instance.")
-
         // sessions.destroy()
         // database.disconnect()
-        // mongo.disconnect()
+        mongo.disconnect()
         // redis.disconnect()
         vertx.close()
     }
