@@ -42,11 +42,12 @@ import org.slf4j.*
  */
 class PostgresService(private val config: Configuration) {
     private lateinit var database: Database
+    private lateinit var source: HikariDataSource
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     fun connect() {
         logger.info("Now connecting to PostgreSQL...")
-        val source = HikariDataSource(HikariConfig().let { c ->
+        source = HikariDataSource(HikariConfig().let { c ->
             c.jdbcUrl = "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}"
             c.username = config.database.username
             c.password = config.database.password

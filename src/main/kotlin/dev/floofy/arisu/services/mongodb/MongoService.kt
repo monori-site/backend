@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory
  */
 class MongoService(private val config: Configuration) {
     private lateinit var database: MongoDatabase
-    private lateinit var client: MongoClient
+    lateinit var client: MongoClient
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     fun init() {

@@ -22,26 +22,14 @@
 
 package dev.floofy.arisu.data
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Configuration(
-    @SerialName("database")
-    val database: DatabaseConfig,
-
-    @SerialName("mongodb")
-    val mongodb: MongoConfig,
-
-    // The DSN to digest for Sentry errors
-    @SerialName("sentry_dsn")
     val sentryDSN: String? = null,
-
-    // Amount of threads to give to Vert.x for handling requests
-    @SerialName("thread_count")
+    val database: DatabaseConfig,
+    val mongodb: MongoConfig,
     val threads: Int = 30,
-
-    // Default port to listen to
-    @SerialName("port")
+    val redis: RedisConfig = RedisConfig(), // uses default options if it's not provided
     val port: Int = 3621
 )

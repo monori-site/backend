@@ -20,16 +20,32 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.data
+package dev.floofy.arisu.services.redis
 
-import kotlinx.serialization.Serializable
+import dev.floofy.arisu.data.Configuration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import redis.clients.jedis.Jedis
 
-@Serializable
-data class DatabaseConfig(
-    val password: String,
-    val username: String,
-    val database: String,
-    val schema: String? = "public",
-    val host: String = "localhost",
-    val port: Int = 5432
-)
+class RedisService(private val config: Configuration) {
+    lateinit var client: Jedis
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
+    fun init() {
+        logger.info("Now connecting to Redis...")
+
+        val jedis = Jedis(config.redis.host, config.redis.port)
+        jedis.connect()
+
+        if (config.redis.password != null) jedis.auth(config.redis.password)
+        if (config.redis.db > 0) jedis.select(config.redis.db)
+
+        logger.info("Attempted to connect to Redis, assuming it worked")
+        client = jedis
+    }
+
+    fun close() {
+        logger.warn("Attempting to close Redis instance")
+        client.close()
+    }
+}

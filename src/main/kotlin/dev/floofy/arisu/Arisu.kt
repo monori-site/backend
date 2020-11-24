@@ -27,6 +27,7 @@ import dev.floofy.arisu.components.RequestHandler
 import dev.floofy.arisu.data.Configuration
 import dev.floofy.arisu.services.mongodb.MongoService
 import dev.floofy.arisu.services.postgresql.PostgresService
+import dev.floofy.arisu.services.redis.RedisService
 import io.vertx.core.Vertx
 import io.vertx.ext.web.Router
 import org.koin.core.KoinComponent
@@ -41,6 +42,7 @@ class Arisu: KoinComponent {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     private val config: Configuration by inject()
     private val vertx: Vertx by inject()
+    private val redis: RedisService by inject()
 
     /**
      * Initialises all components and runs the service
@@ -70,7 +72,7 @@ class Arisu: KoinComponent {
         database.connect()
         mongo.init()
         // sentry.install()
-        // redis.connect()
+        redis.init()
 
         logger.info("Assuming that all components has been installed, now creating server")
         val server = vertx.createHttpServer()
@@ -88,9 +90,8 @@ class Arisu: KoinComponent {
      */
     fun destroy() {
         // sessions.destroy()
-        // database.disconnect()
         mongo.disconnect()
-        // redis.disconnect()
+        redis.close()
         vertx.close()
     }
 }

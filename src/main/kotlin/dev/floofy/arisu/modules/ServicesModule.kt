@@ -24,9 +24,11 @@ package dev.floofy.arisu.modules
 
 import dev.floofy.arisu.services.mongodb.MongoService
 import dev.floofy.arisu.services.postgresql.PostgresService
+import dev.floofy.arisu.services.redis.RedisService
 import org.koin.dsl.module
 
 val servicesModule = module {
     single { PostgresService(get()) }
     single { MongoService(get()) }
+    single { RedisService(get()) }
 }

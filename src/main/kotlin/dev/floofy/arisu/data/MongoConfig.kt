@@ -22,32 +22,19 @@
 
 package dev.floofy.arisu.data
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class MongoConfig(
-    @SerialName("database")
     val database: String = "arisu",
-
-    @SerialName("auth")
     val auth: AuthSource? = null,
-
-    @SerialName("port")
     val port: Int = 27017,
-
-    @SerialName("host")
     val host: String = "localhost"
 )
 
 @Serializable
 data class AuthSource(
-    @SerialName("password")
     val password: String,
-
-    @SerialName("username")
     val username: String,
-
-    @SerialName("source")
     val source: String = "admin"
 )

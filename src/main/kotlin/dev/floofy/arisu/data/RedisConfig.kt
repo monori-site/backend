@@ -25,11 +25,9 @@ package dev.floofy.arisu.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DatabaseConfig(
-    val password: String,
-    val username: String,
-    val database: String,
-    val schema: String? = "public",
+data class RedisConfig(
+    val password: String? = null,
     val host: String = "localhost",
-    val port: Int = 5432
+    val port: Int = 6379,
+    val db: Int = 10
 )

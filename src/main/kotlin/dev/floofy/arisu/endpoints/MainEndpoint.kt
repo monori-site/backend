@@ -24,15 +24,12 @@ package dev.floofy.arisu.endpoints
 
 import dev.floofy.arisu.components.Endpoint
 import dev.floofy.arisu.extensions.*
-import dev.floofy.arisu.services.mongodb.MongoService
-import dev.floofy.arisu.services.mongodb.documents.TestDocument
+import dev.floofy.arisu.services.redis.RedisService
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.json.JsonObject
 import java.util.*
-import org.litote.kmongo.eq
-import org.litote.kmongo.findOne
 
 class MainEndpoint: Endpoint("/", HttpMethod.GET) {
     override fun run(req: HttpServerRequest, res: HttpServerResponse) =
@@ -41,31 +38,21 @@ class MainEndpoint: Endpoint("/", HttpMethod.GET) {
         })
 }
 
-class CreateTestEndpoint(private val mongo: MongoService): Endpoint("/put/:name", HttpMethod.GET) {
+class CreateTestEndpoint(private val redis: RedisService): Endpoint("/put/:name", HttpMethod.GET) {
     override fun run(req: HttpServerRequest, res: HttpServerResponse) {
         val nameParam = req.getParam("name")
-        val collection = mongo.test()
+        redis.client.set(nameParam, "E")
 
-        collection.insertOne(
-            TestDocument(
-                createdAt = getISOString(),
-                name = nameParam
-            )
-        )
-
-        res.setStatusCode(200).end("E")
+        return res.setStatusCode(200).end("E")
     }
 }
 
-class RetriveEntityEndpoint(private val mongo: MongoService): Endpoint("/retrive/:name", HttpMethod.GET) {
+class RetriveEntityEndpoint(private val redis: RedisService): Endpoint("/retrive/:name", HttpMethod.GET) {
     override fun run(req: HttpServerRequest, res: HttpServerResponse) {
         val nameParam = req.getParam("name")
-        val collection = mongo.test()
+        val value = redis.client.get(nameParam)
 
-        val found = collection.findOne(TestDocument::name eq nameParam)
-            ?: return res.setStatusCode(500).end("can\'t find $nameParam")
-
-        println(found)
-        res.setStatusCode(200).end("E")
+        println(value)
+        return res.setStatusCode(200).end("E")
     }
 }
