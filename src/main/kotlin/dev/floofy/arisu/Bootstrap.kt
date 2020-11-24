@@ -34,8 +34,6 @@ object Bootstrap {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        println(getISOString())
-
         Thread.currentThread().name = "Arisu-BootstrapThread"
         logger.info("Bootstrapping...")
 
