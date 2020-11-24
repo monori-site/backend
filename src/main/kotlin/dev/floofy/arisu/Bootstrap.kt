@@ -23,6 +23,7 @@
 package dev.floofy.arisu
 
 import dev.floofy.arisu.extensions.createThread
+import dev.floofy.arisu.extensions.getISOString
 import dev.floofy.arisu.modules.*
 import org.koin.core.context.startKoin
 import org.slf4j.Logger
@@ -33,6 +34,8 @@ object Bootstrap {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        println(getISOString())
+
         Thread.currentThread().name = "Arisu-BootstrapThread"
         logger.info("Bootstrapping...")
 

@@ -30,5 +30,6 @@ import org.jetbrains.exposed.dao.id.EntityID
 class TestEntity(id: EntityID<Int>): IntEntity(id) {
     companion object: IntEntityClass<TestEntity>(TestTable)
 
+    var createdAt by TestTable.createdAt
     var name by TestTable.name
 }

@@ -25,5 +25,6 @@ package dev.floofy.arisu.exposed.tables
 import org.jetbrains.exposed.dao.id.IntIdTable
 
 object TestTable: IntIdTable("testing") {
+    val createdAt = text("created_at")
     val name = varchar("name", 2000).uniqueIndex()
 }

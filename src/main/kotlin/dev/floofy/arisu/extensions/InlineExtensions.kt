@@ -22,8 +22,9 @@
 
 package dev.floofy.arisu.extensions
 
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /**
  * Inline function to create a new [java.lang.Thread] instance
@@ -33,8 +34,10 @@ import java.util.*
 fun createThread(name: String, block: () -> Unit): Thread = Thread(block, name)
 
 /**
- * Function to format a [Date] to a serialised `DATE` object
- * @param date The date to serialise
+ * Returns an ISO-8601-complaint version of a [Instant] class
  */
-fun formatDate(date: Date = Date()) =
-    SimpleDateFormat("yyyy-MM-dd").format(date)
+fun getISOString(): String =
+    DateTimeFormatter
+        .ISO_INSTANT
+        .withZone(ZoneId.systemDefault())
+        .format(Instant.now())

@@ -46,12 +46,14 @@ class CreateTestEndpoint: Endpoint("/put/:name", HttpMethod.GET) {
 
         transaction {
             val entity = TestEntity.new {
+                createdAt = getISOString()
                 name = nameParam
             }
 
             val result = TestEntity[entity.id]
 
             return@transaction res.setStatusCode(200).end(JsonObject().apply {
+                put("created_at", result.createdAt)
                 put("name", result.name)
                 put("id", result.id.toString())
             })
@@ -70,6 +72,7 @@ class RetriveEntityEndpoint: Endpoint("/retrive/:name", HttpMethod.GET) {
                 })
 
             return@transaction res.setStatusCode(200).end(JsonObject().apply {
+                put("created_at", entity.createdAt)
                 put("name", entity.name)
                 put("id", entity.id.toString())
             })
