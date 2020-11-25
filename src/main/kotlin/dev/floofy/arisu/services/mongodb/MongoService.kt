@@ -26,9 +26,7 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import dev.floofy.arisu.data.Configuration
-import dev.floofy.arisu.services.mongodb.documents.TestDocument
-import org.litote.kmongo.KMongo
-import org.litote.kmongo.getCollection
+import org.litote.kmongo.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -39,7 +37,7 @@ import org.slf4j.LoggerFactory
  * - Session storage (for retrieving later)
  */
 class MongoService(private val config: Configuration) {
-    private lateinit var database: MongoDatabase
+    lateinit var database: MongoDatabase
     lateinit var client: MongoClient
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -69,5 +67,5 @@ class MongoService(private val config: Configuration) {
         client.close()
     }
 
-    fun test(): MongoCollection<TestDocument> = database.getCollection<TestDocument>("test")
+    inline fun <reified T: Any> collection(name: String): MongoCollection<T> = database.getCollection(name, T::class.java)
 }
