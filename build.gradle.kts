@@ -48,7 +48,7 @@ dependencies {
     implementation("org.litote.kmongo:kmongo-serialization:4.2.1")
     implementation("org.jetbrains.exposed:exposed-core:0.24.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
-    implementation("org.jetbrains.exposed:exposed-dao:0.24.1")
+    implementation("org.jetbrains.exposed:exposed-dao:0.28.1")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.postgresql:postgresql:42.2.18")
     implementation("org.litote.kmongo:kmongo-id:4.2.1")
