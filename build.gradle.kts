@@ -46,7 +46,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
     implementation("org.litote.kmongo:kmongo-serialization:4.2.1")
-    implementation("org.jetbrains.exposed:exposed-core:0.24.1")
+    implementation("org.jetbrains.exposed:exposed-core:0.28.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.24.1")
     implementation("ch.qos.logback:logback-classic:1.2.3")
