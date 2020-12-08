@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.components.stopwatch
+package dev.floofy.arisu.components
 
 import java.lang.IllegalStateException
 

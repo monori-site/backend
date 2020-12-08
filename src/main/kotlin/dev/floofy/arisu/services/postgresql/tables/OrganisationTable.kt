@@ -10,8 +10,8 @@ object OrganisationTable: IntIdTable("organisations") {
     val updatedAt = text("updated_at")
     val projects = array<String>("projects", TextColumnType())
     val members = array<String>("members", TextColumnType())
-    val twitter = text("twitter")
-    val website = text("website")
-    val github = text("github")
+    val twitter = text("twitter").nullable()
+    val website = text("website").nullable()
+    val github = text("github").nullable()
     val name = varchar("name", 256)
 }

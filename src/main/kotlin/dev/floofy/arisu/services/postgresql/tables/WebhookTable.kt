@@ -7,9 +7,9 @@ import org.jetbrains.exposed.sql.TextColumnType
 object WebhookTable: IntIdTable("webhooks") {
     val contentType = text("content_type")
     val createdAt = text("created_at")
-    val ownerID = integer("owner_id")
+    val updatedAt = text("updated_at")
     val secret = text("secret").nullable()
     val events = array<String>("events", TextColumnType())
-    val ssl = bool("ssl")
+    val owner = integer("owner")
     val url = text("url")
 }

@@ -2,7 +2,7 @@
 <configuration debug="false">
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>[%thread] [%logger{36}] [%level] -> %msg%n</pattern>
+            <pattern>[ %thread ] [ %logger{36} ] %level | %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -10,7 +10,7 @@
         <file>./logs/Arisu.out.log</file>
         <append>false</append>
         <encoder>
-            <pattern>[%thread] [%logger{36}] [%level] -> %msg%n</pattern>
+            <pattern>[ %thread ] [ %logger{36} ] %level | %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -18,7 +18,7 @@
         <file>./logs/Arisu.error.log</file>
         <append>false</append>
         <encoder>
-            <pattern>[%thread] [%logger{36}] [%level] -> %msg%n</pattern>
+            <pattern>[ %thread ] [ %logger{36} ] %level | %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -27,6 +27,10 @@
     </logger>
 
     <logger name="com.mongodb" level="debug" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="Exposed" level="debug" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 
