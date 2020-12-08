@@ -2,7 +2,7 @@
 ![Stars](https://img.shields.io/github/stars/monori-site/backend?style=flat-square) 
 ![Workflow Status](https://github.com/monori-site/backend/workflows/ktlint/badge.svg)
 
-> 👻✏️ **| Arisu is a FoSS translation site made with simplicity in-mind.**
+> 👻✏️ **| Translation made with simplicity, yet robust.**
 
 ## Features
 - All multi-lingual translation content in one place, but not required to be in one place.
