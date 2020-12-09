@@ -22,14 +22,25 @@
 
 package dev.floofy.arisu.data
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Configuration(
+    val environment: Environment = Environment.Development,
     val sentryDSN: String? = null,
     val database: DatabaseConfig,
-    val mongodb: MongoConfig,
+    val hashing: HashConfig = HashConfig(), // use default hash config if not found
     val threads: Int = 30,
     val redis: RedisConfig = RedisConfig(), // uses default options if it's not provided
     val port: Int = 3621
 )
+
+@Serializable
+enum class Environment {
+    @SerialName("development")
+    Development,
+
+    @SerialName("production")
+    Production
+}

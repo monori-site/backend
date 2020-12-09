@@ -25,17 +25,16 @@ package dev.floofy.arisu.services.postgresql
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.arisu.data.Configuration
-import dev.floofy.arisu.exposed.tables.TestTable
+import dev.floofy.arisu.services.postgresql.tables.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.*
 
 /**
  * Represents a service for creating connections to PostgreSQL, Arisu uses PostgreSQL to store data that is structured:
  *
+ * - User or Organisation Webhooks
  * - User Accounts
  * - Organisations
  * - Projects
@@ -61,11 +60,12 @@ class PostgresService(private val config: Configuration) {
         logger.info("Connected to PostgreSQL, using v${db.version}")
 
         transaction {
-            addLogger(StdOutSqlLogger)
-
-            // Drop it in development
-            SchemaUtils.drop(TestTable)
-            SchemaUtils.create(TestTable)
+            SchemaUtils.create(
+                UserTable,
+                ProjectTable,
+                WebhookTable,
+                OrganisationTable
+            )
         }
 
         // hopefully this will do the trick to store

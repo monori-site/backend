@@ -23,6 +23,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.diffplug.gradle.spotless.SpotlessApply
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.jetbrains.kotlin.asJava.getJvmSignatureDiagnostics
 
 plugins {
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -53,6 +54,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.2.18")
     implementation("org.litote.kmongo:kmongo-id:4.2.1")
     implementation("com.charleskorn.kaml:kaml:0.26.0")
+    implementation("de.mkammerer:argon2-jvm:2.7")
     implementation("org.slf4j:slf4j-api:1.7.30")
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("redis.clients:jedis:3.3.0")

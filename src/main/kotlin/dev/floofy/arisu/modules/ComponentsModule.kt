@@ -23,8 +23,10 @@
 package dev.floofy.arisu.modules
 
 import dev.floofy.arisu.components.RequestHandler
+import de.mkammerer.argon2.Argon2Factory
 import org.koin.dsl.module
 
 val componentsModule = module {
+    single { Argon2Factory.create() }
     single { RequestHandler() }
 }
