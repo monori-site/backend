@@ -46,21 +46,16 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-    implementation("org.litote.kmongo:kmongo-serialization:4.2.1")
     implementation("org.jetbrains.exposed:exposed-core:0.28.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.28.1")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.postgresql:postgresql:42.2.18")
-    implementation("org.litote.kmongo:kmongo-id:4.2.1")
     implementation("com.charleskorn.kaml:kaml:0.26.0")
+    implementation("com.sparkjava:spark-core:2.9.3")
     implementation("de.mkammerer:argon2-jvm:2.7")
     implementation("org.slf4j:slf4j-api:1.7.30")
     implementation("com.zaxxer:HikariCP:3.4.5")
-    implementation("redis.clients:jedis:3.3.0")
-    implementation("io.vertx:vertx-core:3.9.4")
-    implementation("io.vertx:vertx-web:3.9.4")
-    implementation("org.koin:koin-core:2.1.6")
     implementation("io.sentry:sentry:3.2.0")
     implementation(kotlin("stdlib"))
 }
