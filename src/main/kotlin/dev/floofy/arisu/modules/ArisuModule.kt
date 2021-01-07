@@ -20,22 +20,23 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.modules
 
-import dev.floofy.arisu.endpoints.addMainEndpoints
-import dev.floofy.arisu.modules.arisuModule
-import io.ktor.application.*
-import io.ktor.util.*
-import org.koin.ktor.ext.Koin
+import dev.floofy.arisu.interceptors.LoggingInterceptor
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import org.koin.dsl.module
 
-/**
- * Arisu module to install Arisu into ktor.
- */
-@InternalAPI
-fun Application.arisu() {
-    install(Koin) {
-        modules(arisuModule)
+val arisuModule = module {
+    single {
+        HttpClient(OkHttp) {
+            engine {
+                config {
+                    followRedirects(true)
+                }
+
+                addInterceptor(LoggingInterceptor())
+            }
+        }
     }
-
-    addMainEndpoints()
 }

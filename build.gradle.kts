@@ -68,7 +68,8 @@ dependencies {
     implementation("com.zaxxer:HikariCP:3.4.5")
 
     // Dependency Injection
-    implementation("org.koin:koin-ktor:1.5.0")
+    implementation("org.koin:koin-ktor:2.2.1")
+    implementation("org.koin:koin-core:2.2.1")
 
     // Hashing (Argon2)
     implementation("de.mkammerer:argon2-jvm:2.7")

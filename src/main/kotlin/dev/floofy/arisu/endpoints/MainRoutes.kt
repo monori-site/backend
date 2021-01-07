@@ -20,22 +20,30 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.endpoints
 
-import dev.floofy.arisu.endpoints.addMainEndpoints
-import dev.floofy.arisu.modules.arisuModule
 import io.ktor.application.*
+import io.ktor.client.*
+import io.ktor.client.features.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import io.ktor.util.*
-import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.inject
 
-/**
- * Arisu module to install Arisu into ktor.
- */
 @InternalAPI
-fun Application.arisu() {
-    install(Koin) {
-        modules(arisuModule)
-    }
+fun Application.addMainEndpoints() {
+    val http by inject<HttpClient>()
 
-    addMainEndpoints()
+    routing {
+        get("/") {
+            val res = http.get<DefaultHttpResponse> {
+                url("https://api.floofy.dev")
+            }
+
+            call.respond(HttpStatusCode.OK, res.readText())
+        }
+    }
 }

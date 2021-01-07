@@ -20,22 +20,26 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu
+package dev.floofy.arisu.interceptors
 
-import dev.floofy.arisu.endpoints.addMainEndpoints
-import dev.floofy.arisu.modules.arisuModule
-import io.ktor.application.*
-import io.ktor.util.*
-import org.koin.ktor.ext.Koin
+import dev.floofy.arisu.kotlin.logging
+import java.io.IOException
+import okhttp3.Interceptor
+import okhttp3.Response
 
-/**
- * Arisu module to install Arisu into ktor.
- */
-@InternalAPI
-fun Application.arisu() {
-    install(Koin) {
-        modules(arisuModule)
+class LoggingInterceptor: Interceptor {
+    private val logger by logging(this::class.java)
+
+    @Throws(IOException::class)
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+        val start = System.nanoTime()
+
+        logger.info("Performing request on \"${request.method.toUpperCase()} ${request.url}\"...")
+        val response = chain.proceed(request)
+        val end = System.nanoTime()
+
+        logger.info("\"${request.method.toUpperCase()} ${request.url}\": ${response.code} | ~${(end - start) / 1e6}ms")
+        return response
     }
-
-    addMainEndpoints()
 }
