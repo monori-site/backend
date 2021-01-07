@@ -23,7 +23,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.diffplug.gradle.spotless.SpotlessApply
 import org.apache.tools.ant.filters.ReplaceTokens
-import org.jetbrains.kotlin.asJava.getJvmSignatureDiagnostics
 
 plugins {
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -45,19 +44,37 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    // Kotlin libraries
+    implementation(kotlin("stdlib"))
+
+    // Ktor + Serialization
+    implementation("io.ktor:ktor-client-serialization:1.5.0")
+    implementation("io.ktor:ktor-client-okhttp:1.5.0")
+    implementation("io.ktor:ktor-server-netty:1.5.0")
+    implementation("io.ktor:ktor-server-core:1.5.0")
+
+    // Configuration (YAML)
+    implementation("com.charleskorn.kaml:kaml:0.26.0")
+
+    // Logging Utilities
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("org.slf4j:slf4j-api:1.7.30")
+
+    // Database (PostgreSQL + Exposed ORM)
     implementation("org.jetbrains.exposed:exposed-core:0.28.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.28.1")
-    implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.postgresql:postgresql:42.2.18")
-    implementation("com.charleskorn.kaml:kaml:0.26.0")
-    implementation("com.sparkjava:spark-core:2.9.3")
-    implementation("de.mkammerer:argon2-jvm:2.7")
-    implementation("org.slf4j:slf4j-api:1.7.30")
     implementation("com.zaxxer:HikariCP:3.4.5")
+
+    // Dependency Injection
+    implementation("org.koin:koin-ktor:1.5.0")
+
+    // Hashing (Argon2)
+    implementation("de.mkammerer:argon2-jvm:2.7")
+
+    // Extra Utilities
     implementation("io.sentry:sentry:3.2.0")
-    implementation(kotlin("stdlib"))
 }
 
 val metadata = task<Copy>("metadata") {
@@ -72,6 +89,7 @@ val metadata = task<Copy>("metadata") {
         filter<ReplaceTokens>(mapOf("tokens" to tokens))
     }
 
+    delete("src/main/resources/app.properties")
     rename { "app.properties" }
     into("src/main/resources")
     includeEmptyDirs = true
@@ -113,6 +131,7 @@ tasks {
         mergeServiceFiles()
         archiveClassifier.set(null as String?)
         archiveBaseName.set("Arisu")
+        archiveVersion.set(null as String?)
 
         manifest {
             attributes(mapOf(

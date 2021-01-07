@@ -2,7 +2,7 @@
 ![Stars](https://img.shields.io/github/stars/monori-site/backend?style=flat-square) 
 ![Workflow Status](https://github.com/monori-site/backend/workflows/ktlint/badge.svg)
 
-> 👻✏️ **| Translation made with simplicity, yet robust.**
+> 👻✏️ **Translation made with simplicity, yet robust. Made with <3 in Kotlin.**
 
 ## Features
 - All multi-lingual translation content in one place, but not required to be in one place.
@@ -10,25 +10,24 @@
 - Requests to edit translation content, more contributions!
 - Free, and open source!
   - All components are FoSS content under MIT.
-  
-## Supported Databases
-> More database dialects will be supported in the future.
-
-- PostgreSQL
 
 ## Installation
 ### Requirements
 - Docker (optional)
 - Sentry (optional)
 - Java 11
-- PostgreSQL (or using a supported database above)
+- PostgreSQL
 - Redis
+- [Emi](#) installed
 
 ### Process (Locally)
-no.
+Coming soon.
 
-### Process (Docker)
-no.
+### Process (Docker, locally)
+Coming soon.
+
+### Process (Docker, registry)
+Coming soon.
 
 ## License
 **Arisu** is released under the MIT License, read [here](/LICENSE) for more information.
