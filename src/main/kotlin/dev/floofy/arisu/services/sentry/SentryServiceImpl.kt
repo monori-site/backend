@@ -21,3 +21,41 @@
  */
 
 package dev.floofy.arisu.services.sentry
+
+import dev.floofy.arisu.data.Config
+import dev.floofy.arisu.kotlin.logging
+import io.ktor.util.*
+import io.sentry.Sentry
+
+@KtorExperimentalAPI
+class SentryServiceImpl(private val config: Config): SentryService {
+    override val enabled: Boolean = config.sentryDSN != null
+    private val logger by logging(this::class.java)
+
+    override fun install() {
+        if (!enabled) {
+            logger.warn("`arisu.sentry` was not specified in configuration, skipping")
+            return
+        }
+
+        logger.info("Installing Sentry...")
+        Sentry.init {
+            it.release = "0.0.0_0"
+            it.dsn = config.sentryDSN
+        }
+
+        Sentry.configureScope {
+            it.setTag("project.versions.kotlin", KotlinVersion.CURRENT.toString())
+            it.setTag("project.versions.arisu", "1.0.0-indev.0")
+            it.setTag("project.versions.java", System.getProperty("java.version") ?: "<unknown>")
+        }
+
+        logger.info("Sentry has been installed. I hope so, you never know o_O")
+    }
+
+    override fun report(ex: Throwable) {
+        if (!enabled) return
+
+        Sentry.captureException(ex)
+    }
+}

@@ -24,14 +24,24 @@ package dev.floofy.arisu
 
 import dev.floofy.arisu.extensions.env
 import dev.floofy.arisu.kotlin.logging
+import dev.floofy.arisu.services.postgresql.PostgresService
+import dev.floofy.arisu.services.redis.RedisService
 import io.ktor.application.*
+import kotlinx.coroutines.DisposableHandle
+import org.koin.core.Koin
 
 typealias Monitor = (Application) -> Unit
+typealias KoinMonitor = (Koin, Application) -> Unit
 
 class Monitors(private val environment: ApplicationEnvironment) {
+    private lateinit var disposable: DisposableHandle
     private val logger by logging(this::class.java)
 
-    private val onAppStopped: Monitor = { dispose() }
+    private val onAppStopped: Monitor = {
+        disposable.dispose()
+        dispose()
+    }
+
     private val onAppStarted: Monitor = {
         logger.info("Arisu has now started! Environment: ${it.env}")
     }
@@ -40,10 +50,20 @@ class Monitors(private val environment: ApplicationEnvironment) {
         logger.info("Arisu is now starting...")
     }
 
-    fun start() {
+    private val disconnectStuff: KoinMonitor = { koin: Koin, _: Application ->
+        val database = koin.get<PostgresService>()
+        val redis = koin.get<RedisService>()
+
+        redis.close()
+        database.close()
+    }
+
+    fun start(koin: Koin) {
         environment.monitor.subscribe(ApplicationStopped, onAppStopped)
         environment.monitor.subscribe(ApplicationStarting, onAppStart)
         environment.monitor.subscribe(ApplicationStarted, onAppStarted)
+
+        disposable = environment.monitor.subscribe(ApplicationStopping) { disconnectStuff(koin, it) }
     }
 
     private fun dispose() {

@@ -21,3 +21,7 @@
  */
 
 package dev.floofy.arisu.services.snowflake
+
+interface SnowflakeService {
+    fun generate(): Long
+}

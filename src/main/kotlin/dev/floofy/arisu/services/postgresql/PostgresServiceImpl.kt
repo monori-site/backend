@@ -58,7 +58,7 @@ class PostgresServiceImpl(private val config: Config): PostgresService {
     }
 
     override fun close() {
-        logger.warn("Closing data source...")
+        logger.warn("Disconnecting from PostgreSQL")
         dataSource.close()
     }
 }

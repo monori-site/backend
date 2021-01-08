@@ -54,9 +54,6 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:1.5.0")
     implementation("io.ktor:ktor-server-core:1.5.0")
 
-    // Configuration (YAML)
-    implementation("com.charleskorn.kaml:kaml:0.26.0")
-
     // Logging Utilities
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.slf4j:slf4j-api:1.7.30")
@@ -67,6 +64,9 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:0.28.1")
     implementation("org.postgresql:postgresql:42.2.18")
     implementation("com.zaxxer:HikariCP:3.4.5")
+
+    // Cache (Redis)
+    implementation("io.lettuce:lettuce-core:6.0.1.RELEASE")
 
     // Dependency Injection
     implementation("org.koin:koin-ktor:2.2.1")

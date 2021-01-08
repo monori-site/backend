@@ -22,4 +22,12 @@
 
 package dev.floofy.arisu.services.validation
 
-interface ValidationService
+import dev.floofy.arisu.typings.arisu.validation.ValidationErrorType
+
+interface ValidationService {
+    fun validateUser(): List<ValidationErrorType>
+
+    fun validateProject(): List<ValidationErrorType>
+
+    fun validateOrganisation(): List<ValidationErrorType>
+}

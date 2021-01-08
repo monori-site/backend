@@ -20,17 +20,11 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.services.postgresql
+package dev.floofy.arisu.features.ratelimiting
 
-import org.jetbrains.exposed.sql.Database
-
-interface PostgresService {
-    var database: Database
-
-    /**
-     * Creates a connection with PostgreSQL
-     */
-    fun connect()
-
-    fun close()
-}
+/**
+ * This is a forked version of project "ktor-rate-limiting" (https://github.com/mantono/ktor-rate-limiting)
+ *
+ * Adds in a Redis-based cache mainly, credits to the library! Give it a star <3
+ */
+class Ratelimiter<in T: Any>()

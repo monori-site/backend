@@ -20,4 +20,13 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.exposed
+package dev.floofy.arisu
+
+object Constants {
+    /**
+     * Returns the epoch for generating snowflakes
+     *
+     * Date: Jan 1st, 2021
+     */
+    val EPOCH_TIME: Long = 1609484400000L
+}

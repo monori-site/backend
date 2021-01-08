@@ -24,10 +24,19 @@ package dev.floofy.arisu.modules
 
 import dev.floofy.arisu.services.postgresql.PostgresService
 import dev.floofy.arisu.services.postgresql.PostgresServiceImpl
+import dev.floofy.arisu.services.redis.RedisService
+import dev.floofy.arisu.services.redis.RedisServiceImpl
+import dev.floofy.arisu.services.sentry.SentryService
+import dev.floofy.arisu.services.sentry.SentryServiceImpl
+import dev.floofy.arisu.services.snowflake.SnowflakeService
+import dev.floofy.arisu.services.snowflake.SnowflakeServiceImpl
 import io.ktor.util.*
 import org.koin.dsl.module
 
 @KtorExperimentalAPI
 val serviceModule = module {
+    single<SnowflakeService> { SnowflakeServiceImpl() }
     single<PostgresService> { PostgresServiceImpl(get()) }
+    single<SentryService> { SentryServiceImpl(get()) }
+    single<RedisService> { RedisServiceImpl(get()) }
 }

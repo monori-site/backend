@@ -28,6 +28,7 @@ import io.ktor.util.*
 
 @KtorExperimentalAPI
 class Config(config: ApplicationConfig) {
+    val sentryDSN = config.propertyOrNull("arisu.sentry")?.getString()
     val docsUrl = config.propertyOrNull("arisu.docsUrl")?.getString() ?: "docs.arisu.land"
     val emiUrl = config.propertyOrNull("arisu.emiUrl")?.getString()
 
@@ -38,5 +39,12 @@ class Config(config: ApplicationConfig) {
         schema = config.propertyOrNull("arisu.database.schema")?.getString() ?: "public",
         host = config.propertyOrNull("arisu.database.host")?.getString() ?: "localhost",
         port = config.propertyOrNull("arisu.database.port")?.getInt() ?: 5432
+    )
+
+    val redis = RedisConfig(
+        password = config.propertyOrNull("arisu.redis.password")?.getString(),
+        host = config.property("arisu.redis.host").getString(),
+        port = config.property("arisu.redis.port").getInt(),
+        db = config.propertyOrNull("arisu.redis.db")?.getInt() ?: 2
     )
 }

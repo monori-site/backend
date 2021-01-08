@@ -21,3 +21,11 @@
  */
 
 package dev.floofy.arisu.services.sentry
+
+interface SentryService {
+    val enabled: Boolean
+
+    fun install()
+
+    fun report(ex: Throwable)
+}

@@ -21,3 +21,26 @@
  */
 
 package dev.floofy.arisu.services.snowflake
+
+import dev.floofy.arisu.Constants
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
+
+// Credit: https://github.com/KyokoBot/kyoko/blob/master/shared/src/main/java/moe/kyokobot/shared/util/SnowflakeGen.java
+class SnowflakeServiceImpl: SnowflakeService {
+    private val increment: AtomicInteger = AtomicInteger()
+    private val lastMs: AtomicLong = AtomicLong()
+    private val pid: Long = ProcessHandle.current().pid()
+
+    override fun generate(): Long {
+        val current = System.currentTimeMillis()
+        if (lastMs.get() != current) {
+            lastMs.set(current)
+            increment.set(0)
+        }
+
+        return ((current - Constants.EPOCH_TIME) shl 22
+                or ((pid.toInt() shl 12 and 0x3ff).toLong())
+                or (increment.getAndIncrement() and 0xfff).toLong())
+    }
+}

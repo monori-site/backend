@@ -20,17 +20,11 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.services.postgresql
+package dev.floofy.arisu.data
 
-import org.jetbrains.exposed.sql.Database
-
-interface PostgresService {
-    var database: Database
-
-    /**
-     * Creates a connection with PostgreSQL
-     */
-    fun connect()
-
-    fun close()
-}
+data class RedisConfig(
+    val password: String? = null,
+    val host: String,
+    val port: Int,
+    val db: Int
+)
