@@ -20,35 +20,25 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.services.postgresql
 
-import dev.floofy.arisu.interceptors.LoggingInterceptor
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.request.*
-import org.koin.dsl.module
+import dev.floofy.arisu.exposed.async.AsyncTransaction
+import org.jetbrains.exposed.sql.Transaction
 
-val arisuModule = module {
-    single {
-        HttpClient(OkHttp) {
-            engine {
-                config {
-                    followRedirects(true)
-                }
+interface PostgresService {
+    /**
+     * Opens a connection to the database using Exposed
+     */
+    fun open()
 
-                addInterceptor(LoggingInterceptor())
-            }
+    /**
+     * Closes the connection from PostgreSQL
+     */
+    fun close()
 
-            install(JsonFeature) {
-                serializer = KotlinxSerializer()
-            }
-
-            install(UserAgent) {
-                agent = "Arisu/Backend (https://github.com/arisuland/Arisu, v0.0.0)"
-            }
-        }
-    }
+    /**
+     * Creates a asynchronous transaction using [CompletableFuture]
+     * @param block The transaction to run
+     */
+    fun <T> asyncTransaction(block: Transaction.() -> T): AsyncTransaction<T>
 }

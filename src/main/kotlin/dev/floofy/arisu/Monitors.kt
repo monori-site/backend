@@ -20,35 +20,35 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu
 
-import dev.floofy.arisu.interceptors.LoggingInterceptor
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.request.*
-import org.koin.dsl.module
+import dev.floofy.arisu.extensions.env
+import dev.floofy.arisu.kotlin.logging
+import io.ktor.application.*
 
-val arisuModule = module {
-    single {
-        HttpClient(OkHttp) {
-            engine {
-                config {
-                    followRedirects(true)
-                }
+typealias Monitor = (Application) -> Unit
 
-                addInterceptor(LoggingInterceptor())
-            }
+class Monitors(private val environment: ApplicationEnvironment) {
+    private val logger by logging(this::class.java)
 
-            install(JsonFeature) {
-                serializer = KotlinxSerializer()
-            }
+    private val onAppStopped: Monitor = { dispose() }
+    private val onAppStarted: Monitor = {
+        logger.info("Arisu has now started! Environment: ${it.env}")
+    }
 
-            install(UserAgent) {
-                agent = "Arisu/Backend (https://github.com/arisuland/Arisu, v0.0.0)"
-            }
-        }
+    private val onAppStart: Monitor = {
+        logger.info("Arisu is now starting...")
+    }
+
+    fun start() {
+        environment.monitor.subscribe(ApplicationStopped, onAppStopped)
+        environment.monitor.subscribe(ApplicationStarting, onAppStart)
+        environment.monitor.subscribe(ApplicationStarted, onAppStarted)
+    }
+
+    private fun dispose() {
+        environment.monitor.unsubscribe(ApplicationStopped, onAppStopped)
+        environment.monitor.unsubscribe(ApplicationStarting, onAppStart)
+        environment.monitor.unsubscribe(ApplicationStarted, onAppStarted)
     }
 }

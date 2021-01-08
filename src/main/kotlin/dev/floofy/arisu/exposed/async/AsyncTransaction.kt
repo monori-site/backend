@@ -20,35 +20,37 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.exposed.async
 
-import dev.floofy.arisu.interceptors.LoggingInterceptor
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.request.*
-import org.koin.dsl.module
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutorService
+import kotlinx.coroutines.future.await
+import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.transactions.transaction
 
-val arisuModule = module {
-    single {
-        HttpClient(OkHttp) {
-            engine {
-                config {
-                    followRedirects(true)
-                }
+class AsyncTransaction<T>(
+    private val pool: ExecutorService,
+    private val block: Transaction.() -> T
+) {
 
-                addInterceptor(LoggingInterceptor())
-            }
-
-            install(JsonFeature) {
-                serializer = KotlinxSerializer()
-            }
-
-            install(UserAgent) {
-                agent = "Arisu/Backend (https://github.com/arisuland/Arisu, v0.0.0)"
+    /**
+     * Processes the transaction
+     */
+    fun execute(): CompletableFuture<T> {
+        val fut = CompletableFuture<T>()
+        pool.execute {
+            try {
+                fut.complete(transaction { block() })
+            } catch (ex: Exception) {
+                fut.completeExceptionally(ex)
             }
         }
+
+        return fut
     }
+
+    /**
+     * Executes and awaits the transaction
+     */
+    suspend fun await(): T = execute().await()
 }

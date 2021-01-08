@@ -22,20 +22,48 @@
 
 package dev.floofy.arisu
 
+import dev.floofy.arisu.extensions.createThread
+import dev.floofy.arisu.extensions.getInt
 import dev.floofy.arisu.kotlin.logging
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.*
+import java.util.concurrent.TimeUnit
+import org.slf4j.LoggerFactory
 
 object Bootstrap {
     private val logger by logging(this::class.java)
 
-    @InternalAPI
     @JvmStatic
+    @KtorExperimentalAPI
     fun main(args: Array<String>) {
-        logger.info("henlo iz weh enabled")
-        val server = embeddedServer(Netty, port = 3621) { arisu() }
+        Thread.currentThread().name = "Arisu-MainThread"
+        val uwuEnv = applicationEngineEnvironment {
+            val additional = commandLineEnvironment(args)
 
-        server.start(wait = false)
+            this.developmentMode = true
+            this.watchPaths = listOf("dev.floofy.arisu.Bootstrap.main")
+            this.config = additional.config
+            this.log = LoggerFactory.getLogger("dev.floofy.arisu.ktor.Application")
+
+            connector {
+                host = "0.0.0.0"
+                port = (additional.config.config("ktor.deployment")).property("port").getInt()
+            }
+
+            module {
+                arisu()
+            }
+        }
+
+        val server = embeddedServer(Netty, uwuEnv)
+            .start(true)
+
+        Runtime.getRuntime().addShutdownHook(createThread("Arisu-ShutdownThread") {
+            logger.warn("Stopping server...")
+            server.stop(1, 5, TimeUnit.SECONDS)
+        })
+
+        Thread.currentThread().join()
     }
 }

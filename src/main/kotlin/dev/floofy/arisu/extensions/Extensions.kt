@@ -20,35 +20,6 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.extensions
 
-import dev.floofy.arisu.interceptors.LoggingInterceptor
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.request.*
-import org.koin.dsl.module
-
-val arisuModule = module {
-    single {
-        HttpClient(OkHttp) {
-            engine {
-                config {
-                    followRedirects(true)
-                }
-
-                addInterceptor(LoggingInterceptor())
-            }
-
-            install(JsonFeature) {
-                serializer = KotlinxSerializer()
-            }
-
-            install(UserAgent) {
-                agent = "Arisu/Backend (https://github.com/arisuland/Arisu, v0.0.0)"
-            }
-        }
-    }
-}
+fun createThread(name: String, block: () -> Unit): Thread = Thread(block, name)

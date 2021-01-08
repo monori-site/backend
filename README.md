@@ -26,8 +26,17 @@ Coming soon.
 ### Process (Docker, locally)
 Coming soon.
 
-### Process (Docker, registry)
-Coming soon.
+## Configuration
+> Note: This section is in pure alpha stage, do not run Arisu at this time.
+
+Arisu uses the "HOCON" structure Ktor provides, you can specify a custom path by:
+
+```sh
+$ java -jar ./path/to/arisu.jar -config=path/to/config
+```
+
+You can change other configurations unrelated to Arisu, a default config can be listed [here](/application.default.conf).
+For a list of the configuration options, read ["Available Configuration Parameters"](https://ktor.io/docs/configurations.html#available-config).
 
 ## License
 **Arisu** is released under the MIT License, read [here](/LICENSE) for more information.

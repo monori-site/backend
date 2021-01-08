@@ -20,35 +20,22 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.data
 
-import dev.floofy.arisu.interceptors.LoggingInterceptor
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.request.*
-import org.koin.dsl.module
+import dev.floofy.arisu.extensions.getInt
+import io.ktor.config.*
+import io.ktor.util.*
 
-val arisuModule = module {
-    single {
-        HttpClient(OkHttp) {
-            engine {
-                config {
-                    followRedirects(true)
-                }
+@KtorExperimentalAPI
+class Config(config: ApplicationConfig) {
+    val docsUrl = config.propertyOrNull("arisu.docsUrl")?.getString() ?: "docs.arisu.land"
+    val emiUrl = config.propertyOrNull("arisu.emiUrl")?.getString()
 
-                addInterceptor(LoggingInterceptor())
-            }
-
-            install(JsonFeature) {
-                serializer = KotlinxSerializer()
-            }
-
-            install(UserAgent) {
-                agent = "Arisu/Backend (https://github.com/arisuland/Arisu, v0.0.0)"
-            }
-        }
-    }
+    val database = PostgresConfig(
+        username = config.propertyOrNull("arisu.database.username")?.getString() ?: "postgres",
+        password = config.property("arisu.database.password").getString(),
+        database = config.propertyOrNull("arisu.database.name")?.getString() ?: "arisu",
+        host = config.propertyOrNull("arisu.database.host")?.getString() ?: "localhost",
+        port = config.propertyOrNull("arisu.database.port")?.getInt() ?: 5432
+    )
 }

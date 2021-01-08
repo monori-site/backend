@@ -20,35 +20,22 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.modules
+package dev.floofy.arisu.typings.github
 
-import dev.floofy.arisu.interceptors.LoggingInterceptor
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.request.*
-import org.koin.dsl.module
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-val arisuModule = module {
-    single {
-        HttpClient(OkHttp) {
-            engine {
-                config {
-                    followRedirects(true)
-                }
+/**
+ * Data class for <code>POST https://github.com/login/oauth/access_token</code>
+ */
+@Serializable
+data class UserAccessToken(
+    @SerialName("access_token")
+    val accessToken: String,
 
-                addInterceptor(LoggingInterceptor())
-            }
+    @SerialName("token_type")
+    val tokenType: String,
 
-            install(JsonFeature) {
-                serializer = KotlinxSerializer()
-            }
-
-            install(UserAgent) {
-                agent = "Arisu/Backend (https://github.com/arisuland/Arisu, v0.0.0)"
-            }
-        }
-    }
-}
+    @SerialName("scope")
+    val scope: String
+)

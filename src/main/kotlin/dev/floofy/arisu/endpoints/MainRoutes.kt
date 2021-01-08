@@ -22,28 +22,21 @@
 
 package dev.floofy.arisu.endpoints
 
+import dev.floofy.arisu.data.Config
 import io.ktor.application.*
-import io.ktor.client.*
-import io.ktor.client.features.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.*
 import org.koin.ktor.ext.inject
 
-@InternalAPI
+@KtorExperimentalAPI
 fun Application.addMainEndpoints() {
-    val http by inject<HttpClient>()
+    val config by inject<Config>()
 
     routing {
         get("/") {
-            val res = http.get<DefaultHttpResponse> {
-                url("https://api.floofy.dev")
-            }
-
-            call.respond(HttpStatusCode.OK, res.readText())
+            call.respondText("{\"docsUrl\":\"${config.docsUrl}\"}", ContentType.parse("application/json"))
         }
     }
 }
