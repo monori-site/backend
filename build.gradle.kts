@@ -69,7 +69,7 @@ dependencies {
     implementation("io.lettuce:lettuce-core:6.0.1.RELEASE")
 
     // Dependency Injection
-    implementation("org.koin:koin-ktor:2.2.1")
+    implementation("org.koin:koin-ktor:2.2.2")
     implementation("org.koin:koin-core:2.2.1")
 
     // Hashing (Argon2)
