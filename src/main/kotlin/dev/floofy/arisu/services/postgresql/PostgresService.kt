@@ -22,23 +22,18 @@
 
 package dev.floofy.arisu.services.postgresql
 
-import dev.floofy.arisu.exposed.async.AsyncTransaction
-import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.Database
 
 interface PostgresService {
+    var database: Database
+
     /**
-     * Opens a connection to the database using Exposed
+     * Creates a connection with PostgreSQL
      */
-    fun open()
+    fun connect()
 
     /**
      * Closes the connection from PostgreSQL
      */
     fun close()
-
-    /**
-     * Creates a asynchronous transaction using [CompletableFuture]
-     * @param block The transaction to run
-     */
-    fun <T> asyncTransaction(block: Transaction.() -> T): AsyncTransaction<T>
 }

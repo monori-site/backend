@@ -20,4 +20,14 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.exposed.columns
+package dev.floofy.arisu.modules
+
+import dev.floofy.arisu.services.postgresql.PostgresService
+import dev.floofy.arisu.services.postgresql.PostgresServiceImpl
+import io.ktor.util.*
+import org.koin.dsl.module
+
+@KtorExperimentalAPI
+val serviceModule = module {
+    single<PostgresService> { PostgresServiceImpl(get()) }
+}

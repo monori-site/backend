@@ -23,6 +23,7 @@
 package dev.floofy.arisu.endpoints
 
 import dev.floofy.arisu.data.Config
+import dev.floofy.arisu.services.postgresql.PostgresService
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
@@ -32,11 +33,12 @@ import org.koin.ktor.ext.inject
 
 @KtorExperimentalAPI
 fun Application.addMainEndpoints() {
+    val database by inject<PostgresService>()
     val config by inject<Config>()
 
     routing {
         get("/") {
-            call.respondText("{\"docsUrl\":\"${config.docsUrl}\"}", ContentType.parse("application/json"))
+            call.respondText("{\"docsUrl\":\"${config.docsUrl}\",\"database_version\":\"${database.database.version}\"}", ContentType.parse("application/json"))
         }
     }
 }

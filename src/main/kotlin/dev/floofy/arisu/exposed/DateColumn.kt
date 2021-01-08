@@ -20,4 +20,4 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.services.redis
+package dev.floofy.arisu.exposed

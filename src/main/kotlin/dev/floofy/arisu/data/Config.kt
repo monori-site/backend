@@ -35,6 +35,7 @@ class Config(config: ApplicationConfig) {
         username = config.propertyOrNull("arisu.database.username")?.getString() ?: "postgres",
         password = config.property("arisu.database.password").getString(),
         database = config.propertyOrNull("arisu.database.name")?.getString() ?: "arisu",
+        schema = config.propertyOrNull("arisu.database.schema")?.getString() ?: "public",
         host = config.propertyOrNull("arisu.database.host")?.getString() ?: "localhost",
         port = config.propertyOrNull("arisu.database.port")?.getInt() ?: 5432
     )

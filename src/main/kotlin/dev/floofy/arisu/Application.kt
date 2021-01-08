@@ -25,6 +25,8 @@ package dev.floofy.arisu
 import dev.floofy.arisu.data.Config
 import dev.floofy.arisu.endpoints.addMainEndpoints
 import dev.floofy.arisu.modules.arisuModule
+import dev.floofy.arisu.modules.serviceModule
+import dev.floofy.arisu.services.postgresql.PostgresService
 import dev.floofy.arisu.typings.arisu.errors.ErrorCodes
 import dev.floofy.arisu.typings.arisu.errors.ErrorType
 import io.ktor.application.*
@@ -35,6 +37,7 @@ import io.ktor.serialization.*
 import io.ktor.util.*
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.getKoin
 import org.slf4j.LoggerFactory
 
 // fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)
@@ -57,7 +60,10 @@ fun Application.arisu() {
             single { config }
         }
 
-        modules(arisuModule, appModule)
+        modules(arisuModule, appModule, serviceModule)
+
+        val database = getKoin().get<PostgresService>()
+        database.connect()
     }
 
     // Adds custom status pages per exception we get

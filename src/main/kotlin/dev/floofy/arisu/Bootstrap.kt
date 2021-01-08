@@ -40,6 +40,7 @@ object Bootstrap {
         Thread.currentThread().name = "Arisu-MainThread"
         val uwuEnv = applicationEngineEnvironment {
             val additional = commandLineEnvironment(args)
+            val ktorConf = additional.config.config("ktor.deployment")
 
             this.developmentMode = true
             this.watchPaths = listOf("dev.floofy.arisu.Bootstrap.main")
@@ -48,7 +49,7 @@ object Bootstrap {
 
             connector {
                 host = "0.0.0.0"
-                port = (additional.config.config("ktor.deployment")).property("port").getInt()
+                port = ktorConf.property("port").getInt()
             }
 
             module {

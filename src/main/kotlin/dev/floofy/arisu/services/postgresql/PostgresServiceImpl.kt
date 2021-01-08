@@ -22,4 +22,43 @@
 
 package dev.floofy.arisu.services.postgresql
 
-class PostgresServiceImpl
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import dev.floofy.arisu.data.Config
+import dev.floofy.arisu.kotlin.logging
+import io.ktor.util.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.transactions.transaction
+
+@KtorExperimentalAPI
+class PostgresServiceImpl(private val config: Config): PostgresService {
+    private lateinit var dataSource: HikariDataSource
+    override lateinit var database: Database
+    private val logger by logging(this::class.java)
+
+    override fun connect() {
+        logger.info("Now creating a connection with PostgreSQL...")
+        val config = HikariConfig().apply {
+            this.jdbcUrl = "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}"
+            this.username = config.database.username
+            this.password = config.database.password
+            this.schema = config.database.schema
+            this.driverClassName = "org.postgresql.Driver"
+        }
+
+        dataSource = HikariDataSource(config)
+        database = Database.connect(dataSource)
+
+        logger.info("Connected to PostgreSQL Successfully! (version=${database.version})")
+        transaction {
+            addLogger(StdOutSqlLogger)
+        }
+    }
+
+    override fun close() {
+        logger.warn("Closing data source...")
+        dataSource.close()
+    }
+}
