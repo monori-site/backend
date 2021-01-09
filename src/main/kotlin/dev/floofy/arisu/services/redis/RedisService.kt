@@ -22,7 +22,11 @@
 
 package dev.floofy.arisu.services.redis
 
+import io.lettuce.core.api.StatefulConnection
+
 interface RedisService {
+    var connection: StatefulConnection<String, String>
+
     fun connect()
 
     fun close()

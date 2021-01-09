@@ -30,7 +30,7 @@ import io.lettuce.core.api.StatefulConnection
 
 @KtorExperimentalAPI
 class RedisServiceImpl(private val config: Config): RedisService {
-    private lateinit var connection: StatefulConnection<String, String>
+    override lateinit var connection: StatefulConnection<String, String>
     private lateinit var client: RedisClient
     private val logger by logging(this::class.java)
 

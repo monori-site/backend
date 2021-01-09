@@ -29,6 +29,9 @@ enum class ErrorCodes {
     UNKNOWN_ENTITY,
     UNKNOWN_ORGANISATION,
 
+    // Other
+    RATELIMITED,
+
     // Invalid Codes (used for validation)
     INVALID_USER_PASSWORD,
     INVALID_USER_AVATAR_IMAGE

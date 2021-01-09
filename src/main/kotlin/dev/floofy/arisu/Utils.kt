@@ -20,4 +20,13 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.features.requests
+package dev.floofy.arisu
+
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
+object Utils {
+    fun toISOString(instant: Instant = Instant.now()): String =
+        DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.systemDefault()).format(instant)
+}

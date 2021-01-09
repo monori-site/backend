@@ -24,6 +24,7 @@ package dev.floofy.arisu
 
 import dev.floofy.arisu.data.Config
 import dev.floofy.arisu.endpoints.addMainEndpoints
+import dev.floofy.arisu.features.ratelimiting.Ratelimiting
 import dev.floofy.arisu.modules.arisuModule
 import dev.floofy.arisu.modules.serviceModule
 import dev.floofy.arisu.services.postgresql.PostgresService
@@ -89,6 +90,9 @@ fun Application.arisu() {
         header(HttpHeaders.XForwardedProto) // Expose X-Forwarded-Proto
         anyHost() // Let any host make requests
     }
+
+    // Installs Ratelimiting
+    install(Ratelimiting)
 
     addMainEndpoints()
 }

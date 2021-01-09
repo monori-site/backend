@@ -20,4 +20,12 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.features.requests
+package dev.floofy.arisu.typings.arisu.errors
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Ratelimited(
+    val message: String,
+    val code: ErrorCodes
+)
