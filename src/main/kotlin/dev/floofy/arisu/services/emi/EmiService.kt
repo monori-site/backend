@@ -20,20 +20,9 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.services.postgresql
+package dev.floofy.arisu.services.emi
 
-import org.jetbrains.exposed.sql.Database
-
-interface PostgresService {
-    var database: Database
-
-    /**
-     * Creates a connection with PostgreSQL
-     */
-    fun connect()
-
-    /**
-     * Closes the connection with PostgreSQL
-     */
-    fun close()
-}
+/**
+ * Interface for [EmiServiceImpl], which handles all requests for Emi (https://docs.arisu.land/emi)
+ */
+interface EmiService

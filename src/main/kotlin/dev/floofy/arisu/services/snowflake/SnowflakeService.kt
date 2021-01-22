@@ -23,5 +23,6 @@
 package dev.floofy.arisu.services.snowflake
 
 interface SnowflakeService {
+    fun generateBinary(): String
     fun generate(): Long
 }

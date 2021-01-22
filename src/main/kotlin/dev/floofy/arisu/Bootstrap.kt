@@ -25,18 +25,18 @@ package dev.floofy.arisu
 import dev.floofy.arisu.extensions.createThread
 import dev.floofy.arisu.extensions.getInt
 import dev.floofy.arisu.kotlin.logging
+import dev.floofy.arisu.services.snowflake.SnowflakeServiceImpl
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 import org.slf4j.LoggerFactory
 
 object Bootstrap {
     private val logger by logging(this::class.java)
 
-    @JvmStatic
-    @KtorExperimentalAPI
-    fun main(args: Array<String>) {
+    fun arisu_main(args: Array<String>) {
         Thread.currentThread().name = "Arisu-MainThread"
         val uwuEnv = applicationEngineEnvironment {
             val additional = commandLineEnvironment(args)
@@ -64,7 +64,15 @@ object Bootstrap {
             logger.warn("Stopping server...")
             server.stop(1, 5, TimeUnit.SECONDS)
         })
+    }
 
-        Thread.currentThread().join()
+    @JvmStatic
+    @KtorExperimentalAPI
+    fun main(args: Array<String>) {
+        val generator = SnowflakeServiceImpl(machineId = 10)
+        println("Binary: ${generator.generateBinary()}")
+        println("Snowflake: ${generator.generate()}")
+
+        exitProcess(0)
     }
 }

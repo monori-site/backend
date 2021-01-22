@@ -20,20 +20,6 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.services.postgresql
+package dev.floofy.arisu.data.volumes
 
-import org.jetbrains.exposed.sql.Database
-
-interface PostgresService {
-    var database: Database
-
-    /**
-     * Creates a connection with PostgreSQL
-     */
-    fun connect()
-
-    /**
-     * Closes the connection with PostgreSQL
-     */
-    fun close()
-}
+// TODO: google cloud storage stuff

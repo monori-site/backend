@@ -22,6 +22,7 @@
 
 package dev.floofy.arisu.data
 
+import dev.floofy.arisu.data.volumes.FilesystemStorageConfig
 import dev.floofy.arisu.extensions.getInt
 import io.ktor.config.*
 import io.ktor.util.*
@@ -46,5 +47,10 @@ class Config(config: ApplicationConfig) {
         host = config.property("arisu.redis.host").getString(),
         port = config.property("arisu.redis.port").getInt(),
         db = config.propertyOrNull("arisu.redis.db")?.getInt() ?: 2
+    )
+
+    val storage = FilesystemStorageConfig(
+        directory = config.propertyOrNull("arisu.storage.filesystem.directory")?.getString(),
+        enabled = config.propertyOrNull("arisu.storage.filesystem") != null
     )
 }

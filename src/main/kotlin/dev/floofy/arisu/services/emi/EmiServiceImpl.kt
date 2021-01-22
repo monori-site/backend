@@ -20,20 +20,4 @@
  * SOFTWARE.
  */
 
-package dev.floofy.arisu.services.postgresql
-
-import org.jetbrains.exposed.sql.Database
-
-interface PostgresService {
-    var database: Database
-
-    /**
-     * Creates a connection with PostgreSQL
-     */
-    fun connect()
-
-    /**
-     * Closes the connection with PostgreSQL
-     */
-    fun close()
-}
+package dev.floofy.arisu.services.emi

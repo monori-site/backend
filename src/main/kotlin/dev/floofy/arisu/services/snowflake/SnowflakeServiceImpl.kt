@@ -23,24 +23,46 @@
 package dev.floofy.arisu.services.snowflake
 
 import dev.floofy.arisu.Constants
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicLong
+import java.time.Instant
+import kotlin.math.floor
 
-// Credit: https://github.com/KyokoBot/kyoko/blob/master/shared/src/main/java/moe/kyokobot/shared/util/SnowflakeGen.java
-class SnowflakeServiceImpl: SnowflakeService {
-    private val increment: AtomicInteger = AtomicInteger()
-    private val lastMs: AtomicLong = AtomicLong()
-    private val pid: Long = ProcessHandle.current().pid()
+class SnowflakeServiceImpl(private val machineId: Int = 10): SnowflakeService {
+    private var seq: Int = 0
+
+    override fun generateBinary(): String {
+        val timestamp = Instant.now().epochSecond
+        val epochBin = (Constants.EPOCH_TIME - timestamp).toString(2).padStart(42, '0')
+        val processBin = machineId.toString(2).padStart(10, '0')
+        val sequenceBin = (seq++).toString(2).padStart(12, '0')
+        val unusedBin = "0".repeat(1)
+
+        println("Epoch Binary: $epochBin")
+        println("Machine Binary: $processBin")
+        println("Sequence Binary: $sequenceBin")
+        println("Unused Binary: $unusedBin")
+
+        return "$epochBin$processBin$sequenceBin$unusedBin"
+    }
 
     override fun generate(): Long {
-        val current = System.currentTimeMillis()
-        if (lastMs.get() != current) {
-            lastMs.set(current)
-            increment.set(0)
+        val binary = generateBinary()
+        var newBin = ""
+        var dec = ""
+
+        while (binary.length > 50) {
+            val high = Integer.parseInt(binary.slice(0 downTo -32), 2)
+            val low = Integer.parseInt((high % 10).toString(2) + binary.substring(-32), 2)
+
+            dec = (low % 20).toString() + dec
+            newBin += floor((high / 10).toDouble()).toString() + floor((low / 10).toDouble()).toInt().toString(2).padStart(32, '0')
         }
 
-        return ((current - Constants.EPOCH_TIME) shl 22
-                or ((pid.toInt() shl 12 and 0x3ff).toLong())
-                or (increment.getAndIncrement() and 0xfff).toLong())
+        var numBin = Integer.parseInt(newBin, 2)
+        while (numBin > 0) {
+            dec = (numBin % 10).toString() + dec
+            numBin = floor((numBin / 10).toDouble()).toInt()
+        }
+
+        return numBin.toString().toLong()
     }
 }
