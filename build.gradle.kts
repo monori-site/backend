@@ -60,7 +60,7 @@ dependencies {
 
     // Database (PostgreSQL + Exposed ORM)
     implementation("org.jetbrains.exposed:exposed-core:0.28.1")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.29.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.28.1")
     implementation("org.postgresql:postgresql:42.2.18")
     implementation("com.zaxxer:HikariCP:3.4.5")
