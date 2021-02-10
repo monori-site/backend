@@ -70,7 +70,7 @@ dependencies {
 
     // Dependency Injection
     implementation("org.koin:koin-ktor:2.2.2")
-    implementation("org.koin:koin-core:2.2.1")
+    implementation("org.koin:koin-core:2.2.2")
 
     // Hashing (Argon2)
     implementation("de.mkammerer:argon2-jvm:2.9.1")
