@@ -66,7 +66,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:3.4.5")
 
     // Cache (Redis)
-    implementation("io.lettuce:lettuce-core:6.0.1.RELEASE")
+    implementation("io.lettuce:lettuce-core:6.0.2.RELEASE")
 
     // Dependency Injection
     implementation("org.koin:koin-ktor:2.2.2")
