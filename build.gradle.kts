@@ -76,7 +76,7 @@ dependencies {
     implementation("de.mkammerer:argon2-jvm:2.9.1")
 
     // Extra Utilities
-    implementation("io.sentry:sentry:3.2.0")
+    implementation("io.sentry:sentry:4.1.0")
 }
 
 val metadata = task<Copy>("metadata") {
