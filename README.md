@@ -2,7 +2,7 @@
 ![Stars](https://img.shields.io/github/stars/monori-site/backend?style=flat-square) 
 ![Workflow Status](https://github.com/monori-site/backend/workflows/ktlint/badge.svg)
 
-> 👻✏️ **Translation made with simplicity, yet robust. Made with <3 in Kotlin.**
+> 👻✏️ **Translation made with simplicity, yet robust. Made with :heart: in TypeScript.**
 
 ## Features
 - All multi-lingual translation content in one place, but not required to be in one place.
@@ -15,10 +15,9 @@
 ### Requirements
 - Docker (optional)
 - Sentry (optional)
-- Java 11
+- Node.js v14 or higher
 - PostgreSQL
 - Redis
-- [Emi](#) installed
 
 ### Process (Locally)
 Coming soon.
@@ -29,15 +28,5 @@ Coming soon.
 ## Configuration
 > Note: This section is in pure alpha stage, do not run Arisu at this time.
 
-Arisu uses the "HOCON (Human-Optimized Config Object Notation)" structure Ktor provides, you can specify a custom path by:
-
-```sh
-$ java -jar ./path/to/arisu.jar -config=path/to/config
-```
-
-You can change other configurations unrelated to Arisu, a default config can be listed [here](/application.default.conf).
-For a list of the configuration options for Ktor, read ["Available Configuration Parameters"](https://ktor.io/docs/configurations.html#available-config).
-For a list of the configuration options for Arisu, read ["Self-hosting: Configuration"](#).
-
 ## License
-**Arisu** is released under the MIT License, read [here](/LICENSE) for more information.
+**Arisu** is released under the MIT License. :heart:

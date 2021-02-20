@@ -1,0 +1,40 @@
+{
+  "name": "arisu",
+  "description": "☔ Translation made with simplicity, yet robust.",
+  "version": "1.0.0-indev.0",
+  "main": "build/main.js",
+  "license": "MIT",
+  "author": "Arisu Team <contact@arisu.land>",
+  "repository": "https://github.com/arisuland/Arisu",
+  "bugs": "https://github.com/arisuland/Arisu/issues",
+  "funding": {
+    "url": "https://github.com/sponsors/auguwu"
+  },
+  "dependencies": {
+    "@augu/collections": "1.0.3",
+    "@augu/http": "1.1.0",
+    "@augu/orchid": "2.2.1",
+    "@augu/utils": "1.0.3",
+    "@ayanaware/bento": "1.0.0-rc.15",
+    "@prisma/client": "2.17.0",
+    "express": "4.17.1",
+    "js-yaml": "^3.14.1",
+    "loggaby": "4.0.3",
+    "next": "10.0.7",
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
+  },
+  "devDependencies": {
+    "@augu/eslint-config": "1.10.0",
+    "@augu/tsconfig": "1.0.1",
+    "@types/express": "4.17.11",
+    "@types/js-yaml": "^4.0.0",
+    "@types/node": "14.14.31",
+    "@types/react": "17.0.2",
+    "@typescript-eslint/eslint-plugin": "4.15.1",
+    "@typescript-eslint/parser": "4.15.1",
+    "eslint": "7.20.0",
+    "prisma": "2.17.0",
+    "typescript": "4.1.5"
+  }
+}
