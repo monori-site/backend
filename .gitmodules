@@ -1,0 +1,6 @@
+[submodule "src/themes"]
+	path = src/themes
+	url = https://github.com/arisuland/themes
+[submodule "locales"]
+	path = locales
+	url = https://github.com/arisuland/translations
