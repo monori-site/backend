@@ -19,6 +19,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-export { default as Prisma } from './Prisma';
-export { default as Server } from './Server';

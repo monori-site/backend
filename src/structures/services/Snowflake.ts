@@ -20,5 +20,6 @@
  * SOFTWARE.
  */
 
-export { default as Prisma } from './Prisma';
-export { default as Server } from './Server';
+import Service from '../Service';
+
+export default class SnowflakeService extends Service {}

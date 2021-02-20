@@ -20,5 +20,6 @@
  * SOFTWARE.
  */
 
-export { default as Prisma } from './Prisma';
-export { default as Server } from './Server';
+import Model from '../Model';
+
+export default class Organization extends Model<any> {}

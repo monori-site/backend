@@ -20,5 +20,4 @@
  * SOFTWARE.
  */
 
-export { default as Prisma } from './Prisma';
-export { default as Server } from './Server';
+export default class Model<T> {}
