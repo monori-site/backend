@@ -40,6 +40,6 @@
     "@typescript-eslint/parser": "4.15.1",
     "eslint": "7.20.0",
     "prisma": "2.17.0",
-    "typescript": "4.1.5"
+    "typescript": "4.2.2"
   }
 }
