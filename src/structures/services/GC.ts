@@ -20,6 +20,4 @@
  * SOFTWARE.
  */
 
-import Service from '../Service';
-
-export default class GarbageCollectorService extends Service {}
+export default class GarbageCollectorService {}

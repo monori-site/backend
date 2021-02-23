@@ -20,6 +20,4 @@
  * SOFTWARE.
  */
 
-import Service from '../Service';
-
-export default class WebhooksService extends Service {}
+export default class WebhooksService {}

@@ -20,4 +20,11 @@
  * SOFTWARE.
  */
 
-export default class Service {}
+import Server from './Server';
+
+/**
+ * Represents a service that is and can be injected by anything
+ */
+export default class Service {
+  public server: Server;
+}

@@ -10,6 +10,43 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Test {
-  id Int @id
+enum ProjectRelation {
+  Organization
+  User
+}
+
+model User {
+  organizations Organization[]
+  projects      Project[]
+  username      String
+  email         String
+  flags         Int    @default(0)
+  salt          String
+  id            String @id
+
+  @@map(name: "users")
+}
+
+model Project {
+  description String?
+  audit_logs  AuditLogs[]
+  updatedAt   DateTime  @updatedAt @map(name: "updated_at")
+  createdAt   DateTime  @map(name: "created_at")
+  webhooks    Webhooks[]
+  relation    ProjectRelation
+  ownerID     String     @map(name: "owner_id")
+  owner       User       @relation(fields: [ownerID], references: [id])
+  id          String     @id
+}
+
+model Organization {
+  id String @id
+}
+
+model AuditLogs {
+  id String @id
+}
+
+model Webhooks {
+  id String @id
 }

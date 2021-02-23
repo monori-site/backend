@@ -22,4 +22,5 @@
 
 import { PrismaClient } from '@prisma/client';
 
-export default null;
+const client = new PrismaClient();
+export default client;

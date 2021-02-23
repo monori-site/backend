@@ -1,6 +1,7 @@
 node_modules/
 build/
 
+config.yml
 .env
 *.lock
 *.log
