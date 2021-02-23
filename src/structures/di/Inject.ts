@@ -42,7 +42,7 @@ const ContainerMap = {
  * @param name The name of the data to get
  * @returns A [ParameterDecorator] to use
  */
-function Inject(type: InjectableType, name: string): ParameterDecorator {
+function Inject(type: InjectableType, name: string): PropertyDecorator {
   if (!InjectableType.hasOwnProperty(type))
     throw new TypeError(`Injectable '${type}' was not invalid (${Object.keys(InjectableType).map(r => `InjectableType.${r}`).join(' or ')})`);
 
@@ -68,12 +68,12 @@ function Inject(type: InjectableType, name: string): ParameterDecorator {
  * Inject a service to a parameter
  * @param name The name of the service
  */
-export const Service = (name: string): ParameterDecorator =>
+export const Service = (name: string): PropertyDecorator =>
   Inject(InjectableType.Service, name);
 
 /**
  * Inject a database controller to a parameter
  * @param name The name of the service
  */
-export const Controller = (name: string): ParameterDecorator =>
+export const Controller = (name: string): PropertyDecorator =>
   Inject(InjectableType.Controller, name);

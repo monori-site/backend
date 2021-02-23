@@ -20,11 +20,19 @@
  * SOFTWARE.
  */
 
-import Server from './Server';
+import { randomBytes } from 'crypto';
 
 /**
- * Represents a service that is and can be injected by anything
+ * Decorator to generate a random ID
  */
-export default class Service {
-  public server: Server;
-}
+const GenerateID: PropertyDecorator = (target, key) => {
+  const id = randomBytes(8).toString('hex');
+
+  Object.defineProperty(target, key, {
+    get: () => id,
+    enumerable: true,
+    configurable: true
+  });
+};
+
+export default GenerateID;
