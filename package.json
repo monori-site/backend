@@ -21,7 +21,7 @@
     "js-yaml": "^3.14.1",
     "loggaby": "4.0.3",
     "next": "10.0.7",
-    "postcss": "8.1.7",
+    "postcss": "8.2.6",
     "postcss-import": "14.0.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
