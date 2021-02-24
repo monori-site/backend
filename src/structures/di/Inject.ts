@@ -52,7 +52,7 @@ function Inject(type: InjectableType, name: string): PropertyDecorator {
 
     Object.defineProperty(target, property, {
       get: () => {
-        const data = (server[containerType] as Container<{ id: string }>).get(name);
+        const data = (server[containerType] as Container<{ name: string }>).get(name);
         if (data === undefined)
           throw new TypeError(`${type} ${name} for parameter "${String(property)}" doesn't exist`);
 
@@ -65,15 +65,29 @@ function Inject(type: InjectableType, name: string): PropertyDecorator {
 }
 
 /**
- * Inject a service to a parameter
+ * Inject a service to a property
  * @param name The name of the service
  */
 export const Service = (name: string): PropertyDecorator =>
   Inject(InjectableType.Service, name);
 
 /**
- * Inject a database controller to a parameter
+ * Inject a database controller to a property
  * @param name The name of the service
  */
 export const Controller = (name: string): PropertyDecorator =>
   Inject(InjectableType.Controller, name);
+
+/**
+ * Injects the configuration to a property
+ */
+export function Config(): PropertyDecorator {
+  return (target, key) => {
+    const server = Server.instance();
+    Object.defineProperty(target, key, {
+      get: () => server.config,
+      enumerable: true,
+      configurable: true
+    });
+  };
+}

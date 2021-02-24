@@ -31,20 +31,16 @@ export { default as UserController } from './controllers/UserController';
 export { default as SnowflakeService } from './services/Snowflake';
 export { default as AuditLogService } from './services/AuditLogs';
 export { default as WebhookService } from './services/Webhooks';
-export { default as PostCssService } from './services/PostCSS';
-export { default as SentryService } from './services/Sentry';
 export { default as ThemeService } from './services/Themes';
 export { default as i18nService } from './services/i18n';
 export { default as GCService } from './services/GC';
 
 // structures/di
+export { Service, Controller, Config as InjectConfig } from './di/Inject';
 export { ContainerEntity, default as Container } from './di/Container';
-export { Service, Controller } from './di/Inject';
 
 // structures
 export { default as prisma } from './Prisma';
 export { default as Server } from './Server';
 export { default as Logger } from './Logger';
 export { default as Config } from './Config';
-
-export * from './decorators';

@@ -24,7 +24,7 @@ import { Collection } from '@augu/collections';
 import { isObject } from '@augu/utils';
 
 export interface ContainerEntity {
-  id: string;
+  name: string;
 }
 
 /**
@@ -45,8 +45,6 @@ export default class Container<T extends ContainerEntity = ContainerEntity> exte
    */
   public name: string;
 
-  private static _instance: Container<any>;
-
   /**
    * Creates a new [Container] instance
    * @param name The name of the container
@@ -57,17 +55,6 @@ export default class Container<T extends ContainerEntity = ContainerEntity> exte
 
     this.holdable = holdable;
     this.name = name;
-
-    if (!Container._instance)
-      Container._instance = this;
-  }
-
-  /**
-   * Returns the container instance
-   * @template T The data object type
-   */
-  static get<T extends ContainerEntity = ContainerEntity>(): Container<T> {
-    return this._instance;
   }
 
   /**
@@ -92,14 +79,14 @@ export default class Container<T extends ContainerEntity = ContainerEntity> exte
         return null;
     }
 
-    const existing = this.get(obj.id);
+    const existing = this.get(obj.name);
     if (existing)
       return existing; // not me for sure :^)
 
     if (!(obj instanceof this.holdable))
       throw new SyntaxError('`obj` was not a instanceof the holdable');
 
-    this.set(obj.id, obj);
+    this.set(obj.name, obj);
     return obj;
   }
 }

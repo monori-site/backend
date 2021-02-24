@@ -15,6 +15,12 @@ enum ProjectRelation {
   User
 }
 
+enum EntityRelation {
+  Organization
+  Project
+  User
+}
+
 model User {
   organizations Organization[]
   projects      Project[]
@@ -30,23 +36,46 @@ model User {
 model Project {
   description String?
   audit_logs  AuditLogs[]
-  updatedAt   DateTime  @updatedAt @map(name: "updated_at")
-  createdAt   DateTime  @map(name: "created_at")
+  updatedAt   DateTime   @updatedAt @map(name: "updated_at")
+  createdAt   DateTime   @map(name: "created_at")
   webhooks    Webhooks[]
   relation    ProjectRelation
   ownerID     String     @map(name: "owner_id")
   owner       User       @relation(fields: [ownerID], references: [id])
   id          String     @id
+
+  @@map(name: "projects")
 }
 
 model Organization {
-  id String @id
+  description String?
+  updatedAt   DateTime   @updatedAt @map(name: "updated_at")
+  createdAt   DateTime   @map(name: "created_at")
+  webhooks    Webhooks[]
+  owner_id    String
+  members     User[]
+  id          String @id
+
+  @@map(name: "organizations")
 }
 
 model AuditLogs {
-  id String @id
+  target_id  String
+  relation   EntityRelation
+  type       Int
+  id         String @id
+
+  @@map(name: "audit_logs")
 }
 
 model Webhooks {
-  id String @id
+  serialization String   @default("application/json")
+  updatedAt     DateTime @updatedAt @map(name: "updated_at")
+  createdAt     DateTime @map(name: "created_at")
+  relation      EntityRelation
+  secret        String?
+  name          String
+  id            String   @id
+
+  @@map(name: "webhooks")
 }
