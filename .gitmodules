@@ -1,5 +1,5 @@
 [submodule "themes"]
-	path = src/themes
+	path = themes
 	url = https://github.com/arisuland/themes
 
 [submodule "locales"]
