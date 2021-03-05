@@ -20,4 +20,32 @@
  * SOFTWARE.
  */
 
-export default class i18nService {}
+/* eslint-disable camelcase */
+
+import { ContainerEntity } from '../di/Container';
+import Logger from '../Logger';
+import DSL from './i18n/DSL';
+
+interface LanguageMap {
+  en_US: Language;
+}
+
+export interface Language {
+  hello: string;
+}
+
+export default class i18nService implements ContainerEntity {
+  public languages: LanguageMap = {} as any; // `as any` is there since languages are initialized during `i18nService.load`
+  private dsl: DSL;
+
+  private logger = Logger.get();
+  public name = 'i18n';
+
+  constructor() {
+    this.dsl = new DSL(this);
+  }
+
+  async load() {
+    this.logger.log('Initializing i18n service...');
+  }
+}

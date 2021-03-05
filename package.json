@@ -12,6 +12,7 @@
   },
   "scripts": {
     "update:database": "prisma generate && prisma db push --preview-feature",
+    "prepare": "npm run update:database",
     "studio": "prisma studio",
     "build": "npm run lint && rm -rf build && tsc",
     "lint": "eslint src --ext .ts,.tsx --fix"
@@ -33,6 +34,7 @@
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "stack-trace": "0.0.10",
+    "prisma": "2.17.0",
     "tailwindcss": "2.0.3"
   },
   "devDependencies": {

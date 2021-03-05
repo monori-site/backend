@@ -20,24 +20,15 @@
  * SOFTWARE.
  */
 
-// structures/controllers
-export { default as OrganizationController } from './controllers/OrganizationController';
-export { default as AuditLogController } from './controllers/AuditLogController';
-export { default as ProjectController } from './controllers/ProjectController';
-export { default as WebhookController } from './controllers/WebhookController';
-export { default as UserController } from './controllers/UserController';
-
 // structures/services
 export { default as SnowflakeService } from './services/Snowflake';
-export { default as AuditLogService } from './services/AuditLogs';
 export { default as WebhookService } from './services/Webhooks';
 export { default as ThemeService } from './services/Themes';
 export { default as i18nService } from './services/i18n';
-export { default as GCService } from './services/GC';
 
 // structures/di
-export { Service, Controller, Config as InjectConfig } from './di/Inject';
 export { ContainerEntity, default as Container } from './di/Container';
+export { default as Inject } from './di/Inject';
 
 // structures
 export { default as prisma } from './Prisma';
