@@ -20,33 +20,8 @@
  * SOFTWARE.
  */
 
-//import type { RouteMeta } from '../Endpoint';
-import { MetadataKeys } from '../internal/MetadataKeys';
-
-interface RouteDefinition {
-  run(): void | Promise<void>;
-  meta: any;
-}
-
-/**
- * Returns all the routes in a specific [target].
- * @param target The target class to find routes in
- * @returns The routes or an empty array if none were found
- */
-export const getRoutesIn = (target: any): RouteDefinition[] =>
-  Reflect.getMetadata(MetadataKeys.Route, target) ?? [];
-
-export default function Route(info: any): MethodDecorator {
-  return (target: any, property, descriptor: TypedPropertyDescriptor<any>) => {
-    if (target.prototype !== undefined)
-      throw new SyntaxError(`@Route(...) cannot work in static methods. (method "${String(property)}" in ${target.name})`);
-
-    const routes: RouteDefinition[] = Reflect.getMetadata(MetadataKeys.Route, target) ?? [];
-    routes.push({
-      meta: info,
-      run: descriptor.value!
-    });
-
-    Reflect.defineMetadata(MetadataKeys.Route, routes, target);
-  };
+/** list of metadata keys for decorators */
+export const enum MetadataKeys {
+  Injection = '$arisu::di::injection',
+  Route     = '$arisu::routing::route'
 }

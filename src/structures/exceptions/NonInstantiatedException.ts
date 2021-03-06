@@ -24,10 +24,10 @@
  * When a constructor cannot be instantiated with the `new` keyword.
  */
 export default class NonInstantiatedException extends Error {
-  constructor(klazz: Function) { // eslint-disable-line
+  constructor(klazz: any) {
     super('Class couldn\'t be instantiated with `new`, use the static methods.');
 
     Error.captureStackTrace(this, klazz.constructor);
-    this.name = `NonInstantiatedException [${klazz.constructor.name}]`;
+    this.name = 'NonInstantiatedException';
   }
 }
