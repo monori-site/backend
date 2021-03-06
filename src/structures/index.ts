@@ -20,18 +20,4 @@
  * SOFTWARE.
  */
 
-// structures/services
-export { default as SnowflakeService } from './services/Snowflake';
-export { default as WebhookService } from './services/Webhooks';
-export { default as ThemeService } from './services/Themes';
-export { default as i18nService } from './services/i18n';
-
-// structures/di
-export { ContainerEntity, default as Container } from './di/Container';
-export { default as Inject } from './di/Inject';
-
-// structures
-export { default as prisma } from './Prisma';
-export { default as Server } from './Server';
-export { default as Logger } from './Logger';
-export { default as Config } from './Config';
+// hello world

@@ -1,0 +1,8 @@
+.vscode/
+docs/
+node_modules/
+
+.eslintignore
+.gitignore
+LICENSE
+renovate.json

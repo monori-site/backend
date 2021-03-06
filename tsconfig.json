@@ -1,8 +1,10 @@
 {
   "extends": "@augu/tsconfig",
   "compilerOptions": {
+    "moduleResolution": "node",
+    "types": ["node", "reflect-metadata"],
     "rootDir": "./src",
     "outDir": "./build"
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "test.ts"]
 }
