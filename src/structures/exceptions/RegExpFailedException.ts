@@ -21,6 +21,13 @@
  */
 
 /**
- * Represents a component that does stuff? I don't
+ * Exception when a regular expression failed to be tested properly
  */
-export default class Component {}
+export default class RegExpFailedException extends Error {
+  constructor(expr: RegExp, value: string) {
+    super(`Value "${value}" didn't fit the criteria with expression "${expr.toString()}"`);
+
+    Error.captureStackTrace(this, this.constructor);
+    this.name = 'RegularExpressionFailedException';
+  }
+}

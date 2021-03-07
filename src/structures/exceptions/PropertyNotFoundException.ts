@@ -21,6 +21,13 @@
  */
 
 /**
- * Represents a component that does stuff? I don't
+ * Error when a property in the `config.yml` file wasn't found
  */
-export default class Component {}
+export default class PropertyNotFoundException extends Error {
+  constructor(property: string) {
+    super(`Missing property '${property}' in config.yml file`);
+
+    Error.captureStackTrace(this, this.constructor);
+    this.name = 'PropertyNotFoundException';
+  }
+}

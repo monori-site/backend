@@ -20,4 +20,6 @@
  * SOFTWARE.
  */
 
+export { default as PropertyNotFoundException } from './PropertyNotFoundException';
 export { default as NonInstantiatedException } from './NonInstantiatedException';
+export { default as RegExpFailedException } from './RegExpFailedException';
