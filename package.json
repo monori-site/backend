@@ -40,7 +40,7 @@
     "@augu/eslint-config": "1.10.0",
     "@augu/tsconfig": "1.0.1",
     "@types/js-yaml": "4.0.0",
-    "@types/node": "14.14.31",
+    "@types/node": "14.14.32",
     "@types/on-finished": "2.3.1",
     "@types/react": "17.0.2",
     "@typescript-eslint/eslint-plugin": "4.16.1",
