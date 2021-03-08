@@ -27,5 +27,6 @@ import { pathToRegexp } from 'path-to-regexp';
  * to a specific route which handles all middleware and requests.
  */
 export default class Layer {
-
+  /**  */
+  private _regexp: RegExp;
 }
