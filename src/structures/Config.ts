@@ -22,8 +22,8 @@
 
 /* eslint-disable camelcase */
 
-import { PropertyNotFoundException, RegExpFailedException } from './exceptions';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { RegExpFailedException } from './exceptions';
 import { join } from 'path';
 import yaml from 'js-yaml';
 
@@ -142,7 +142,7 @@ export default class Config {
    *
    * @param key The config key to find
    */
-  get<K extends keyof Configuration>(key: K): Configuration[K];
+  get<K extends keyof Configuration>(key: K): Configuration[K] | null;
 
   /**
    * Returns the configuration value from a specified [key], if nothing is found,
@@ -169,7 +169,7 @@ export default class Config {
       if (defaultValue !== undefined)
         return defaultValue;
 
-      throw new PropertyNotFoundException(key);
+      return null;
     }
 
     return found;

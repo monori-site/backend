@@ -3,6 +3,7 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "types": ["node", "reflect-metadata"],
+    "typeRoots": ["./src/@types"],
     "rootDir": "./src",
     "outDir": "./build"
   },

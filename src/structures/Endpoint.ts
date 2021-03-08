@@ -20,4 +20,13 @@
  * SOFTWARE.
  */
 
-export default class Endpoint {}
+import Layer from './internal/Layer';
+
+/**
+ * Represents a endpoint to access on the web. This is used only on the
+ * API endpoints (marked `/api/<version>`), the UI frontend is purely
+ * Next.js' routing.
+ */
+export default class Endpoint {
+
+}
