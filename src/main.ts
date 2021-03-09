@@ -20,4 +20,7 @@
  * SOFTWARE.
  */
 
-// hello world
+import 'source-map-support/register';
+
+import leeks = require('leeks.js');
+console.log(`${leeks.colors.bgMagenta(`   TypeError${leeks.colors.bgMagenta('   ')}`)} ~ You are gay. lol!`);

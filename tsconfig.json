@@ -1,11 +1,13 @@
 {
   "extends": "@augu/tsconfig",
   "compilerOptions": {
+    "sourceMap": true,
     "moduleResolution": "node",
     "types": ["node", "reflect-metadata"],
     "typeRoots": ["./src/@types"],
     "rootDir": "./src",
-    "outDir": "./build"
+    "outDir": "./build",
+    "lib": ["ES2015", "ES2016", "ES2017", "ES2018", "ES2019", "ES2020", "ESNext", "DOM"]
   },
   "exclude": ["node_modules"],
   "include": ["src/**/*.ts", "next-env.d.ts"]

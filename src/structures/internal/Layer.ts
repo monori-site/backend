@@ -28,5 +28,5 @@ import { pathToRegexp } from 'path-to-regexp';
  */
 export default class Layer {
   /**  */
-  private _regexp: RegExp;
+  private _regexp: RegExp = /owo/gi;
 }

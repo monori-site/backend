@@ -28,5 +28,8 @@ Coming soon.
 ## Configuration
 > Note: This section is in pure alpha stage, do not run Arisu at this time.
 
+## Contributing
+> Refer to the [Contributing](#) section for more details.
+
 ## License
 **Arisu** is released under the MIT License. :heart:

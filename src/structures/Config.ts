@@ -185,8 +185,7 @@ export default class Config {
       port: this.#cached.port,
       host: this.#cached.host
     }, {
-      indent: 4,
-      noArrayIndent: false
+      indent: 2
     });
 
     writeFileSync(join(process.cwd(), 'config.yml'), contents);
