@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@augu/collections": "1.0.4",
-    "@augu/http": "1.1.0",
+    "@augu/http": "1.2.1",
     "@augu/orchid": "2.2.2",
     "@augu/utils": "1.2.0",
     "@lukeed/uuid": "2.0.0",
