@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@augu/eslint-config": "1.10.0",
-    "@augu/tsconfig": "1.0.1",
+    "@augu/tsconfig": "1.1.0",
     "@types/js-yaml": "4.0.0",
     "@types/node": "14.14.32",
     "@types/on-finished": "2.3.1",
