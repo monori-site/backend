@@ -20,39 +20,16 @@
  * SOFTWARE.
  */
 
-import 'source-map-support/register';
-import 'reflect-metadata';
+import { hostname } from 'os';
+import { Logger } from 'tslog';
 
-import showBanner from './util/banner';
-import container from './container';
-import Logger from './singletons/logger';
-import Sentry from '@sentry/node';
-
-const logger = Logger.getChildLogger({ name: 'Bootstrap' });
-(async() => {
-  showBanner();
-
-  logger.info('bootstrap >> initializing...');
-  try {
-    await container.load();
-  } catch(ex) {
-    logger.fatal('bootstrap >> unable to load in container', ex);
-    process.exit(1);
-  }
-
-  logger.info('bootstrap >> success, init sentry...');
-  // todo: init sentry here
-
-  logger.info('bootstrap >> sentry installed.');
-
-  process.on('SIGINT', () => {
-    logger.warn('bootstrap >> called to be exited.');
-
-    container.dispose();
-    process.exit(0);
-  });
-})();
-
-process
-  .on('unhandledRejection', error => logger.fatal('promise >> unhandled rejection:', error))
-  .on('uncaughtException',  error => logger.fatal('uncaught exception occured:', error));
+export default new Logger({
+  exposeErrorCodeFrame: true,
+  displayInstanceName: true,
+  displayFunctionName: true,
+  displayFilePath: 'hideNodeModulesOnly',
+  dateTimePattern: '[ day/month/year | hour:minute:second ]',
+  displayTypes: false,
+  instanceName: hostname(),
+  name: 'Arisu'
+});

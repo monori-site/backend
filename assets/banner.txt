@@ -1,18 +1,15 @@
-               ___()___
-          _.-'' ,-'`-. ``-._
-       ,-'    ,'      `.    `-.
-     ,'     ,'          `.     `.
-    /      /              \      \
-   /_     /                \     _\
-     ``-./_..---'''|``---.._\,-''
-                   |
-                   |
-                   |
-                   |
-                   |
-                   |
-                   |
-                ,  |
-                `..' SSt
+               $MAGENTA$___$RESET$$GREEN$()$RESET$$MAGENTA$___$RESET$
+          $MAGENTA$_.-'' ,-'`-. ``-._$RESET$
+       $MAGENTA$,-'    ,'      `.    `-.$RESET$
+     $MAGENTA$,'     ,'          `.     `.$RESET$
+    $MAGENTA$/      /              \      \$RESET$
+   $MAGENTA$/_     /                \     _\$RESET$
+     $MAGENTA$``-./_..---'''$CYAN$|$RESET$$MAGENTA$``---.._\,-''$RESET$
+                   $CYAN$|$RESET$
+                   $CYAN$|$RESET$
+                   $CYAN$|$RESET$
+                   $CYAN$|$RESET$
+                $CYAN$,$RESET$  $CYAN$|$RESET$
+                $CYAN$`..' SSt$RESET$
 
-Arisu v$VERSION$ | Initializing...
+   $CYAN$~$RESET$ Arisu v$VERSION$ ($COMMIT$) $CYAN$~$RESET$

@@ -20,39 +20,24 @@
  * SOFTWARE.
  */
 
-import 'source-map-support/register';
-import 'reflect-metadata';
+import { readFileSync } from 'fs';
+import { execSync } from 'child_process';
+import { join } from 'path';
 
-import showBanner from './util/banner';
-import container from './container';
-import Logger from './singletons/logger';
-import Sentry from '@sentry/node';
+const { version } = require('../../package.json');
 
-const logger = Logger.getChildLogger({ name: 'Bootstrap' });
-(async() => {
-  showBanner();
+const showBanner = () => {
+  const path = join(process.cwd(), '..', 'assets', 'banner.txt');
+  const contents = readFileSync(path, { encoding: 'utf-8' });
+  const banner = contents
+    .replace('$VERSION$', version)
+    .replace('$COMMIT$', execSync('git rev-parse HEAD').toString().trim().slice(0, 8) ?? '... not from git ...')
+    .replaceAll('$RESET$', '\x1b[0m')
+    .replaceAll('$GREEN$', '\x1b[32m')
+    .replaceAll('$MAGENTA$', '\x1b[95m')
+    .replaceAll('$CYAN$', '\x1b[36m');
 
-  logger.info('bootstrap >> initializing...');
-  try {
-    await container.load();
-  } catch(ex) {
-    logger.fatal('bootstrap >> unable to load in container', ex);
-    process.exit(1);
-  }
+  console.log(banner);
+};
 
-  logger.info('bootstrap >> success, init sentry...');
-  // todo: init sentry here
-
-  logger.info('bootstrap >> sentry installed.');
-
-  process.on('SIGINT', () => {
-    logger.warn('bootstrap >> called to be exited.');
-
-    container.dispose();
-    process.exit(0);
-  });
-})();
-
-process
-  .on('unhandledRejection', error => logger.fatal('promise >> unhandled rejection:', error))
-  .on('uncaughtException',  error => logger.fatal('uncaught exception occured:', error));
+export default showBanner;

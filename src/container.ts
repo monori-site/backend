@@ -20,39 +20,20 @@
  * SOFTWARE.
  */
 
-import 'source-map-support/register';
-import 'reflect-metadata';
+import { Container } from '@augu/lilith';
+import { join } from 'path';
+import logger from './singletons/logger';
+import http from './singletons/http';
 
-import showBanner from './util/banner';
-import container from './container';
-import Logger from './singletons/logger';
-import Sentry from '@sentry/node';
+const container = new Container({
+  componentsDir: join(process.cwd(), 'components'),
+  servicesDir: join(process.cwd(), 'services'),
+  singletons: [logger, http]
+});
 
-const logger = Logger.getChildLogger({ name: 'Bootstrap' });
-(async() => {
-  showBanner();
+container
+  .on('onBeforeInit', cls => logger.info(`lilith >> initializing ${cls.type === 'service' ? 'service' : 'component'} ${cls.name}`))
+  .on('onAfterInit',  cls => logger.info(`lilith >> initialized ${cls.type === 'service' ? 'service' : 'component'} ${cls.name}!`))
+  .on('debug', message => logger.debug(`lilith >> debug >> ${message}`));
 
-  logger.info('bootstrap >> initializing...');
-  try {
-    await container.load();
-  } catch(ex) {
-    logger.fatal('bootstrap >> unable to load in container', ex);
-    process.exit(1);
-  }
-
-  logger.info('bootstrap >> success, init sentry...');
-  // todo: init sentry here
-
-  logger.info('bootstrap >> sentry installed.');
-
-  process.on('SIGINT', () => {
-    logger.warn('bootstrap >> called to be exited.');
-
-    container.dispose();
-    process.exit(0);
-  });
-})();
-
-process
-  .on('unhandledRejection', error => logger.fatal('promise >> unhandled rejection:', error))
-  .on('uncaughtException',  error => logger.fatal('uncaught exception occured:', error));
+export default container;
