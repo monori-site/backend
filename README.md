@@ -1,6 +1,6 @@
 # Arisu
-![Stars](https://img.shields.io/github/stars/monori-site/backend?style=flat-square) 
-![Workflow Status](https://github.com/monori-site/backend/workflows/ktlint/badge.svg)
+![Stars](https://img.shields.io/github/stars/arisuland/Arisu?style=flat-square) 
+![Workflow Status](https://github.com/arisuland/Arisu/workflows/ESLint/badge.svg)
 
 > 👻✏️ **Translation made with simplicity, yet robust. Made with :heart: in TypeScript.**
 
