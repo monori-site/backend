@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "comment-whitespace-inside": "always",
+    "no-empty-first-line": true,
+    "no-eol-whitespace": true,
+    "indentation": 2,
+    "linebreaks": "unix"
+  }
+}
