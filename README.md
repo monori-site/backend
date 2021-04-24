@@ -2,12 +2,12 @@
 ![Stars](https://img.shields.io/github/stars/arisuland/Arisu?style=flat-square) 
 ![Workflow Status](https://github.com/arisuland/Arisu/workflows/ESLint/badge.svg)
 
-> 👻✏️ **Translation made with simplicity, yet robust. Made with :heart: in TypeScript.**
+> ☔ **Translation made with simplicity, yet robust. Made with 💖 in TypeScript.**
 
 ## Features
-- All multi-lingual translation content in one place, but not required to be in one place.
+- All multi-lingual translation content in one place! But, it doesn't have to be.
 - No telemetry bullshit, none.
-- Requests to edit translation content, more contributions!
+- Requests to edit translation content, more contributions for projects!
 - Free, and open source!
   - All components are FoSS content under MIT.
 

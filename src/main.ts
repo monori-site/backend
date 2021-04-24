@@ -23,16 +23,35 @@
 import 'source-map-support/register';
 import 'reflect-metadata';
 
+import * as Constants from './util/Constants';
 import showBanner from './util/banner';
 import container from './container';
 import Logger from './singletons/logger';
 import Sentry from '@sentry/node';
+import Config from './components/Config';
+
+const installSentry = (config: Config) => {
+  const dsn = config.get('sentryDsn');
+  if (dsn === undefined)
+    return false;
+
+  Sentry.init();
+  Sentry.configureScope(scope => scope
+    .setTags({
+      'project.version': Constants.version,
+      'project.commit': Constants.commitHash,
+      'project.env': process.env.NODE_ENV ?? 'production'
+    })
+  );
+
+  return true;
+};
 
 const logger = Logger.getChildLogger({ name: 'Bootstrap' });
 (async() => {
   showBanner();
 
-  logger.info('bootstrap >> initializing...');
+  logger.info('bootstrap: initializing...');
   try {
     await container.load();
   } catch(ex) {
@@ -40,10 +59,10 @@ const logger = Logger.getChildLogger({ name: 'Bootstrap' });
     process.exit(1);
   }
 
-  logger.info('bootstrap >> success, init sentry...');
-  // todo: init sentry here
+  logger.info('bootstrap: success, init sentry...');
+  const installed = installSentry(container.$ref<any, Config>(Config));
 
-  logger.info('bootstrap >> sentry installed.');
+  logger.info(`bootstrap: sentry: ${installed ? 'installed' : 'not installed'}`);
 
   process.on('SIGINT', () => {
     logger.warn('bootstrap >> called to be exited.');
