@@ -6,23 +6,21 @@
 
 ## Features
 - All multi-lingual translation content in one place! But, it doesn't have to be.
-- No telemetry bullshit, none.
+- No telemetry, none at all.
 - Requests to edit translation content, more contributions for projects!
 - Free, and open source!
   - All components are FoSS content under MIT.
 
+## Packages
+If the packages are returning a 404, they're still in development and will be public once finished!
+
+- ☔ [arisu](https://github.com/arisuland/Arisu) **~** Frontend UI of Arisu, made with React
+- 🐳 [docs](https://github.com/arisuland/docs) **~** Documentation site for Arisu, showcasing the REST API and other stuff
+- 🥀 [tsubaki](https://github.com/arisuland/Tsubaki) **~** Backend infrastructure for Arisu
+- 📃 [translations](https://github.com/arisuland/translations) **~** Translation monorepo for Arisu
+- 📜 [themes](https://github.com/arisuland/themes) **~** Customizable themes for Arisu, so style however you want to!
+
 ## Installation
-### Requirements
-- Docker (optional)
-- Sentry (optional)
-- Node.js v14 or higher
-- PostgreSQL
-- Redis
-
-### Process (Locally)
-Coming soon.
-
-### Process (Docker, locally)
 Coming soon.
 
 ## Configuration
