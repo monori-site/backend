@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@augu/eslint-config": "2.0.3",
-    "@augu/tsconfig": "1.1.0",
+    "@augu/tsconfig": "1.1.1",
     "@storybook/addon-actions": "6.2.9",
     "@storybook/addon-essentials": "6.2.9",
     "@storybook/addon-links": "6.2.9",
