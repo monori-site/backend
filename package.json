@@ -30,7 +30,7 @@
     "twemoji": "13.0.2"
   },
   "devDependencies": {
-    "@augu/eslint-config": "2.0.3",
+    "@augu/eslint-config": "2.1.2",
     "@augu/tsconfig": "1.1.0",
     "@storybook/addon-actions": "6.2.9",
     "@storybook/addon-essentials": "6.2.9",
