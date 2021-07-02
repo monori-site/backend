@@ -1,6 +1,8 @@
-.vscode/
-docs/
 node_modules/
+.vscode/
+.github/
+.husky/
+docs/
 
 .eslintignore
 .gitignore

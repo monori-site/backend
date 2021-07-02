@@ -2,8 +2,8 @@ name: ESLint
 on:
   push:
     branches:
-      - 'master'
-      - 'next'
+      - staging
+      - master
     paths-ignore:
       - '.github/**'
       - '.vscode/**'
@@ -19,8 +19,8 @@ on:
     branches:
       - 'feature/**'
       - 'issue/**'
-      - 'master'
-      - 'next'
+      - staging
+      - master
     paths-ignore:
       - '.github/**'
       - '.vscode/**'
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x, 15.x]
+        node-version: [14.x, 15.x, 16.x]
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -55,6 +55,3 @@ jobs:
 
       - name: Lints the repository for any code-checking errors
         run: npm run lint
-
-      - name: Build the project for any errors
-        run: tsc --noEmit
