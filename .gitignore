@@ -13,6 +13,9 @@ backend/build
 frontend/.next
 github-bot/build
 tools/**/build
+backend/.env
+backend/config.yml
+github-bot/config.yml
 
 # Jetbrains IDEs
 .idea/

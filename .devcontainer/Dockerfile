@@ -2,7 +2,7 @@
 FROM archlinux:latest
 
 # Setup arguments
-ARG NODE_VERSION=latest
+ARG NODE_VERSION=node
 
 # Setup environment variables
 ENV USERNAME=arisu
@@ -22,7 +22,7 @@ RUN groupadd -g ${USER_GID} ${USERNAME} && \
 # Setup Node.js + Yarn
 RUN su "${USERNAME}" -c "mkdir /home/${USERNAME}/.nvm"
 RUN su "${USERNAME}" -c "curl --silent -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash"
-RUN su "${USERNAME}" -c "source $NVM_DIR/nvm.sh && \
+RUN su "${USERNAME}" -c "source /home/${USERNAME}/.nvm/nvm.sh && \
     nvm install ${NODE_VERSION} && \
     nvm alias default ${NODE_VERSION} && \
     nvm use ${NODE_VERSION}"
