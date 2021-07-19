@@ -1,0 +1,18 @@
+{
+  "name": "Arisu",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
+  "extensions": [
+    "dbaeumer.vscode-eslint",    // ESLint
+    "bradlc.vscode-tailwindcss", // TailwindCSS
+    "csstools.postcss"           // PostCSS
+  ],
+  "forwardPorts": [
+    80,    // http
+    5432,  // PostgreSQL
+    6379,  // Redis (Standalone)
+    17093, // Arisu
+    28093  // Tsubaki
+  ]
+}

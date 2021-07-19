@@ -1,8 +1,19 @@
-node_modules/
-.husky/_/
-build/
+# Yarn Workspaces
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
 
-.env
-config.yml
-*.lock
-*.log
+# Other
+node_modules
+backend/build
+frontend/.next
+github-bot/build
+tools/**/build
+
+# Jetbrains IDEs
+.idea/
+*/.idea/

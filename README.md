@@ -14,7 +14,7 @@
 <hr />
 
 ## Features
-- :octo: **Open Source and Free** — Arisu is 100% free and open source, so you can host your own instance if you please!
+- :octocat: **Open Source and Free** — Arisu is 100% free and open source, so you can host your own instance if you please!
 - 🏘️ **Housed in a place** — Arisu plans to be a special housing for your translations into one place.
 - 🔍 **User Friendly UI** — Arisu plans to give a UI/UX design that is simple to the end user, yet modern.
 - ✨ **Multi Projects** — House a monorepo with ease without any complex UI/UX designs.
@@ -23,18 +23,22 @@
 ...and much more!
 
 ## Projects
-> Some other subprojects you can checkout that help Arisu how you see it today. :D
->
-> If the projects return a **`404`** status code, it means that the project is not yet ready for public use.
+This repository is split into a few projects, each with their own purpose.
+
+- [frontend](./frontend/README.md) — The frontend of Arisu, built with [React](https://reactjs.org/).
+- [backend](./backend/README.md) — The backend of Arisu, this is where the API is hosted.
+- [github-bot](./github-bot/README.md) — A bot that automatically syncs your translations with GitHub.
+- [tools/licenses](./tools/licenses/README.md) — A tool to generate a license at the top of each file in the sub-projects.
+- [tools/releases](./tools/release/README.md) — A tool to generate releases for the sub-projects.
+
+There are other projects within the Arisu ecosystem, but they are split into different repositories under the **arisuland** organization.
+
+If the projects return a **`404`** status code, it means that the project is not yet ready for public use.
 
 |Name|Description|Status|
 |----|-----------|------|
-|☔ [arisu](https://github.com/arisuland/Arisu)|Frontend UI of Arisu, made with React|![status](https://img.shields.io/github/workflow/status/arisuland/Arisu/ESLint/master?style=flat-square)|
-|🖋️ [bell](https://github.com/arisuland/bell)|Automation bot for GitHub to push translations into Arisu or vice versa.|
 |⛴ [cli](https://github.com/arisuland/cli)|A command-line interface to automate the process of handling translations, merging translations, etc.|
 |🐳 [docs](https://github.com/arisuland/docs)|Documentation site for Arisu, showcasing the REST API and other stuff|
-|🎋 [fern](https://github.com/arisuland/fern)|Microservice to provide audit logs and webhooks|
-|🥀 [tsubaki](https://github.com/arisuland/Tsubaki)|Backend infrastructure for Arisu, all the magic begins here~ (You're here!)|![status](https://img.shields.io/github/workflow/status/arisuland/Tsubaki/ktlint/master?style=flat-square)|
 |📃 [translations](https://github.com/arisuland/translations)|Translation monorepo for Arisu|
 |📜 [themes](https://github.com/arisuland/themes)|Customizable themes for Arisu, so style however you want to!|
 
@@ -46,8 +50,9 @@ Before we get started, I recommend learn how to run Node.js projects before you 
 ### Prerequisites
 Before we can get started, you need to have the following things installed:
 
+- [**PostgresSQL** v11+](https://postgresql.org) **~** Main database thats Arisu utilizes.
 - [**Node.js** v14+](https://nodejs.org/en/) **~** Runtime engine to run the project.
-- [**Tsubaki**](https://github.com/arisuland/Tsubaki) **~** Core infrastructure for Arisu.
+- [**Redis** v6.2+](https://redis.io) **~** In-memory data store for Arisu.
 - [**Git** v2.31+](https://git-scm.com) **~** A version control system to get updates of Arisu easily.
 
 #### Optional Tools
@@ -56,22 +61,13 @@ There are tools you can use to enhance the experience, but the following is not 
 - [**Docker**](https://docker.com) **~** A containerization tool to run Arisu.
 - [**Sentry**](https://sentry.io) **~** A error-reporting tool to track down bugs or errors in Arisu.
 - [**Bell**](https://github.com/arisuland/Bell) **~** GitHub bot to push translations into Arisu or vice versa with GitHub. View the [documentation](https://github.com/arisuland/bell) for more information.
-- [**fern**](https://github.com/arisuland/fern) **~** Microservice to handle audit logs and webhooks. (View the [fern docs](https://github.com/arisuland/fern/blob/master/README.md) for more information)
 
 ### Installation
 You wish to use Docker, I recommend reading the [Docker](#installation-docker) section below.
 
 ```sh
-# 1. Clone the repository from GitHub
+# Clone the repository from GitHub
 $ git clone https://github.com/arisuland/Arisu.git && cd Arisu
-
-# 2. Install the local and global dependencies
-$ npm i --global typescript eslint stylelint
-$ npm install
-
-# 3. Running the project
-# This requires Tsubaki running before continuing.
-$ npm start
 ```
 
 > Open a new browser session and go to `http://localhost:17093/` to see Arisu in action.
@@ -101,42 +97,14 @@ $ docker run -d -p 9999:17093 arisuland/arisu:<branch> /
 ## Configuration
 The configuration file is located at `./config.yml`. It is a YAML file that contains all the configurations for Arisu.
 
-Be warned that the configuration file is **not** checked for errors. If you have any issues with the configuration file, please open an [issue](https://github.com/arisuland/Arisu/issues); labeled **Configuration**.
+Be warned that the configuration file is **not** checked for errors. If you have any issues with the configuration file, please open an [issue](https://github.com/arisuland/Arisu/issues).
 
 ```yml
-# The hostname of Arisu, default is "localhost".
-host: localhost
-
-# Tsubaki configuration for Arisu
-tsubaki:
-  graphql: false # Whether to use GraphQL with Tsubaki or not
-  host: http://localhost:9965 # Tsubaki host to connect with
-
-# Bell configuration for Arisu
-bell:
-  projects: # List of projects to push translations to, e.g. ["owner/repo1", "owner/repo2"]. Use `true` to enable it for all projects.
-    - owner/repo1
-    - owner/repo2
-  enabled: false # Enables Bell into the project
-
-# Prometheus metrics (disabled by default)
-prometheus:
-  metrics: false  # Enable Prometheus metrics into Arisu
-  host: 127.0.0.1 # Host to expose Prometheus metrics
-
-# fern configuration for Arisu (disabled by default)
-fern:
-  webhooks: false     # Enable webhooks into every project or a list of projects by `owner/repo`.
-  enabled: false      # Enable fern into this project
-  events:             # Events to listen for when using audit logs
-    - setting.changed # When a setting has changed
-    - contribution    # When a contribution by a user is made
-    - comment         # When a comment on a contribution is made
-    - push            # When a contribution is pushed into the project
+# soon:tm:
 ```
 
 ## Contributing
-> Refer to the [Contributing](#) section for more details.
+> Refer to the [Contributing](.github/CONTRIBUTING.md) section for more details.
 
 ## License
 **Arisu** is released under the **GPL-3.0** License. <3

@@ -1,10 +1,23 @@
-node_modules/
-.vscode/
-.github/
-.husky/
-docs/
+# Yarn Workspaces
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
 
-.eslintignore
+# Other
+node_modules
+backend/build
+frontend/.next
+github-bot/build
+tools/**/build
+
+# Root of the project
 .gitignore
+docker-compose.yml
 LICENSE
+**.md
 renovate.json
+yarn.lock
