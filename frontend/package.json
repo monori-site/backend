@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build:no-fix-lint": "eslint src --ext .ts,.tsx && rm -rf build && tsc",
-    "build-storybook": "build-storybook",
+    "build:storybook": "build-storybook",
     "storybook": "start-storybook -p 6006",
     "build": "next build",
     "start": "next start -p 17093",

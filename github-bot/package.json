@@ -1,1 +1,23 @@
-{}
+{
+  "name": "bell",
+  "description": "🖋️ A bot that automatically syncs your translations with GitHub.",
+  "version": "1.0.0",
+  "main": "build/main.js",
+  "license": "GPL-3.0",
+  "author": "Noel <cutie@floofy.dev>",
+  "repository": "https://github.com/arisuland/Arisu/tree/master/github-bot",
+  "bugs": "https://github.com/arisuland/Arisu/issues",
+  "scripts": {},
+  "dependencies": {
+    "probot": "12.1.0",
+    "tslog": "^3.2.0"
+  },
+  "devDependencies": {
+    "@augu/eslint-config": "2.1.2",
+    "@augu/tsconfig": "1.1.1",
+    "@typescript-eslint/eslint-plugin": "4.28.4",
+    "@typescript-eslint/parser": "4.28.4",
+    "eslint": "7.31.0",
+    "typescript": "4.3.5"
+  }
+}
