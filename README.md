@@ -28,8 +28,6 @@ This repository is split into a few projects, each with their own purpose.
 - [frontend](./frontend/README.md) — The frontend of Arisu, built with [React](https://reactjs.org/).
 - [backend](./backend/README.md) — The backend of Arisu, this is where the API is hosted.
 - [github-bot](./github-bot/README.md) — A bot that automatically syncs your translations with GitHub.
-- [tools/licenses](./tools/licenses/README.md) — A tool to generate a license at the top of each file in the sub-projects.
-- [tools/releases](./tools/release/README.md) — A tool to generate releases for the sub-projects.
 
 There are other projects within the Arisu ecosystem, but they are split into different repositories under the **arisuland** organization.
 
