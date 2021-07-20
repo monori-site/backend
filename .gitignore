@@ -1,13 +1,4 @@
-# Yarn Workspaces
-.yarn/*
-!.yarn/patches
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
-.pnp.*
-
-# Other
+# Workspaces
 node_modules
 backend/build
 frontend/.next
@@ -20,3 +11,6 @@ github-bot/config.yml
 # Jetbrains IDEs
 .idea/
 */.idea/
+
+# Husky - pre-commit hooks
+.husky/_/

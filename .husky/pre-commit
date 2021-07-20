@@ -1,0 +1,20 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo 'tsubaki: ❓ lint ~ ❓ project - checking eslint for errors'
+cd backend
+eslint src --ext .ts
+
+echo 'tsubaki: ✔ lint ~ ❓ project - compiling project for errors'
+tsc --noEmit
+cd ..
+
+echo 'arisu: ❓ lint ~ ❓ project - checking eslint for errors'
+eslint src --ext .ts,.tsx
+stylelint src/styles/**/*.scss
+
+echo 'arisu: ✔ lint ~ ❓ project - compiling project for errors'
+tsc --noEmit
+cd ..
+
+echo 'project: ✔ lint ~ ✔ project - we are done here'

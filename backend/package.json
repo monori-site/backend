@@ -1,0 +1,55 @@
+{
+  "name": "tsubaki",
+  "description": "🥀 Backend infrastructure for Arisu, all the magic begins here ✨🚀",
+  "version": "1.0.0",
+  "main": "build/main.js",
+  "license": "GPL-3.0",
+  "author": "Noel <cutie@floofy.dev>",
+  "homepage": "https://api.arisu.land",
+  "repository": "https://github.com/arisuland/Arisu/tree/master/backend",
+  "bugs": "https://github.com/arisuland/Arisu/issues",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "build:no-fix-lint": "eslint src --ext .ts && rm -rf build && tsc",
+    "migrations": "npm run build && typeorm migration:run",
+    "build": "npm run lint && rm -rf build && tsc",
+    "lint": "eslint src --ext .ts --fix",
+    "dev": "cd src && ts-node --files --project ../tsconfig.json main.ts"
+  },
+  "dependencies": {
+    "@augu/collections": "1.0.12",
+    "@augu/dotenv": "1.3.0",
+    "@augu/lilith": "5.0.2",
+    "@augu/orchid": "3.1.1",
+    "@augu/utils": "1.5.3",
+    "@sentry/node": "6.9.0",
+    "class-validator": "0.13.1",
+    "fastify": "3.19.1",
+    "fastify-cors": "6.0.2",
+    "fastify-no-icon": "4.0.0",
+    "graphql": "15.5.1",
+    "ioredis": "4.27.6",
+    "js-yaml": "4.1.0",
+    "luxon": "2.0.1",
+    "ms": "2.1.3",
+    "node-schedule": "2.0.0",
+    "pg": "8.6.0",
+    "prom-client": "13.1.0",
+    "reflect-metadata": "0.1.13",
+    "source-map-support": "0.5.19",
+    "type-graphql": "1.1.1",
+    "typeorm": "0.2.34"
+  },
+  "devDependencies": {
+    "@augu/eslint-config": "2.1.2",
+    "@augu/tsconfig": "1.1.1",
+    "@typescript-eslint/eslint-plugin": "4.28.4",
+    "@typescript-eslint/parser": "4.28.4",
+    "eslint": "7.31.0",
+    "nodemon": "2.0.12",
+    "ts-node": "10.1.0",
+    "typescript": "4.3.5"
+  }
+}

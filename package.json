@@ -8,5 +8,13 @@
     "tools/licenses/",
     "tools/releases/"
   ],
-  "scripts": {}
+  "scripts": {
+    "licenses": "node scripts/licenses.js",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@augu/eslint-config": "^2.1.2",
+    "eslint": "^7.31.0",
+    "husky": "7.0.1"
+  }
 }
