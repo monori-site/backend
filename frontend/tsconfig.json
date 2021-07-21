@@ -1,14 +1,28 @@
 {
-  "extends": "@augu/tsconfig/dom.json",
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ES2015", "ES2016", "ES2017", "ES2018", "ES2019", "ES2020", "ESNext", "DOM", "DOM.Iterable"],
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "moduleResolution": "node",
     "skipLibCheck": true,
     "allowJs": true,
-    "module": "ESNext",
     "noEmit": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "declaration": false,
+    "strict": true,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "newLine": "lf",
+    "noEmitOnError": true,
+    "forceConsistentCasingInFileNames": true,
+    "removeComments": true,
+    "useDefineForClassFields": true,
+    "moduleResolution": "node",
+    "types": ["node"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

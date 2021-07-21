@@ -6,7 +6,8 @@
   "extensions": [
     "dbaeumer.vscode-eslint",    // ESLint
     "bradlc.vscode-tailwindcss", // TailwindCSS
-    "csstools.postcss"           // PostCSS
+    "csstools.postcss",          // PostCSS
+    "arcanis.vscode-zipfs",      // ZipFS (pnp for yarn)
   ],
   "forwardPorts": [
     80,    // http

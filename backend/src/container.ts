@@ -15,3 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+import { Container } from '@augu/lilith';
+import { join } from 'path';
+import Logger from './singletons/logger';
+import http from './singletons/http';
+
+const log = Logger.getChildLogger({ name: 'Tsubaki: Lilith' });
+const container = new Container({
+    componentsDir: join(process.cwd(), 'components'),
+    servicesDir: join(process.cwd(), 'services'),
+    singletons: [
+        http
+    ]
+});
+
+container.on('debug', message => log.debug(message));
+export = container;

@@ -23,7 +23,8 @@
 ...and much more!
 
 ## Projects
-This repository is split into a few projects, each with their own purpose.
+This repository is split into a few projects, each with their own purpose. This is managed
+by a Yarn 1 workspace, we had many difficulties with using Yarn 2.
 
 - [frontend](./frontend/README.md) — The frontend of Arisu, built with [React](https://reactjs.org/).
 - [backend](./backend/README.md) — The backend of Arisu, this is where the API is hosted.

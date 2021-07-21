@@ -1,1 +1,6 @@
-../shared/.eslintrc.json
+{
+  "extends": "@augu/eslint-config/ts.js",
+  "rules": {
+    "@typescript-eslint/indent": ["error", 4]
+  }
+}

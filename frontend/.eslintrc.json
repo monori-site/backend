@@ -1,1 +1,3 @@
-../shared/.eslintrc.json
+{
+  "extends": "@augu/eslint-config/ts.js"
+}

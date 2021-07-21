@@ -1,1 +1,13 @@
-../shared/tsconfig.json
+{
+  "extends": "@augu/tsconfig",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "typeRoots": ["./src/@types", "./node_modules/@types"],
+    "rootDir": "./src",
+    "types": ["node", "reflect-metadata"],
+    "outDir": "./build",
+    "skipLibCheck": true
+  },
+  "exclude": ["node_modules"],
+  "include": ["src/**/*.ts"]
+}
