@@ -39,7 +39,7 @@
   "devDependencies": {
     "@augu/eslint-config": "2.1.2",
     "@augu/tsconfig": "1.1.1",
-    "@babel/core": "7.14.6",
+    "@babel/core": "7.14.8",
     "@mdx-js/react": "1.6.22",
     "@storybook/addon-actions": "6.3.4",
     "@storybook/addon-docs": "6.3.4",
