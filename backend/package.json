@@ -27,7 +27,7 @@
     "@sentry/node": "6.9.0",
     "apollo-server-fastify": "3.0.2",
     "class-validator": "0.13.1",
-    "fastify": "3.19.1",
+    "fastify": "3.19.2",
     "fastify-cors": "6.0.2",
     "fastify-no-icon": "4.0.0",
     "graphql": "15.5.1",
