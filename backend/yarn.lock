@@ -70,10 +70,10 @@
     "@typescript-eslint/eslint-plugin" "4.28.0"
     "@typescript-eslint/parser" "4.28.0"
 
-"@augu/lilith@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@augu/lilith/-/lilith-5.0.2.tgz#f8f5ddb106fd6a39de255c238deaa8a07279d3cf"
-  integrity sha512-fgQbihUsGGJaEFEoBX4aIW8tM5LnWlMtlTRLHDAO4RrH0p2M5b5Aop6d0w7EMHTQjee3zkNsfCl/f4alRwewxQ==
+"@augu/lilith@5.0.4":
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/@augu/lilith/-/lilith-5.0.4.tgz#e629e1cbdff6eb440b92343413d250169170c99e"
+  integrity sha512-hDIuW6CL3UMuu7Qo+cGb3CQimnt0dClir9NR2XyDXP5HhNrp0eHPh70YxkaIH74WZW70XVrEBrPO0jDKivE9rg==
   dependencies:
     "@augu/collections" "1.0.12"
     "@augu/utils" "1.5.3"
